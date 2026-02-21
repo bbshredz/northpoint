@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NorthPoint — NACS IT</title>
+    <link rel="stylesheet" href="northpoint.css">
+</head>
+<body>
+
+<div class="layout">
+    <div id="rail-mount"></div>
+
+    <div class="main">
+        <header class="topbar">
+            <div class="topbar-left">
+                <a href="index.html" class="topbar-name">NorthPoint</a>
+                <div class="topbar-sep"></div>
+                <div class="topbar-status">
+                    <span class="status-dot"></span>
+                    All Systems Operational &nbsp;·&nbsp; Last updated <span id="lastUpdated"></span>
+                </div>
+            </div>
+            <div class="topbar-right">
+                <span class="topbar-date" id="currentDate"></span>
+                <div class="topbar-avatar">AT</div>
+            </div>
+        </header>
+
+        <div class="content">
+
+            <div class="page-header animate-1">
+                <h1 class="page-title">NorthPoint<br><em>Where IT gets done.</em></h1>
+                <p class="page-desc">The single source of truth for NACS Information Technology — operations, strategy, and everything in between. Select a module to get started.</p>
+            </div>
+
+            <div class="modules-grid animate-2">
+
+                <!-- OVERVIEW -->
+                <a href="overview/index.html" class="module-card purple">
+                    <div class="module-card-top">
+                        <div class="module-card-icon purple">📡</div>
+                        <span class="module-card-arrow">→</span>
+                    </div>
+                    <div class="module-card-title">Overview</div>
+                    <div class="module-card-desc">IT health at a glance. Status indicators, system uptime, and the executive view of how IT is performing across all facilities.</div>
+                    <div class="module-metrics">
+                        <div class="module-metric">
+                            <div class="module-metric-value">12</div>
+                            <div class="module-metric-label">Facilities</div>
+                        </div>
+                        <div class="module-metric">
+                            <div class="module-metric-value">6</div>
+                            <div class="module-metric-label">Team Members</div>
+                        </div>
+                        <div class="module-metric">
+                            <div class="module-metric-value">✓</div>
+                            <div class="module-metric-label">All Systems Up</div>
+                        </div>
+                    </div>
+                </a>
+
+                <!-- OPERATIONS -->
+                <a href="operations/index.html" class="module-card blue">
+                    <div class="module-card-top">
+                        <div class="module-card-icon blue">⚙️</div>
+                        <span class="module-card-arrow">→</span>
+                    </div>
+                    <div class="module-card-title">Operations</div>
+                    <div class="module-card-desc">How we run. Budget, vendors, software portfolio, and the day-to-day financial management of NACS IT infrastructure.</div>
+                    <div class="module-metrics">
+                        <div class="module-metric">
+                            <div class="module-metric-value">$1.04M</div>
+                            <div class="module-metric-label">Non-Personnel Spend</div>
+                        </div>
+                        <div class="module-metric">
+                            <div class="module-metric-value">104</div>
+                            <div class="module-metric-label">Software Tools</div>
+                        </div>
+                        <div class="module-metric">
+                            <div class="module-metric-value">1%</div>
+                            <div class="module-metric-label">of Revenue (vs 3–5%)</div>
+                        </div>
+                    </div>
+                </a>
+
+                <!-- STRATEGY -->
+                <a href="strategy/index.html" class="module-card green">
+                    <div class="module-card-top">
+                        <div class="module-card-icon green">🧭</div>
+                        <span class="module-card-arrow">→</span>
+                    </div>
+                    <div class="module-card-title">Strategy</div>
+                    <div class="module-card-desc">Where we're going. Compensation proposals, facility onboarding playbooks, and the initiatives shaping NACS IT through 2030.</div>
+                    <div class="module-metrics">
+                        <div class="module-metric">
+                            <div class="module-metric-value">+4</div>
+                            <div class="module-metric-label">Facilities Incoming</div>
+                        </div>
+                        <div class="module-metric">
+                            <div class="module-metric-value">$254K</div>
+                            <div class="module-metric-label">Projected Savings</div>
+                        </div>
+                        <div class="module-metric">
+                            <div class="module-metric-value">2030</div>
+                            <div class="module-metric-label">30 by 30 Target</div>
+                        </div>
+                    </div>
+                </a>
+
+                <!-- FIELD GUIDE -->
+                <a href="field-guide/index.html" class="module-card orange">
+                    <div class="module-card-top">
+                        <div class="module-card-icon orange">📖</div>
+                        <span class="module-card-arrow">→</span>
+                    </div>
+                    <div class="module-card-title">Field Guide</div>
+                    <div class="module-card-desc">How we work. Runbooks, SOPs, escalation paths, and facility-specific procedures for techs in the field and end users.</div>
+                    <div class="module-metrics">
+                        <div class="module-metric">
+                            <div class="module-metric-value">—</div>
+                            <div class="module-metric-label">Runbooks</div>
+                        </div>
+                        <div class="module-metric">
+                            <div class="module-metric-value">—</div>
+                            <div class="module-metric-label">Facility SOPs</div>
+                        </div>
+                        <div class="module-metric">
+                            <div class="module-metric-value">Soon</div>
+                            <div class="module-metric-label">In Development</div>
+                        </div>
+                    </div>
+                </a>
+
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="nav.js"></script>
+<script>renderNav('hub');</script>
+</body>
+</html>
