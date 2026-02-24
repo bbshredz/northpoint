@@ -1,0 +1,425 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Executive Overview — NorthPoint</title>
+    <link rel="stylesheet" href="../northpoint.css">
+    <style>
+        /* ── FTE CARDS ── */
+        .fte-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 12px;
+            margin-bottom: 40px;
+        }
+
+        .fte-card {
+            background: var(--card);
+            border: 1px solid var(--border);
+            border-radius: 14px;
+            padding: 24px;
+            transition: all 0.2s;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .fte-card::before {
+            content: '';
+            position: absolute;
+            top: 0; left: 0; right: 0;
+            height: 3px;
+            background: var(--accent);
+            opacity: 0.6;
+        }
+
+        .fte-card:hover {
+            border-color: var(--accent);
+            box-shadow: 0 0 0 3px var(--accent-dim), 0 4px 20px rgba(0,0,0,0.06);
+            transform: translateY(-1px);
+        }
+
+        .fte-header {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            margin-bottom: 16px;
+        }
+
+        .fte-avatar {
+            width: 48px;
+            height: 48px;
+            border-radius: 14px;
+            background: linear-gradient(135deg, var(--accent) 0%, #6366f1 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 15px;
+            font-weight: 600;
+            flex-shrink: 0;
+            box-shadow: 0 4px 12px var(--accent-dim);
+        }
+
+        .fte-name {
+            font-family: 'DM Serif Display', serif;
+            font-size: 17px;
+            color: var(--text-primary);
+            font-weight: 400;
+            letter-spacing: -0.2px;
+            line-height: 1.2;
+        }
+
+        .fte-title {
+            font-size: 11px;
+            color: var(--accent);
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.8px;
+            margin-top: 2px;
+        }
+
+        .fte-domains {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 5px;
+            margin-bottom: 14px;
+        }
+
+        .fte-domain {
+            font-size: 11px;
+            color: var(--text-secondary);
+            background: var(--silver-light);
+            border: 1px solid var(--border);
+            padding: 3px 9px;
+            border-radius: 20px;
+            font-weight: 400;
+        }
+
+        .fte-focus {
+            font-size: 12px;
+            color: var(--text-secondary);
+            line-height: 1.6;
+            font-weight: 300;
+            padding-top: 14px;
+            border-top: 1px solid var(--border);
+        }
+
+        .fte-focus strong {
+            color: var(--text-primary);
+            font-weight: 600;
+        }
+
+        /* ── TOOL CARDS GRID 2-COL ── */
+        .tools-grid-2 {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 10px;
+            margin-bottom: 40px;
+        }
+
+        /* ── HIGHLIGHT CARD ── */
+        .highlight-card {
+            background: linear-gradient(135deg, var(--navy) 0%, #1e3a5f 100%);
+            border: 1px solid rgba(59,130,246,0.2);
+            border-radius: 14px;
+            padding: 28px 32px;
+            margin-bottom: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 24px;
+        }
+
+        .highlight-text h2 {
+            font-family: 'DM Serif Display', serif;
+            font-size: 22px;
+            color: #f1f5f9;
+            font-weight: 400;
+            margin-bottom: 6px;
+        }
+
+        .highlight-text p {
+            font-size: 13px;
+            color: rgba(148,163,184,0.8);
+            font-weight: 300;
+            line-height: 1.6;
+            max-width: 480px;
+        }
+
+        .highlight-stats {
+            display: flex;
+            gap: 0;
+            flex-shrink: 0;
+            background: rgba(255,255,255,0.05);
+            border: 1px solid rgba(255,255,255,0.07);
+            border-radius: 10px;
+            overflow: hidden;
+        }
+
+        .h-stat {
+            padding: 14px 22px;
+            text-align: center;
+            border-right: 1px solid rgba(255,255,255,0.07);
+        }
+        .h-stat:last-child { border-right: none; }
+
+        .h-stat-value {
+            font-size: 22px;
+            font-weight: 600;
+            color: white;
+            letter-spacing: -0.5px;
+            line-height: 1;
+            margin-bottom: 3px;
+        }
+
+        .h-stat-label {
+            font-size: 10px;
+            color: rgba(100,116,139,0.9);
+            text-transform: uppercase;
+            letter-spacing: 0.8px;
+            font-weight: 500;
+        }
+
+        @media (max-width: 960px) {
+            .fte-grid { grid-template-columns: repeat(2, 1fr); }
+            .tools-grid-2 { grid-template-columns: 1fr; }
+            .highlight-card { flex-direction: column; }
+        }
+
+        @media (max-width: 640px) {
+            .fte-grid { grid-template-columns: 1fr; }
+        }
+    </style>
+</head>
+<body class="mod-overview">
+<div class="layout">
+    <div id="rail-mount"></div>
+    <div class="main">
+        <header class="topbar">
+            <div class="topbar-left">
+                <a href="../index.html" class="topbar-name">NorthPoint</a>
+                <div class="topbar-sep"></div>
+                <span class="topbar-section">Executive Overview</span>
+            </div>
+            <div class="topbar-right">
+                <div class="topbar-status"><span class="status-dot"></span>All Systems Operational</div>
+                <span class="topbar-date" id="currentDate"></span>
+                <div class="topbar-avatar">AT</div>
+            </div>
+        </header>
+
+        <div class="content">
+
+            <div class="page-header animate-1">
+                <h1 class="page-title">Executive Overview</h1>
+                <p class="page-subtitle">NACS Information Technology · Strategic View</p>
+                <p class="page-desc">Budget, team structure, and strategic tools — the full picture of IT investment and organizational capability.</p>
+            </div>
+
+            <!-- HIGHLIGHT BANNER -->
+            <div class="highlight-card animate-2">
+                <div class="highlight-text">
+                    <h2>NACS IT · 2025 Snapshot</h2>
+                    <p>A 6-person team supporting 12 skilled nursing facilities across Southern and Northern California, managing $1.6M in annual IT spend and 104 software tools.</p>
+                </div>
+                <div class="highlight-stats">
+                    <div class="h-stat">
+                        <div class="h-stat-value">12</div>
+                        <div class="h-stat-label">Facilities</div>
+                    </div>
+                    <div class="h-stat">
+                        <div class="h-stat-value">$1.6M</div>
+                        <div class="h-stat-label">IT Spend</div>
+                    </div>
+                    <div class="h-stat">
+                        <div class="h-stat-value">104</div>
+                        <div class="h-stat-label">Tools</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- STRATEGIC TOOLS -->
+            <div class="section-header animate-3">
+                <span class="section-title">Strategic Tools</span>
+                <div class="section-line"></div>
+            </div>
+
+            <div class="tools-grid-2 animate-3">
+
+                <a href="../budget/index.html" class="tool-card clickable">
+                    <div class="card-top">
+                        <div class="card-icon">📊</div>
+                        <span class="card-status status-live">Live</span>
+                    </div>
+                    <div class="card-title">2026 IT Budget</div>
+                    <div class="card-desc">First formal IT budget for NACS — line-item breakdown across infrastructure, personnel, software, and security with interactive modeling.</div>
+                    <div class="card-footer">
+                        <div class="card-tags"><span class="card-tag">$2.4M Proposed</span><span class="card-tag">FY2026</span></div>
+                        <span class="card-arrow">→</span>
+                    </div>
+                </a>
+
+                <a href="../budget/index.html" class="tool-card clickable">
+                    <div class="card-top">
+                        <div class="card-icon">🎛️</div>
+                        <span class="card-status status-live">Live</span>
+                    </div>
+                    <div class="card-title">Budget Planner</div>
+                    <div class="card-desc">Interactive scenario modeling — adjust budget allocations across subcategories and see real-time impact on total IT spend.</div>
+                    <div class="card-footer">
+                        <div class="card-tags"><span class="card-tag">Interactive</span><span class="card-tag">Scenario Modeling</span></div>
+                        <span class="card-arrow">→</span>
+                    </div>
+                </a>
+
+                <div class="tool-card under-construction">
+                    <div class="uc-badge">In Development</div>
+                    <div class="card-top">
+                        <div class="card-icon">🔭</div>
+                        <span class="card-status status-coming">Coming Soon</span>
+                    </div>
+                    <div class="card-title">IT Budget Scoping</div>
+                    <div class="card-desc">Forward-looking projections scoped to the 16-facility merged organization and 30×30 growth trajectory through 2030.</div>
+                </div>
+
+                <div class="tool-card under-construction">
+                    <div class="uc-badge">In Development</div>
+                    <div class="card-top">
+                        <div class="card-icon">🏥</div>
+                        <span class="card-status status-coming">Coming Soon</span>
+                    </div>
+                    <div class="card-title">Integration Playbook</div>
+                    <div class="card-desc">Phase-by-phase facility integration planning for the incoming merger — timeline, cost, and risk assessment.</div>
+                </div>
+
+            </div>
+
+            <!-- IT TEAM -->
+            <div class="section-header animate-4">
+                <span class="section-title">IT Team</span>
+                <div class="section-line"></div>
+            </div>
+
+            <div class="fte-grid animate-4">
+
+                <div class="fte-card">
+                    <div class="fte-header">
+                        <div class="fte-avatar">AT</div>
+                        <div>
+                            <div class="fte-name">Anthony Trujillo</div>
+                            <div class="fte-title">IT Director — South</div>
+                        </div>
+                    </div>
+                    <div class="fte-domains">
+                        <span class="fte-domain">Platform Strategy</span>
+                        <span class="fte-domain">Vendor Management</span>
+                        <span class="fte-domain">Executive Reporting</span>
+                        <span class="fte-domain">Budget & Finance</span>
+                    </div>
+                    <div class="fte-focus">
+                        <strong>Current focus:</strong> 2026 budget planning, merger integration strategy, and platform consolidation across Southern facilities.
+                    </div>
+                </div>
+
+                <div class="fte-card">
+                    <div class="fte-header">
+                        <div class="fte-avatar" style="background: linear-gradient(135deg, #10b981 0%, #0891b2 100%)">GD</div>
+                        <div>
+                            <div class="fte-name">Geremia Doan</div>
+                            <div class="fte-title">IT Director — North</div>
+                        </div>
+                    </div>
+                    <div class="fte-domains">
+                        <span class="fte-domain">Northern Facilities</span>
+                        <span class="fte-domain">Infrastructure</span>
+                        <span class="fte-domain">Team Coordination</span>
+                    </div>
+                    <div class="fte-focus">
+                        <strong>Current focus:</strong> Northern facility operations, infrastructure stability, and field team coordination across the Northern region.
+                    </div>
+                </div>
+
+                <div class="fte-card">
+                    <div class="fte-header">
+                        <div class="fte-avatar" style="background: linear-gradient(135deg, #f59e0b 0%, #ef4444 100%)">TJ</div>
+                        <div>
+                            <div class="fte-name">Tom Jarrell</div>
+                            <div class="fte-title">Network Administrator</div>
+                        </div>
+                    </div>
+                    <div class="fte-domains">
+                        <span class="fte-domain">Network Infrastructure</span>
+                        <span class="fte-domain">Connectivity</span>
+                        <span class="fte-domain">Hardware Lifecycle</span>
+                    </div>
+                    <div class="fte-focus">
+                        <strong>Current focus:</strong> Network stability across all facilities, TPX connectivity review, and hardware refresh planning.
+                    </div>
+                </div>
+
+                <div class="fte-card">
+                    <div class="fte-header">
+                        <div class="fte-avatar" style="background: linear-gradient(135deg, #8b5cf6 0%, #ec4899 100%)">RP</div>
+                        <div>
+                            <div class="fte-name">Rogi Poblete</div>
+                            <div class="fte-title">Clinical Project Specialist</div>
+                        </div>
+                    </div>
+                    <div class="fte-domains">
+                        <span class="fte-domain">EHR Optimization</span>
+                        <span class="fte-domain">Clinical Workflow</span>
+                        <span class="fte-domain">PointClickCare</span>
+                    </div>
+                    <div class="fte-focus">
+                        <strong>Current focus:</strong> PointClickCare optimization, clinical workflow improvements, and system integration with ancillary tools.
+                    </div>
+                </div>
+
+                <div class="fte-card">
+                    <div class="fte-header">
+                        <div class="fte-avatar" style="background: linear-gradient(135deg, #14b8a6 0%, #3b82f6 100%)">FF</div>
+                        <div>
+                            <div class="fte-name">Francis Ferma</div>
+                            <div class="fte-title">IT Technician</div>
+                        </div>
+                    </div>
+                    <div class="fte-domains">
+                        <span class="fte-domain">End-User Support</span>
+                        <span class="fte-domain">Field Operations</span>
+                        <span class="fte-domain">Help Desk</span>
+                    </div>
+                    <div class="fte-focus">
+                        <strong>Current focus:</strong> Day-to-day end-user support, field technician coverage across Southern facilities, and help desk operations.
+                    </div>
+                </div>
+
+                <div class="fte-card">
+                    <div class="fte-header">
+                        <div class="fte-avatar" style="background: linear-gradient(135deg, #f97316 0%, #eab308 100%)">JA</div>
+                        <div>
+                            <div class="fte-name">Jon Andrews</div>
+                            <div class="fte-title">Database Administrator</div>
+                        </div>
+                    </div>
+                    <div class="fte-domains">
+                        <span class="fte-domain">Data Integrity</span>
+                        <span class="fte-domain">SQL</span>
+                        <span class="fte-domain">Reporting Infrastructure</span>
+                    </div>
+                    <div class="fte-focus">
+                        <strong>Current focus:</strong> Database performance, reporting infrastructure, and data integrity across clinical and operational systems.
+                    </div>
+                </div>
+
+            </div>
+
+        </div>
+    </div>
+</div>
+
+<script src="../auth.js"></script>
+<script src="../nav.js"></script>
+<script>renderNav('executive-overview');</script>
+</body>
+</html>
