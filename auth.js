@@ -3,6 +3,7 @@
 
 const NP_AUTH = {
     passwords: {
+        'executive-overview': 'onwardandupward',
         'it-overview': 'onwardandupward',
         'budget':      'money2026',
         'team':        'welcome2026',
