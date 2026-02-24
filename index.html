@@ -5,6 +5,85 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>NorthPoint — NACS IT</title>
     <link rel="stylesheet" href="northpoint.css">
+    <style>
+        .hub-hero {
+            background: linear-gradient(135deg, var(--navy) 0%, #1e3a5f 100%);
+            border-radius: 20px;
+            padding: 40px 48px;
+            margin-bottom: 48px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 32px;
+            overflow: hidden;
+            position: relative;
+        }
+        .hub-hero::before {
+            content: '';
+            position: absolute;
+            top: -60px; right: -60px;
+            width: 300px; height: 300px;
+            background: radial-gradient(circle, rgba(59,130,246,0.15) 0%, transparent 70%);
+            pointer-events: none;
+        }
+        .hub-hero-text h1 {
+            font-family: 'DM Serif Display', serif;
+            font-size: 36px;
+            color: white;
+            font-weight: 400;
+            line-height: 1.15;
+            letter-spacing: -0.5px;
+            margin-bottom: 10px;
+        }
+        .hub-hero-text h1 em { color: rgba(255,255,255,0.5); font-style: italic; }
+        .hub-hero-text p {
+            font-size: 14px;
+            color: rgba(255,255,255,0.55);
+            line-height: 1.7;
+            max-width: 420px;
+            font-weight: 300;
+        }
+        .hub-hero-stats {
+            display: flex;
+            gap: 32px;
+            flex-shrink: 0;
+        }
+        .hero-stat { text-align: center; }
+        .hero-stat-value {
+            font-size: 32px;
+            font-weight: 600;
+            color: white;
+            letter-spacing: -1px;
+            line-height: 1;
+            margin-bottom: 4px;
+        }
+        .hero-stat-label {
+            font-size: 11px;
+            color: rgba(255,255,255,0.4);
+            font-weight: 500;
+            text-transform: uppercase;
+            letter-spacing: 0.8px;
+        }
+        .hero-divider {
+            width: 1px;
+            height: 48px;
+            background: rgba(255,255,255,0.1);
+            align-self: center;
+        }
+        .system-status {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            background: rgba(16,185,129,0.15);
+            border: 1px solid rgba(16,185,129,0.25);
+            border-radius: 20px;
+            padding: 5px 12px;
+            font-size: 12px;
+            color: #34d399;
+            font-weight: 500;
+            margin-top: 14px;
+        }
+    </style>
 </head>
 <body>
 
@@ -29,25 +108,59 @@
 
         <div class="content">
 
-            <div class="page-header animate-1">
-                <h1 class="page-title">NorthPoint<br><em>Where IT gets done.</em></h1>
-                <p class="page-desc">The single source of truth for NACS Information Technology — operations, strategy, and everything in between. Select a module to get started.</p>
+            <!-- HERO -->
+            <div class="hub-hero animate-1">
+                <div class="hub-hero-text">
+                    <h1>NorthPoint<br><em>Where IT gets done.</em></h1>
+                    <p>The operational command center for NACS Information Technology — budget, team, facilities, and strategy in a single platform.</p>
+                    <div class="system-status">
+                        <span class="status-dot"></span>
+                        All systems operational · 12 facilities connected
+                    </div>
+                </div>
+                <div class="hub-hero-stats">
+                    <div class="hero-stat">
+                        <div class="hero-stat-value">12</div>
+                        <div class="hero-stat-label">Facilities</div>
+                    </div>
+                    <div class="hero-divider"></div>
+                    <div class="hero-stat">
+                        <div class="hero-stat-value">6</div>
+                        <div class="hero-stat-label">IT Staff</div>
+                    </div>
+                    <div class="hero-divider"></div>
+                    <div class="hero-stat">
+                        <div class="hero-stat-value">$1.6M</div>
+                        <div class="hero-stat-label">IT Spend</div>
+                    </div>
+                    <div class="hero-divider"></div>
+                    <div class="hero-stat">
+                        <div class="hero-stat-value">104</div>
+                        <div class="hero-stat-label">Software Tools</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- MODULES -->
+            <div class="section-header animate-2">
+                <span class="section-title">Modules</span>
+                <div class="section-line"></div>
             </div>
 
             <div class="modules-grid animate-2">
 
-                <!-- OVERVIEW -->
-                <a href="overview/index.html" class="module-card purple">
+                <!-- IT OVERVIEW -->
+                <a href="it-overview/index.html" class="module-card purple">
                     <div class="module-card-top">
                         <div class="module-card-icon purple">📡</div>
                         <span class="module-card-arrow">→</span>
                     </div>
-                    <div class="module-card-title">Overview</div>
-                    <div class="module-card-desc">IT health at a glance. Status indicators, system uptime, and the executive view of how IT is performing across all facilities.</div>
+                    <div class="module-card-title">IT Overview</div>
+                    <div class="module-card-desc">The executive snapshot — team posture, spend allocation, and organizational health across all 12 facilities.</div>
                     <div class="module-metrics">
                         <div class="module-metric">
-                            <div class="module-metric-value">12</div>
-                            <div class="module-metric-label">Facilities</div>
+                            <div class="module-metric-value">$1.6M</div>
+                            <div class="module-metric-label">Total IT Spend</div>
                         </div>
                         <div class="module-metric">
                             <div class="module-metric-value">6</div>
@@ -55,67 +168,142 @@
                         </div>
                         <div class="module-metric">
                             <div class="module-metric-value">✓</div>
-                            <div class="module-metric-label">All Systems Up</div>
+                            <div class="module-metric-label">Live</div>
                         </div>
                     </div>
                 </a>
 
-                <!-- OPERATIONS -->
-                <a href="operations/index.html" class="module-card blue">
+                <!-- BUDGET & FINANCE -->
+                <a href="budget/index.html" class="module-card blue">
                     <div class="module-card-top">
-                        <div class="module-card-icon blue">⚙️</div>
+                        <div class="module-card-icon blue">💰</div>
                         <span class="module-card-arrow">→</span>
                     </div>
-                    <div class="module-card-title">Operations</div>
-                    <div class="module-card-desc">How we run. Budget, vendors, software portfolio, and the day-to-day financial management of NACS IT infrastructure.</div>
+                    <div class="module-card-title">Budget & Finance</div>
+                    <div class="module-card-desc">2026 IT budget, spend modeling, compensation restructure, and financial benchmarks against industry standards.</div>
                     <div class="module-metrics">
                         <div class="module-metric">
-                            <div class="module-metric-value">$1.04M</div>
-                            <div class="module-metric-label">Non-Personnel Spend</div>
+                            <div class="module-metric-value">$2.4M</div>
+                            <div class="module-metric-label">2026 Proposed</div>
                         </div>
                         <div class="module-metric">
-                            <div class="module-metric-value">104</div>
-                            <div class="module-metric-label">Software Tools</div>
+                            <div class="module-metric-value">4</div>
+                            <div class="module-metric-label">Tools</div>
                         </div>
                         <div class="module-metric">
-                            <div class="module-metric-value">1%</div>
-                            <div class="module-metric-label">of Revenue (vs 3–5%)</div>
+                            <div class="module-metric-value">✓</div>
+                            <div class="module-metric-label">Live</div>
                         </div>
                     </div>
                 </a>
 
-                <!-- STRATEGY -->
-                <a href="strategy/index.html" class="module-card green">
+                <!-- TEAM & ORG -->
+                <a href="team/index.html" class="module-card green">
                     <div class="module-card-top">
-                        <div class="module-card-icon green">🧭</div>
+                        <div class="module-card-icon green">👥</div>
                         <span class="module-card-arrow">→</span>
                     </div>
-                    <div class="module-card-title">Strategy</div>
-                    <div class="module-card-desc">Where we're going. Compensation proposals, facility onboarding playbooks, and the initiatives shaping NACS IT through 2030.</div>
+                    <div class="module-card-title">Team & Organization</div>
+                    <div class="module-card-desc">Roles, responsibilities, RACI matrix, and organizational structure — current state and proposed for the merged organization.</div>
+                    <div class="module-metrics">
+                        <div class="module-metric">
+                            <div class="module-metric-value">6</div>
+                            <div class="module-metric-label">Team Members</div>
+                        </div>
+                        <div class="module-metric">
+                            <div class="module-metric-value">3</div>
+                            <div class="module-metric-label">Tools</div>
+                        </div>
+                        <div class="module-metric">
+                            <div class="module-metric-value">✓</div>
+                            <div class="module-metric-label">Live</div>
+                        </div>
+                    </div>
+                </a>
+
+                <!-- FACILITY OPERATIONS -->
+                <a href="facilities/index.html" class="module-card amber">
+                    <div class="module-card-top">
+                        <div class="module-card-icon amber">🏥</div>
+                        <span class="module-card-arrow">→</span>
+                    </div>
+                    <div class="uc-badge">In Development</div>
+                    <div class="module-card-title">Facility Operations</div>
+                    <div class="module-card-desc">Onboarding forecaster, integration checklists, and the 30×30 roadmap for scaling to 30 facilities by 2030.</div>
                     <div class="module-metrics">
                         <div class="module-metric">
                             <div class="module-metric-value">+4</div>
-                            <div class="module-metric-label">Facilities Incoming</div>
-                        </div>
-                        <div class="module-metric">
-                            <div class="module-metric-value">$254K</div>
-                            <div class="module-metric-label">Projected Savings</div>
+                            <div class="module-metric-label">Incoming</div>
                         </div>
                         <div class="module-metric">
                             <div class="module-metric-value">2030</div>
-                            <div class="module-metric-label">30 by 30 Target</div>
+                            <div class="module-metric-label">30×30 Target</div>
+                        </div>
+                        <div class="module-metric">
+                            <div class="module-metric-value">Soon</div>
+                            <div class="module-metric-label">Status</div>
+                        </div>
+                    </div>
+                </a>
+
+                <!-- SOFTWARE & VENDORS -->
+                <a href="software/index.html" class="module-card teal" style="border-color: var(--silver);">
+                    <div class="module-card-top">
+                        <div class="module-card-icon teal">🗂️</div>
+                        <span class="module-card-arrow">→</span>
+                    </div>
+                    <div class="module-card-title">Software & Vendors</div>
+                    <div class="module-card-desc">Full software asset portfolio, vendor relationships, contract renewals, and the M365 vs Google Workspace analysis.</div>
+                    <div class="module-metrics">
+                        <div class="module-metric">
+                            <div class="module-metric-value">104</div>
+                            <div class="module-metric-label">Tools Tracked</div>
+                        </div>
+                        <div class="module-metric">
+                            <div class="module-metric-value">11</div>
+                            <div class="module-metric-label">Unowned</div>
+                        </div>
+                        <div class="module-metric">
+                            <div class="module-metric-value">✓</div>
+                            <div class="module-metric-label">Live</div>
+                        </div>
+                    </div>
+                </a>
+
+                <!-- PROJECTS -->
+                <a href="projects/index.html" class="module-card under-construction">
+                    <div class="module-card-top">
+                        <div class="module-card-icon orange">📋</div>
+                        <span class="module-card-arrow">→</span>
+                    </div>
+                    <div class="uc-badge">In Development</div>
+                    <div class="module-card-title">Projects & Pipelines</div>
+                    <div class="module-card-desc">Project roadmap, initiative tracking, workcenters, and pipeline management across all active IT programs.</div>
+                    <div class="module-metrics">
+                        <div class="module-metric">
+                            <div class="module-metric-value">—</div>
+                            <div class="module-metric-label">Active Projects</div>
+                        </div>
+                        <div class="module-metric">
+                            <div class="module-metric-value">—</div>
+                            <div class="module-metric-label">In Pipeline</div>
+                        </div>
+                        <div class="module-metric">
+                            <div class="module-metric-value">Soon</div>
+                            <div class="module-metric-label">Status</div>
                         </div>
                     </div>
                 </a>
 
                 <!-- FIELD GUIDE -->
-                <a href="field-guide/index.html" class="module-card orange">
+                <a href="field-guide/index.html" class="module-card under-construction">
                     <div class="module-card-top">
-                        <div class="module-card-icon orange">📖</div>
+                        <div class="module-card-icon blue">📖</div>
                         <span class="module-card-arrow">→</span>
                     </div>
-                    <div class="module-card-title">Field Guide</div>
-                    <div class="module-card-desc">How we work. Runbooks, SOPs, escalation paths, and facility-specific procedures for techs in the field and end users.</div>
+                    <div class="uc-badge">In Development</div>
+                    <div class="module-card-title">IT Field Guide</div>
+                    <div class="module-card-desc">Runbooks, SOPs, escalation paths, and facility-specific reference sheets for techs in the field and end users.</div>
                     <div class="module-metrics">
                         <div class="module-metric">
                             <div class="module-metric-value">—</div>
@@ -127,17 +315,19 @@
                         </div>
                         <div class="module-metric">
                             <div class="module-metric-value">Soon</div>
-                            <div class="module-metric-label">In Development</div>
+                            <div class="module-metric-label">Status</div>
                         </div>
                     </div>
                 </a>
 
             </div>
+
         </div>
     </div>
 </div>
 
 <script src="nav.js"></script>
 <script>renderNav('hub');</script>
+
 </body>
 </html>
