@@ -201,7 +201,7 @@ const NP_AUTH = {
                 <input id="np-gate-input" type="password" placeholder="· · · · · · · · · · · ·" autocomplete="off" />
                 <button id="np-gate-btn">Continue</button>
                 <div id="np-gate-error"></div>
-                <a href="${location.origin}/northpoint/index.html" style="
+                <a href="${location.origin}/index.html" style="
                     display: inline-block;
                     margin-top: 20px;
                     font-size: 12px;
