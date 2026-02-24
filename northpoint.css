@@ -809,3 +809,6 @@ body {
     .metric-row.cols-4,
     .metric-row.cols-3 { grid-template-columns: repeat(2, 1fr); }
 }
+
+/* Sensitive content — toggle visibility when ready */
+.sensitive { display: none !important; }
