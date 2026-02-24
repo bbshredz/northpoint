@@ -11,8 +11,8 @@
     --navy-mid:       #1e293b;
     --navy-light:     #334155;
     --navy-border:    rgba(255,255,255,0.07);
-    --bg:             #111827;
-    --card:           #f8fafc;
+    --bg:             #f0f2f5;
+    --card:           #ffffff;
     --card-hover:     #ffffff;
     --border:         #e2e8f0;
     --border-hover:   #cbd5e1;
@@ -365,7 +365,7 @@ body {
 .content {
     padding: 44px 52px;
     flex: 1;
-    background: radial-gradient(ellipse at top right, var(--accent-dim) 0%, transparent 55%);
+    background: var(--bg);
 }
 
 /* ── PAGE HEADER ── */
@@ -445,7 +445,7 @@ body {
 .metric-card:hover {
     border-color: var(--accent);
     background: var(--card-hover);
-    box-shadow: 0 0 0 3px var(--accent-dim), 0 4px 20px rgba(0,0,0,0.08);
+    box-shadow: 0 0 0 3px var(--accent-dim), 0 4px 16px rgba(0,0,0,0.06);
 }
 
 .metric-label {
