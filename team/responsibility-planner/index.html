@@ -1,0 +1,1262 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Responsibility Planner — NorthPoint</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Sans:opsz,wght@9..40,300;9..40,400;9..40,500;9..40,600&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<style>
+*, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+:root {
+  --navy: #1e293b; --navy-light: #334155; --navy-border: rgba(255,255,255,0.08);
+  --bg: #f8fafc; --card: #ffffff; --silver: #e2e8f0; --silver-light: #f1f5f9;
+  --accent: #3b82f6; --accent-glow: rgba(59,130,246,0.12);
+  --green: #10b981; --green-glow: rgba(16,185,129,0.12);
+  --amber: #f59e0b; --purple: #8b5cf6; --orange: #f97316;
+  --text-primary: #0f172a; --text-secondary: #64748b; --text-tertiary: #94a3b8;
+
+  /* Future state palette — vibrant */
+  --future-bg: #0f172a; --future-card: #1e293b; --future-border: rgba(99,179,237,0.2);
+  --future-accent: #38bdf8; --future-text: #e2e8f0; --future-text-sub: #94a3b8;
+  --future-key: #10b981;
+}
+body { font-family: 'DM Sans', sans-serif; background: var(--bg); color: var(--text-primary); min-height: 100vh; -webkit-font-smoothing: antialiased; transition: background 0.4s, color 0.4s; }
+body.future-mode { background: var(--future-bg); color: var(--future-text); }
+
+/* ── AUTH SCREEN ── */
+.auth-screen {
+  position: fixed; inset: 0; background: var(--navy);
+  display: flex; align-items: center; justify-content: center; z-index: 1000;
+}
+.auth-box {
+  background: #1e293b; border: 1px solid rgba(255,255,255,0.1);
+  border-radius: 20px; padding: 48px; width: 400px;
+}
+.auth-logo {
+  width: 44px; height: 44px; background: var(--accent); border-radius: 12px;
+  display: flex; align-items: center; justify-content: center;
+  margin-bottom: 24px; box-shadow: 0 0 24px rgba(59,130,246,0.4);
+}
+.auth-logo svg { width: 22px; height: 22px; }
+.auth-title { font-family: 'DM Serif Display', serif; font-size: 28px; color: white; margin-bottom: 6px; }
+.auth-sub { font-size: 13px; color: var(--text-tertiary); margin-bottom: 32px; }
+.auth-label { font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: 1px; color: var(--text-tertiary); margin-bottom: 6px; display: block; }
+.auth-input {
+  width: 100%; padding: 11px 14px; background: rgba(255,255,255,0.06);
+  border: 1px solid rgba(255,255,255,0.12); border-radius: 10px;
+  color: white; font-size: 14px; font-family: inherit; margin-bottom: 16px;
+  transition: border-color 0.2s;
+}
+.auth-input:focus { outline: none; border-color: var(--accent); }
+.auth-input::placeholder { color: rgba(255,255,255,0.25); }
+.auth-btn {
+  width: 100%; padding: 12px; background: var(--accent); border: none;
+  border-radius: 10px; color: white; font-size: 14px; font-weight: 600;
+  font-family: inherit; cursor: pointer; transition: opacity 0.2s; margin-top: 4px;
+}
+.auth-btn:hover { opacity: 0.9; }
+.auth-error { font-size: 12px; color: #f87171; margin-top: 8px; min-height: 18px; }
+
+/* ── LAYOUT ── */
+.layout { display: grid; grid-template-columns: 68px 1fr; min-height: 100vh; }
+
+/* ── RAIL ── */
+.rail {
+  background: var(--navy); display: flex; flex-direction: column;
+  align-items: center; padding: 20px 0; position: sticky; top: 0;
+  height: 100vh; border-right: 1px solid var(--navy-border); z-index: 100;
+}
+.rail-logo {
+  width: 40px; height: 40px; background: var(--accent); border-radius: 12px;
+  display: flex; align-items: center; justify-content: center;
+  margin-bottom: 8px; box-shadow: 0 0 20px rgba(59,130,246,0.35);
+  text-decoration: none; transition: transform 0.2s; flex-shrink: 0;
+}
+.rail-logo:hover { transform: scale(1.05); }
+.rail-logo svg { width: 20px; height: 20px; }
+.rail-divider { width: 32px; height: 1px; background: var(--navy-border); margin: 8px 0; }
+.rail-nav { display: flex; flex-direction: column; align-items: center; gap: 2px; flex: 1; width: 100%; padding: 0 12px; }
+.rail-item {
+  width: 44px; height: 44px; border-radius: 10px; display: flex; align-items: center;
+  justify-content: center; color: rgba(255,255,255,0.4); text-decoration: none;
+  transition: all 0.18s; position: relative; cursor: pointer; border: none; background: none;
+}
+.rail-item svg { width: 18px; height: 18px; }
+.rail-item:hover { background: rgba(255,255,255,0.08); color: rgba(255,255,255,0.85); }
+.rail-item.active { background: rgba(59,130,246,0.18); color: var(--accent); }
+.rail-tooltip {
+  position: absolute; left: calc(100% + 12px); background: var(--navy); color: white;
+  font-size: 12px; font-weight: 500; padding: 5px 10px; border-radius: 6px;
+  white-space: nowrap; pointer-events: none; opacity: 0; transform: translateX(-4px);
+  transition: all 0.15s; z-index: 200;
+}
+.rail-item:hover .rail-tooltip { opacity: 1; transform: translateX(0); }
+.rail-user {
+  width: 36px; height: 36px; border-radius: 9px; margin-top: auto; margin-bottom: 16px;
+  background: linear-gradient(135deg, var(--accent), var(--purple));
+  display: flex; align-items: center; justify-content: center;
+  font-size: 11px; font-weight: 700; color: white; cursor: pointer;
+  position: relative; flex-shrink: 0;
+}
+.rail-user-menu {
+  position: absolute; bottom: 0; left: calc(100% + 12px); background: var(--navy);
+  border: 1px solid rgba(255,255,255,0.12); border-radius: 10px; padding: 8px;
+  min-width: 180px; display: none; z-index: 300;
+}
+.rail-user-menu.open { display: block; }
+.rail-user-name { font-size: 12px; color: white; font-weight: 600; padding: 8px 10px 4px; }
+.rail-user-email { font-size: 11px; color: var(--text-tertiary); padding: 0 10px 10px; border-bottom: 1px solid rgba(255,255,255,0.08); margin-bottom: 4px; }
+.rail-signout { width: 100%; padding: 8px 10px; border: none; background: none; color: #f87171; font-size: 12px; font-family: inherit; text-align: left; cursor: pointer; border-radius: 6px; }
+.rail-signout:hover { background: rgba(248,113,113,0.1); }
+
+/* ── MAIN ── */
+.main { display: flex; flex-direction: column; min-height: 100vh; overflow: hidden; }
+
+/* ── TOPBAR ── */
+.topbar {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 0 32px; height: 56px; border-bottom: 1px solid var(--silver);
+  background: var(--card); flex-shrink: 0; transition: background 0.4s, border-color 0.4s;
+}
+body.future-mode .topbar { background: #1e293b; border-color: rgba(255,255,255,0.08); }
+.topbar-left { display: flex; align-items: center; gap: 12px; }
+.topbar-name { font-size: 14px; font-weight: 600; color: var(--text-primary); text-decoration: none; transition: color 0.4s; }
+body.future-mode .topbar-name { color: var(--future-text); }
+.topbar-sep { width: 1px; height: 16px; background: var(--silver); }
+body.future-mode .topbar-sep { background: rgba(255,255,255,0.12); }
+.topbar-section { font-size: 13px; color: var(--text-secondary); }
+body.future-mode .topbar-section { color: var(--future-text-sub); }
+.topbar-right { display: flex; align-items: center; gap: 10px; }
+
+/* ── STATE TOGGLE ── */
+.state-toggle {
+  display: flex; align-items: center; background: var(--silver-light);
+  border-radius: 10px; padding: 3px; gap: 2px;
+}
+body.future-mode .state-toggle { background: rgba(255,255,255,0.08); }
+.state-btn {
+  display: flex; align-items: center; gap: 6px; padding: 6px 14px;
+  border-radius: 8px; border: none; cursor: pointer; font-size: 12px;
+  font-weight: 600; font-family: inherit; transition: all 0.2s; background: none;
+  color: var(--text-tertiary);
+}
+.state-btn.active-current {
+  background: white; color: var(--text-primary);
+  box-shadow: 0 1px 4px rgba(0,0,0,0.08);
+}
+.state-btn.active-future {
+  background: var(--future-accent); color: var(--navy);
+  box-shadow: 0 1px 8px rgba(56,189,248,0.3);
+}
+.state-dot { width: 7px; height: 7px; border-radius: 50%; }
+.dot-current { background: var(--amber); }
+.dot-future { background: var(--green); }
+
+/* ── ACTION BAR ── */
+.action-bar {
+  display: flex; align-items: center; gap: 8px; padding: 12px 32px;
+  border-bottom: 1px solid var(--silver); background: var(--card); flex-shrink: 0;
+  transition: background 0.4s, border-color 0.4s;
+}
+body.future-mode .action-bar { background: #1a2744; border-color: rgba(255,255,255,0.08); }
+.action-btn {
+  display: flex; align-items: center; gap: 6px; padding: 7px 14px;
+  border-radius: 8px; border: 1px solid var(--silver); background: var(--card);
+  color: var(--text-secondary); font-size: 12px; font-weight: 600; font-family: inherit;
+  cursor: pointer; transition: all 0.18s;
+}
+.action-btn:hover { border-color: var(--accent); color: var(--accent); background: var(--accent-glow); }
+.action-btn.primary { background: var(--accent); color: white; border-color: var(--accent); }
+.action-btn.primary:hover { opacity: 0.9; }
+body.future-mode .action-btn { background: rgba(255,255,255,0.06); border-color: rgba(255,255,255,0.12); color: var(--future-text-sub); }
+body.future-mode .action-btn:hover { border-color: var(--future-accent); color: var(--future-accent); }
+.action-btn svg { width: 14px; height: 14px; }
+.unsaved-badge {
+  display: none; align-items: center; gap: 6px; margin-left: 4px;
+  font-size: 11px; color: var(--amber); font-weight: 600;
+}
+.unsaved-badge.visible { display: flex; }
+.status-text { font-size: 12px; color: var(--text-tertiary); margin-left: auto; }
+body.future-mode .status-text { color: var(--future-text-sub); }
+
+/* ── KANBAN ── */
+.kanban-wrap { flex: 1; overflow-x: auto; overflow-y: hidden; padding: 24px 32px; }
+.kanban-board { display: flex; gap: 14px; min-width: max-content; height: 100%; align-items: flex-start; }
+
+/* ── COLUMN ── */
+.column {
+  width: 240px; flex-shrink: 0; background: var(--silver-light);
+  border-radius: 14px; display: flex; flex-direction: column; max-height: calc(100vh - 180px);
+  transition: background 0.4s;
+}
+body.future-mode .column { background: rgba(255,255,255,0.04); }
+.column.drag-over { background: var(--accent-glow); outline: 2px dashed var(--accent); }
+body.future-mode .column.drag-over { background: rgba(56,189,248,0.08); outline-color: var(--future-accent); }
+.column-header { padding: 14px 16px 10px; flex-shrink: 0; }
+.column-name {
+  font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 1px;
+  color: var(--text-tertiary); margin-bottom: 2px;
+}
+body.future-mode .column-name { color: var(--future-text-sub); }
+.column-count { font-size: 11px; color: var(--text-tertiary); }
+body.future-mode .column-count { color: rgba(148,163,184,0.7); }
+.column-avatar {
+  width: 28px; height: 28px; border-radius: 8px; display: flex; align-items: center;
+  justify-content: center; font-size: 11px; font-weight: 700; color: white;
+  margin-bottom: 8px;
+}
+.column-cards {
+  flex: 1; overflow-y: auto; padding: 0 10px 10px; display: flex;
+  flex-direction: column; gap: 6px; min-height: 60px;
+}
+.column-cards::-webkit-scrollbar { width: 4px; }
+.column-cards::-webkit-scrollbar-thumb { background: var(--silver); border-radius: 2px; }
+.column-empty {
+  font-size: 12px; color: var(--text-tertiary); text-align: center;
+  padding: 20px 10px; border: 1.5px dashed var(--silver); border-radius: 10px;
+  margin: 0 0 6px;
+}
+body.future-mode .column-empty { border-color: rgba(255,255,255,0.1); color: rgba(148,163,184,0.5); }
+
+/* ── ADD TO BACKLOG ── */
+.backlog-add { padding: 0 10px 10px; flex-shrink: 0; }
+.backlog-textarea {
+  width: 100%; padding: 8px 10px; border: 1px solid var(--silver); border-radius: 8px;
+  background: var(--card); font-size: 12px; font-family: inherit; color: var(--text-primary);
+  resize: none; height: 60px; transition: border-color 0.2s;
+}
+body.future-mode .backlog-textarea { background: rgba(255,255,255,0.06); border-color: rgba(255,255,255,0.12); color: var(--future-text); }
+.backlog-textarea:focus { outline: none; border-color: var(--accent); }
+.backlog-textarea::placeholder { color: var(--text-tertiary); }
+.backlog-add-btn {
+  width: 100%; margin-top: 6px; padding: 7px; border: none; border-radius: 8px;
+  background: var(--accent); color: white; font-size: 12px; font-weight: 600;
+  font-family: inherit; cursor: pointer; transition: opacity 0.2s;
+}
+.backlog-add-btn:hover { opacity: 0.85; }
+
+/* ── CARD ── */
+.resp-card {
+  background: var(--card); border: 1.5px solid var(--silver); border-radius: 10px;
+  padding: 10px 12px; cursor: grab; transition: all 0.18s; position: relative;
+  user-select: none;
+}
+body.future-mode .resp-card { background: rgba(30,41,59,0.9); border-color: rgba(255,255,255,0.1); }
+.resp-card:hover { box-shadow: 0 4px 12px rgba(15,23,42,0.1); transform: translateY(-1px); }
+.resp-card.dragging { opacity: 0.4; transform: scale(0.98); cursor: grabbing; }
+.resp-card.is-key {
+  border-color: var(--amber); background: #fffbeb;
+  box-shadow: 0 0 0 1px rgba(245,158,11,0.3);
+}
+body.future-mode .resp-card.is-key {
+  border-color: var(--future-key); background: rgba(16,185,129,0.08);
+  box-shadow: 0 0 0 1px rgba(16,185,129,0.3);
+}
+.card-text { font-size: 12.5px; color: var(--text-secondary); line-height: 1.45; margin-bottom: 8px; }
+body.future-mode .card-text { color: var(--future-text-sub); }
+.resp-card.is-key .card-text { color: var(--text-primary); font-weight: 500; }
+body.future-mode .resp-card.is-key .card-text { color: var(--future-text); }
+.card-footer { display: flex; align-items: center; justify-content: space-between; }
+.card-state-badge {
+  font-size: 9px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px;
+  padding: 2px 7px; border-radius: 20px;
+}
+.badge-current { background: rgba(245,158,11,0.15); color: var(--amber); }
+.badge-future { background: rgba(16,185,129,0.15); color: var(--green); }
+.card-actions { display: flex; align-items: center; gap: 4px; }
+.key-toggle {
+  width: 22px; height: 22px; border-radius: 6px; border: 1.5px solid var(--silver);
+  background: none; cursor: pointer; display: flex; align-items: center;
+  justify-content: center; transition: all 0.18s; font-size: 11px;
+  color: var(--text-tertiary);
+}
+.key-toggle:hover { border-color: var(--amber); color: var(--amber); }
+.resp-card.is-key .key-toggle { border-color: var(--amber); background: var(--amber); color: white; }
+body.future-mode .resp-card.is-key .key-toggle { border-color: var(--future-key); background: var(--future-key); }
+.card-tasks-toggle {
+  width: 22px; height: 22px; border-radius: 6px; border: 1.5px solid var(--silver);
+  background: none; cursor: pointer; display: flex; align-items: center;
+  justify-content: center; transition: all 0.18s; font-size: 10px; color: var(--text-tertiary);
+}
+.card-tasks-toggle:hover { border-color: var(--accent); color: var(--accent); }
+.card-tasks {
+  display: none; margin-top: 8px; padding-top: 8px;
+  border-top: 1px solid var(--silver-light);
+}
+.card-tasks.open { display: block; }
+.card-task-item {
+  font-size: 11px; color: var(--text-tertiary); padding: 2px 0 2px 12px;
+  position: relative; line-height: 1.4;
+}
+body.future-mode .card-task-item { color: rgba(148,163,184,0.7); }
+.card-task-item::before {
+  content: '·'; position: absolute; left: 4px; color: var(--text-tertiary);
+}
+
+/* ── CHANGE LOG DRAWER ── */
+.log-drawer {
+  position: fixed; right: 0; top: 0; bottom: 0; width: 360px;
+  background: var(--card); border-left: 1px solid var(--silver);
+  transform: translateX(100%); transition: transform 0.3s; z-index: 500;
+  display: flex; flex-direction: column;
+}
+body.future-mode .log-drawer { background: #1e293b; border-color: rgba(255,255,255,0.1); }
+.log-drawer.open { transform: translateX(0); }
+.log-header {
+  padding: 20px 24px; border-bottom: 1px solid var(--silver); flex-shrink: 0;
+  display: flex; align-items: center; justify-content: space-between;
+}
+body.future-mode .log-header { border-color: rgba(255,255,255,0.1); }
+.log-title { font-size: 14px; font-weight: 600; color: var(--text-primary); }
+body.future-mode .log-title { color: var(--future-text); }
+.log-close {
+  width: 28px; height: 28px; border-radius: 7px; border: 1px solid var(--silver);
+  background: none; cursor: pointer; display: flex; align-items: center;
+  justify-content: center; color: var(--text-tertiary); font-size: 16px;
+}
+.log-close:hover { background: var(--silver-light); }
+.log-list { flex: 1; overflow-y: auto; padding: 16px 24px; }
+.log-item { padding: 10px 0; border-bottom: 1px solid var(--silver-light); }
+body.future-mode .log-item { border-color: rgba(255,255,255,0.06); }
+.log-item:last-child { border-bottom: none; }
+.log-action { font-size: 12.5px; color: var(--text-primary); line-height: 1.4; margin-bottom: 3px; }
+body.future-mode .log-action { color: var(--future-text); }
+.log-meta { font-size: 11px; color: var(--text-tertiary); }
+.log-empty { font-size: 13px; color: var(--text-tertiary); text-align: center; padding: 40px 0; }
+
+/* Toast */
+.toast {
+  position: fixed; bottom: 24px; left: 50%; transform: translateX(-50%) translateY(20px);
+  background: var(--navy); color: white; font-size: 13px; font-weight: 500;
+  padding: 10px 20px; border-radius: 10px; opacity: 0; transition: all 0.3s;
+  pointer-events: none; z-index: 1000; white-space: nowrap;
+}
+.toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+.toast.success { background: #065f46; }
+.toast.error { background: #7f1d1d; }
+
+/* Loading */
+.loading-overlay {
+  position: fixed; inset: 0; background: var(--navy);
+  display: flex; align-items: center; justify-content: center; z-index: 999;
+  flex-direction: column; gap: 16px;
+}
+.loading-spinner {
+  width: 36px; height: 36px; border: 3px solid rgba(255,255,255,0.1);
+  border-top-color: var(--accent); border-radius: 50%; animation: spin 0.8s linear infinite;
+}
+@keyframes spin { to { transform: rotate(360deg); } }
+.loading-text { font-size: 13px; color: rgba(255,255,255,0.5); }
+
+@keyframes fadeUp { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+.kanban-board { animation: fadeUp 0.35s ease both; }
+</style>
+</head>
+<body>
+
+<!-- Loading -->
+<div class="loading-overlay" id="loadingOverlay">
+  <div class="loading-spinner"></div>
+  <div class="loading-text">Loading NorthPoint…</div>
+</div>
+
+<!-- Auth Screen -->
+<div class="auth-screen" id="authScreen" style="display:none;">
+  <div class="auth-box">
+    <div class="auth-logo">
+      <svg viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.5"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/><polyline points="17 6 23 6 23 12"/></svg>
+    </div>
+    <div class="auth-title">NorthPoint</div>
+    <div class="auth-sub">Sign in to access the Responsibility Planner</div>
+    <label class="auth-label">Email</label>
+    <input type="email" class="auth-input" id="authEmail" placeholder="you@nacscare.com" />
+    <label class="auth-label">Password</label>
+    <input type="password" class="auth-input" id="authPassword" placeholder="••••••••" />
+    <button class="auth-btn" id="authBtn" onclick="signIn()">Sign In</button>
+    <div class="auth-error" id="authError"></div>
+  </div>
+</div>
+
+<!-- Toast -->
+<div class="toast" id="toast"></div>
+
+<!-- Change Log Drawer -->
+<div class="log-drawer" id="logDrawer">
+  <div class="log-header">
+    <div class="log-title">Change Log</div>
+    <button class="log-close" onclick="toggleLog()">×</button>
+  </div>
+  <div class="log-list" id="logList">
+    <div class="log-empty">No changes recorded yet.</div>
+  </div>
+</div>
+
+<!-- Main App -->
+<div class="layout" id="appLayout" style="display:none;">
+
+  <!-- Rail -->
+  <nav class="rail">
+    <a href="#" class="rail-logo">
+      <svg viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.5"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/><polyline points="17 6 23 6 23 12"/></svg>
+    </a>
+    <nav class="rail-nav">
+      <div class="rail-divider"></div>
+      <a href="#" class="rail-item" title="Hub">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>
+        <span class="rail-tooltip">Hub</span>
+      </a>
+      <a href="#" class="rail-item active" title="Responsibility Planner">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+        <span class="rail-tooltip">Responsibility Planner</span>
+      </a>
+      <button class="rail-item" onclick="toggleLog()" title="Change Log">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg>
+        <span class="rail-tooltip">Change Log</span>
+      </button>
+    </nav>
+    <div class="rail-user" id="railUser" onclick="toggleUserMenu()">
+      <span id="railUserInitials">?</span>
+      <div class="rail-user-menu" id="userMenu">
+        <div class="rail-user-name" id="menuName">—</div>
+        <div class="rail-user-email" id="menuEmail">—</div>
+        <button class="rail-signout" onclick="signOut()">Sign out</button>
+      </div>
+    </div>
+  </nav>
+
+  <!-- Main -->
+  <div class="main">
+    <!-- Topbar -->
+    <header class="topbar">
+      <div class="topbar-left">
+        <a href="#" class="topbar-name">NorthPoint</a>
+        <div class="topbar-sep"></div>
+        <span class="topbar-section">Responsibility Planner</span>
+      </div>
+      <div class="topbar-right">
+        <div class="state-toggle">
+          <button class="state-btn active-current" id="btnCurrent" onclick="setState('current')">
+            <span class="state-dot dot-current"></span> Current State
+          </button>
+          <button class="state-btn" id="btnFuture" onclick="setState('future')">
+            <span class="state-dot dot-future"></span> Future State
+          </button>
+        </div>
+      </div>
+    </header>
+
+    <!-- Action Bar -->
+    <div class="action-bar">
+      <button class="action-btn primary" onclick="applyToBios()">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/></svg>
+        Apply to Bios
+      </button>
+      <button class="action-btn" onclick="saveState()">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg>
+        Save
+      </button>
+      <button class="action-btn" onclick="clearAllAssignments()">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14H6L5 6"/><path d="M10 11v6"/><path d="M14 11v6"/></svg>
+        Clear All
+      </button>
+      <div class="unsaved-badge" id="unsavedBadge">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:12px;height:12px"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+        Unsaved changes
+      </div>
+      <div class="status-text" id="statusText">Viewing: Current State</div>
+    </div>
+
+    <!-- Kanban Board -->
+    <div class="kanban-wrap">
+      <div class="kanban-board" id="kanbanBoard"></div>
+    </div>
+  </div>
+</div>
+
+<script>
+// ─────────────────────────────────────────
+// SUPABASE INIT
+// ─────────────────────────────────────────
+const SUPABASE_URL = 'https://vpxlgtgavjmftbdsajtk.supabase.co';
+const SUPABASE_KEY = 'sb_publishable_xrH6NCenOJGh84f9NTf3WQ_xL8cmp3a';
+const { createClient } = supabase;
+const db = createClient(SUPABASE_URL, SUPABASE_KEY);
+
+// ─────────────────────────────────────────
+// STATE
+// ─────────────────────────────────────────
+let currentState = 'current'; // 'current' | 'future'
+let currentUser = null;
+let boardData = {}; // { backlog: [...], anthony: [...], ... }
+let hasUnsaved = false;
+let changeLog = [];
+let dragCard = null;
+let dragSource = null;
+
+const PEOPLE = [
+  { key: 'backlog', name: 'Unassigned', color: null },
+  { key: 'anthony',  name: 'Anthony Trujillo',  color: 'linear-gradient(135deg,#3b82f6,#8b5cf6)' },
+  { key: 'geremia',  name: 'Geremia Doan',       color: 'linear-gradient(135deg,#10b981,#3b82f6)' },
+  { key: 'francis',  name: 'Francis Ferma',      color: 'linear-gradient(135deg,#f97316,#ef4444)' },
+  { key: 'tom',      name: 'Tom Jarrell',        color: 'linear-gradient(135deg,#8b5cf6,#06b6d4)' },
+  { key: 'rogi',     name: 'Rogi Poblete',       color: 'linear-gradient(135deg,#f59e0b,#10b981)' },
+  { key: 'jon',      name: 'Jon Andrews',        color: 'linear-gradient(135deg,#6366f1,#8b5cf6)' },
+];
+
+// ─────────────────────────────────────────
+// SEED DATA
+// ─────────────────────────────────────────
+const SEED_CURRENT = [
+  // All 140 tasks start as backlog for current state
+  "Aligning technology initiatives with the 30 by 30 growth strategy",
+  "Supporting executive financial objectives through system planning",
+  "Evaluating technology investments against operational scale",
+  "Advising leadership on technology risk and tradeoffs",
+  "Translating business goals into IT initiatives",
+  "Defining lifecycle standards for enterprise applications",
+  "Managing onboarding and retirement of major platforms",
+  "Evaluating application fit, overlap, and redundancy",
+  "Coordinating application changes with stakeholders",
+  "Maintaining ownership clarity for core systems",
+  "Managing SaaS vendor relationships",
+  "Negotiating contracts and renewals",
+  "Managing vendor billing issues and disputes",
+  "Tracking license usage and compliance",
+  "Identifying and addressing shadow IT",
+  "Tracking technology spend and savings",
+  "Standardizing tools, configurations, and platforms",
+  "Defining operating norms across facilities",
+  "Establishing service expectations and guardrails",
+  "Reducing variance in facility-level implementations",
+  "Tracking IT projects and initiatives",
+  "Developing IT metrics and KPI dashboards",
+  "Reporting service performance and trends",
+  "Supporting data-driven IT decisions",
+  "Preparing executive-facing IT materials",
+  "Providing context during leadership discussions",
+  "Supporting executive decision-making on systems and risk",
+  "Acting as escalation point for strategic questions",
+  "Creating, modifying, disabling, and auditing user accounts",
+  "Managing user provisioning and deprovisioning workflows",
+  "Reconciling HR (UKG) data with IT systems",
+  "Maintaining identity consistency across platforms",
+  "Managing group-based access and role assignment",
+  "Managing MFA deployment and enforcement",
+  "Handling MFA exceptions and recovery",
+  "Handling password resets and account recovery",
+  "Supporting secure authentication across systems",
+  "Managing Google Workspace licensing and entitlements",
+  "Managing Google Groups and shared drive structures",
+  "Troubleshooting email delivery and routing",
+  "Managing spam filtering and email security",
+  "Supporting executive email and calendar issues",
+  "Investigating suspicious emails and account compromise",
+  "Responding to security incidents and escalations",
+  "Managing endpoint protection tooling",
+  "Executing incident containment and remediation",
+  "Supporting post-incident analysis",
+  "Managing firewall rules and documentation",
+  "Managing vulnerability scanning and patch prioritization",
+  "Supporting HIPAA and security audits",
+  "Maintaining audit evidence and compliance documentation",
+  "Running security awareness and training efforts",
+  "Architecting and maintaining SD-WAN infrastructure",
+  "Managing switch configurations and VLANs",
+  "Managing IP addressing and segmentation",
+  "Managing wireless access point configuration",
+  "Maintaining network diagrams and documentation",
+  "Managing ISP relationships and contracts",
+  "Troubleshooting outages and escalations",
+  "Coordinating circuit changes and failover behavior",
+  "Managing network monitoring tools",
+  "Configuring alerts and thresholds",
+  "Troubleshooting performance issues",
+  "Supporting proactive issue detection",
+  "Managing VPN configuration and access",
+  "Supporting secure remote connectivity",
+  "Troubleshooting remote access issues",
+  "Managing server hardware and local infrastructure",
+  "Managing virtualization platforms and VMs",
+  "Monitoring compute resource usage",
+  "Planning and executing server migrations",
+  "Coordinating data center transitions",
+  "Supporting infrastructure consolidation efforts",
+  "Managing backup systems and schedules",
+  "Performing backup verification and recovery testing",
+  "Supporting disaster recovery planning",
+  "Managing UPS systems and power protection",
+  "Managing camera system deployments",
+  "Managing camera access permissions",
+  "Managing video retention and storage",
+  "Responding to camera outages or failures",
+  "Supporting facility safety technology needs",
+  "Procuring laptops and end-user hardware",
+  "Imaging and deploying new devices",
+  "Managing device replacements and failures",
+  "Planning device refresh cycles",
+  "Managing e-waste and asset recovery",
+  "Managing Apple Business Manager enrollment",
+  "Managing mobile device configuration and policies",
+  "Locking, wiping, or recovering lost devices",
+  "Managing telecom accounts and device plans",
+  "Troubleshooting mobile connectivity issues",
+  "Managing printer and copier connectivity",
+  "Coordinating printer and copier moves",
+  "Managing copier lease returns and storage",
+  "Troubleshooting printing issues",
+  "Managing software licensing and renewals",
+  "Auditing license usage and compliance",
+  "Coordinating renewals across departments",
+  "Monitoring SaaS usage and spend",
+  "Identifying cost optimization opportunities",
+  "Supporting finance with system access and reporting",
+  "Serving as SME for PointClickCare",
+  "Managing clinical system access and permissions",
+  "Supporting clinical SaaS platforms",
+  "Supporting integrations between clinical and billing systems",
+  "Identifying workflow bottlenecks",
+  "Supporting clinical users during changes",
+  "Developing training approaches for clinical systems",
+  "Supporting ERP (GP / Dynamics) systems",
+  "Managing DocLink configuration and workflows",
+  "Managing database operations and maintenance",
+  "Performing database patching and performance monitoring",
+  "Executing major system migrations",
+  "Coordinating cross-functional migration efforts",
+  "Supporting users during platform transitions",
+  "Managing IT ticket intake and routing",
+  "Triage and prioritization of support requests",
+  "Resolving end-user support issues",
+  "Managing escalation paths",
+  "Supporting administrators during system changes",
+  "Supporting staff during rollouts and transitions",
+  "Managing end-user adoption challenges",
+  "Maintaining IT documentation and SOPs",
+  "Maintaining the internal IT knowledge base",
+  "Maintaining the Commonspace intranet platform",
+  "Publishing and updating internal forms and guides",
+  "Integrating intake forms with ticketing systems",
+  "Maintaining internal automation workflows",
+  "Piloting AI-assisted support and automation",
+  "Managing IT project intake",
+  "Managing project timelines and dependencies",
+  "Coordinating cross-department IT initiatives",
+  "Supporting business units with system needs",
+  "Acting as liaison between IT and departments",
+  "Translating operational needs into technical solutions",
+  "Managing day-to-day operational decision-making",
+  "Handling undefined or misrouted operational work",
+  "Acting as the default problem-solver for system ambiguity",
+  "Network Administration"
+];
+
+const SEED_FUTURE = [
+  { person: 'anthony', responsibility: 'IT documentation, intranet, and internal knowledge systems', is_key: false, tasks: 'Maintaining IT documentation and SOPs; Maintaining the internal IT knowledge base; Maintaining the Commonspace intranet platform; Publishing and updating internal forms and guides' },
+  { person: 'anthony', responsibility: 'Internal automation, workflow tooling, and AI enablement', is_key: false, tasks: 'Integrating intake forms with ticketing systems; Maintaining internal automation workflows; Piloting AI-assisted support and automation' },
+  { person: 'anthony', responsibility: 'IT project intake, prioritization, and delivery management', is_key: false, tasks: 'Managing IT project intake; Managing project timelines and dependencies; Coordinating cross-department IT initiatives' },
+  { person: 'anthony', responsibility: 'Cross-department technology enablement and coordination', is_key: true, tasks: 'Supporting business units with system needs; Acting as liaison between IT and departments; Translating operational needs into technical solutions' },
+  { person: 'anthony', responsibility: 'Enterprise IT standards, operating models, and success metrics', is_key: true, tasks: 'Standardizing tools, configurations, and platforms; Defining operating norms across facilities; Establishing service expectations and guardrails; Reducing variance in facility-level implementations' },
+  { person: 'anthony', responsibility: 'IT strategy alignment with organizational growth and financial objectives', is_key: true, tasks: 'Aligning technology initiatives with the 30 by 30 growth strategy; Supporting executive financial objectives through system planning; Evaluating technology investments against operational scale; Advising leadership on technology risk and tradeoffs; Translating business goals into IT initiatives' },
+  { person: 'anthony', responsibility: 'Enterprise application lifecycle ownership (ERP, MDM, eFax, core SaaS)', is_key: false, tasks: 'Defining lifecycle standards for enterprise applications; Managing onboarding and retirement of major platforms; Evaluating application fit, overlap, and redundancy; Coordinating application changes with stakeholders; Maintaining ownership clarity for core systems' },
+  { person: 'anthony', responsibility: 'Vendor strategy, contract governance, and software asset management (SAM)', is_key: false, tasks: 'Managing SaaS vendor relationships; Negotiating contracts and renewals; Managing vendor billing issues and disputes; Tracking license usage and compliance; Identifying and addressing shadow IT; Tracking technology spend and savings' },
+  { person: 'anthony', responsibility: 'IT metrics, KPIs, and operational reporting', is_key: false, tasks: 'Tracking IT projects and initiatives; Developing IT metrics and KPI dashboards; Reporting service performance and trends; Supporting data-driven IT decisions' },
+  { person: 'anthony', responsibility: 'Executive IT advisory and decision support', is_key: false, tasks: 'Preparing executive-facing IT materials; Providing context during leadership discussions; Supporting executive decision-making on systems and risk; Acting as escalation point for strategic questions' },
+  { person: 'anthony', responsibility: 'Enterprise software licensing and renewal management', is_key: false, tasks: 'Managing software licensing and renewals; Auditing license usage and compliance; Coordinating renewals across departments' },
+  { person: 'anthony', responsibility: 'Cloud and SaaS cost monitoring and optimization', is_key: false, tasks: 'Monitoring SaaS usage and spend; Identifying cost optimization opportunities; Supporting finance with system access and reporting' },
+  { person: 'anthony', responsibility: 'Email and collaboration platform administration and security', is_key: false, tasks: 'Managing Google Workspace licensing and entitlements; Managing Google Groups and shared drive structures; Troubleshooting email delivery and routing; Managing spam filtering and email security; Supporting executive email and calendar issues' },
+  { person: 'geremia', responsibility: 'Security operations and incident response', is_key: false, tasks: 'Investigating suspicious emails and account compromise; Responding to security incidents and escalations; Managing endpoint protection tooling; Executing incident containment and remediation; Supporting post-incident analysis' },
+  { person: 'geremia', responsibility: 'Security architecture, risk management, and compliance governance', is_key: true, tasks: 'Managing firewall rules and documentation; Managing vulnerability scanning and patch prioritization; Supporting HIPAA and security audits; Maintaining audit evidence and compliance documentation; Running security awareness and training efforts' },
+  { person: 'geremia', responsibility: 'Enterprise network architecture and operations (SD-WAN, LAN, Wi-Fi)', is_key: true, tasks: 'Architecting and maintaining SD-WAN infrastructure; Managing switch configurations and VLANs; Managing IP addressing and segmentation; Managing wireless access point configuration; Maintaining network diagrams and documentation' },
+  { person: 'geremia', responsibility: 'ISP, bandwidth, and connectivity vendor management', is_key: false, tasks: 'Managing ISP relationships and contracts; Troubleshooting outages and escalations; Coordinating circuit changes and failover behavior' },
+  { person: 'geremia', responsibility: 'Network monitoring, alerting, and performance management', is_key: false, tasks: 'Managing network monitoring tools; Configuring alerts and thresholds; Troubleshooting performance issues; Supporting proactive issue detection' },
+  { person: 'geremia', responsibility: 'Remote access and VPN services', is_key: false, tasks: 'Managing VPN configuration and access; Supporting secure remote connectivity; Troubleshooting remote access issues' },
+  { person: 'geremia', responsibility: 'Server, virtualization, and compute infrastructure management', is_key: false, tasks: 'Managing server hardware and local infrastructure; Managing virtualization platforms and VMs; Monitoring compute resource usage' },
+  { person: 'geremia', responsibility: 'Data center strategy and infrastructure migrations', is_key: false, tasks: 'Planning and executing server migrations; Coordinating data center transitions; Supporting infrastructure consolidation efforts' },
+  { person: 'geremia', responsibility: 'Backup, disaster recovery, and business continuity operations', is_key: true, tasks: 'Managing backup systems and schedules; Performing backup verification and recovery testing; Supporting disaster recovery planning; Managing UPS systems and power protection' },
+  { person: 'geremia', responsibility: 'Authentication, MFA, and account recovery governance', is_key: false, tasks: 'Managing MFA deployment and enforcement; Handling MFA exceptions and recovery; Handling password resets and account recovery; Supporting secure authentication across systems' },
+  { person: 'geremia', responsibility: 'Enterprise system migrations and major platform transitions', is_key: false, tasks: 'Executing major system migrations; Coordinating cross-functional migration efforts; Supporting users during platform transitions' },
+  { person: 'geremia', responsibility: 'Physical security and camera systems management', is_key: false, tasks: 'Managing camera system deployments; Managing camera access permissions; Managing video retention and storage; Responding to camera outages or failures; Supporting facility safety technology needs' },
+  { person: 'francis', responsibility: 'End-user hardware lifecycle management (procurement to retirement)', is_key: true, tasks: 'Procuring laptops and end-user hardware; Imaging and deploying new devices; Managing device replacements and failures; Planning device refresh cycles; Managing e-waste and asset recovery' },
+  { person: 'francis', responsibility: 'Printer, copier, and peripheral services management', is_key: false, tasks: 'Managing printer and copier connectivity; Coordinating printer and copier moves; Managing copier lease returns and storage; Troubleshooting printing issues' },
+  { person: 'francis', responsibility: 'Service desk ownership and end-user support operations', is_key: true, tasks: 'Managing IT ticket intake and routing; Triage and prioritization of support requests; Resolving end-user support issues; Managing escalation paths' },
+  { person: 'francis', responsibility: 'End-user adoption, training, and change enablement', is_key: false, tasks: 'Supporting administrators during system changes; Supporting staff during rollouts and transitions; Managing end-user adoption challenges' },
+  { person: 'francis', responsibility: 'Mobile device and telecom management', is_key: false, tasks: 'Managing Apple Business Manager enrollment; Managing mobile device configuration and policies; Locking, wiping, or recovering lost devices; Managing telecom accounts and device plans; Troubleshooting mobile connectivity issues' },
+  { person: 'francis', responsibility: 'Operational escalation handling and ambiguity resolution', is_key: false, tasks: 'Managing day-to-day operational decision-making; Handling undefined or misrouted operational work; Acting as the default problem-solver for system ambiguity' },
+  { person: 'tom', responsibility: 'Identity and access management (IAM) across enterprise systems', is_key: true, tasks: 'Creating, modifying, disabling, and auditing user accounts; Managing user provisioning and deprovisioning workflows; Reconciling HR (UKG) data with IT systems; Maintaining identity consistency across platforms; Managing group-based access and role assignment' },
+  { person: 'tom', responsibility: 'Network Administration', is_key: false, tasks: '' },
+  { person: 'rogi', responsibility: 'Clinical systems ownership (PointClickCare and clinical SaaS)', is_key: false, tasks: 'Serving as SME for PointClickCare; Managing clinical system access and permissions; Supporting clinical SaaS platforms' },
+  { person: 'rogi', responsibility: 'Clinical system integrations, workflows, and user enablement', is_key: false, tasks: 'Supporting integrations between clinical and billing systems; Identifying workflow bottlenecks; Supporting clinical users during changes; Developing training approaches for clinical systems' },
+  { person: 'jon', responsibility: 'ERP, document management, and database operations', is_key: false, tasks: 'Supporting ERP (GP / Dynamics) systems; Managing DocLink configuration and workflows; Managing database operations and maintenance; Performing database patching and performance monitoring' },
+];
+
+// ─────────────────────────────────────────
+// AUTH
+// ─────────────────────────────────────────
+async function signIn() {
+  const email = document.getElementById('authEmail').value.trim();
+  const password = document.getElementById('authPassword').value;
+  const errEl = document.getElementById('authError');
+  errEl.textContent = '';
+  document.getElementById('authBtn').textContent = 'Signing in…';
+
+  const { data, error } = await db.auth.signInWithPassword({ email, password });
+  document.getElementById('authBtn').textContent = 'Sign In';
+
+  if (error) { errEl.textContent = error.message; return; }
+  currentUser = data.user;
+  showApp();
+}
+
+async function signOut() {
+  await db.auth.signOut();
+  location.reload();
+}
+
+function toggleUserMenu() {
+  document.getElementById('userMenu').classList.toggle('open');
+}
+
+document.addEventListener('click', (e) => {
+  if (!e.target.closest('.rail-user')) {
+    document.getElementById('userMenu').classList.remove('open');
+  }
+});
+
+// ─────────────────────────────────────────
+// INIT
+// ─────────────────────────────────────────
+async function init() {
+  const { data: { session } } = await db.auth.getSession();
+  document.getElementById('loadingOverlay').style.display = 'none';
+
+  if (session?.user) {
+    currentUser = session.user;
+    showApp();
+  } else {
+    document.getElementById('authScreen').style.display = 'flex';
+  }
+}
+
+async function showApp() {
+  // Update user UI
+  const email = currentUser.email;
+  const initials = email.split('@')[0].slice(0,2).toUpperCase();
+  document.getElementById('railUserInitials').textContent = initials;
+  document.getElementById('menuName').textContent = email.split('@')[0];
+  document.getElementById('menuEmail').textContent = email;
+  document.getElementById('authScreen').style.display = 'none';
+  document.getElementById('appLayout').style.display = 'grid';
+
+  await loadData();
+  renderBoard();
+  await loadChangeLog();
+}
+
+// ─────────────────────────────────────────
+// DATA LOADING
+// ─────────────────────────────────────────
+async function loadData() {
+  // Try to load from Supabase
+  const { data, error } = await db.from('responsibilities').select('*').order('sort_order');
+
+  if (error || !data || data.length === 0) {
+    // First run — seed the data
+    await seedData();
+    return loadData();
+  }
+
+  // Build boardData from DB
+  boardData = { current: {}, future: {} };
+  PEOPLE.forEach(p => {
+    boardData.current[p.key] = [];
+    boardData.future[p.key] = [];
+  });
+
+  data.forEach(row => {
+    const cPerson = row.assigned_to_current || 'backlog';
+    const fPerson = row.assigned_to_future || 'backlog';
+    if (boardData.current[cPerson] !== undefined) {
+      boardData.current[cPerson].push({
+        id: row.id,
+        text: row.responsibility,
+        tasks: row.tasks || '',
+        is_key: row.is_key_current || false,
+        is_key_current: row.is_key_current || false,
+        is_key_future: row.is_key_future || false,
+        assigned_current: cPerson,
+        assigned_future: fPerson,
+        sort_order: row.sort_order || 0,
+      });
+    }
+    if (boardData.future[fPerson] !== undefined) {
+      boardData.future[fPerson].push({
+        id: row.id,
+        text: row.responsibility,
+        tasks: row.tasks || '',
+        is_key: row.is_key_future || false,
+        is_key_current: row.is_key_current || false,
+        is_key_future: row.is_key_future || false,
+        assigned_current: cPerson,
+        assigned_future: fPerson,
+        sort_order: row.sort_order || 0,
+      });
+    }
+  });
+}
+
+async function seedData() {
+  showToast('First run — seeding data…', 'info');
+
+  // Seed future state (has assignments)
+  const futureRows = SEED_FUTURE.map((item, i) => ({
+    responsibility: item.responsibility,
+    tasks: item.tasks,
+    is_key_current: false,
+    is_key_future: item.is_key,
+    assigned_to_current: 'backlog',
+    assigned_to_future: item.person,
+    sort_order: i,
+  }));
+
+  // Seed current state backlog items (not already in future)
+  const futureTexts = new Set(SEED_FUTURE.map(f => f.responsibility));
+  let idx = futureRows.length;
+  const currentOnlyRows = SEED_CURRENT
+    .filter(r => !futureTexts.has(r))
+    .map(text => ({
+      responsibility: text,
+      tasks: '',
+      is_key_current: false,
+      is_key_future: false,
+      assigned_to_current: 'backlog',
+      assigned_to_future: 'backlog',
+      sort_order: idx++,
+    }));
+
+  const allRows = [...futureRows, ...currentOnlyRows];
+  const batchSize = 50;
+  for (let i = 0; i < allRows.length; i += batchSize) {
+    await db.from('responsibilities').insert(allRows.slice(i, i + batchSize));
+  }
+  showToast('Data seeded successfully', 'success');
+}
+
+// ─────────────────────────────────────────
+// RENDER
+// ─────────────────────────────────────────
+function renderBoard() {
+  const board = document.getElementById('kanbanBoard');
+  board.innerHTML = '';
+  const stateData = boardData[currentState];
+
+  PEOPLE.forEach(person => {
+    const cards = stateData[person.key] || [];
+    const col = document.createElement('div');
+    col.className = 'column';
+    col.dataset.person = person.key;
+
+    // Header
+    const header = document.createElement('div');
+    header.className = 'column-header';
+
+    if (person.color) {
+      const avatar = document.createElement('div');
+      avatar.className = 'column-avatar';
+      avatar.style.background = person.color;
+      avatar.textContent = person.name.split(' ').map(n=>n[0]).join('').slice(0,2);
+      header.appendChild(avatar);
+    }
+
+    const nameEl = document.createElement('div');
+    nameEl.className = 'column-name';
+    nameEl.textContent = person.key === 'backlog' ? 'Unassigned' : person.name;
+    header.appendChild(nameEl);
+
+    const countEl = document.createElement('div');
+    countEl.className = 'column-count';
+    countEl.textContent = `${cards.length} ${cards.length === 1 ? 'responsibility' : 'responsibilities'}`;
+    header.appendChild(countEl);
+    col.appendChild(header);
+
+    // Cards container
+    const cardsEl = document.createElement('div');
+    cardsEl.className = 'column-cards';
+    cardsEl.dataset.person = person.key;
+
+    if (cards.length === 0) {
+      const empty = document.createElement('div');
+      empty.className = 'column-empty';
+      empty.textContent = person.key === 'backlog' ? 'All assigned' : 'Drop responsibilities here';
+      cardsEl.appendChild(empty);
+    } else {
+      cards.forEach(card => cardsEl.appendChild(createCard(card)));
+    }
+
+    // Drag events on column
+    cardsEl.addEventListener('dragover', onDragOver);
+    cardsEl.addEventListener('drop', onDrop);
+    cardsEl.addEventListener('dragleave', onDragLeave);
+    col.appendChild(cardsEl);
+
+    // Add to backlog input
+    if (person.key === 'backlog') {
+      const addArea = document.createElement('div');
+      addArea.className = 'backlog-add';
+      addArea.innerHTML = `
+        <textarea class="backlog-textarea" id="newRespInput" placeholder="Enter a new responsibility to add to the backlog…"></textarea>
+        <button class="backlog-add-btn" onclick="addResponsibility()">+ Add Responsibility</button>
+      `;
+      col.appendChild(addArea);
+    }
+
+    board.appendChild(col);
+  });
+}
+
+function createCard(card) {
+  const el = document.createElement('div');
+  el.className = 'resp-card' + (card.is_key ? ' is-key' : '');
+  el.draggable = true;
+  el.dataset.id = card.id;
+
+  el.addEventListener('dragstart', onDragStart);
+  el.addEventListener('dragend', onDragEnd);
+
+  const tasks = card.tasks ? card.tasks.split(';').map(t => t.trim()).filter(Boolean) : [];
+  const hasTasks = tasks.length > 0;
+  const stateLabel = currentState === 'current' ? 'CURRENT' : 'FUTURE';
+  const badgeClass = currentState === 'current' ? 'badge-current' : 'badge-future';
+
+  el.innerHTML = `
+    <div class="card-text">${card.text}</div>
+    <div class="card-footer">
+      <span class="card-state-badge ${badgeClass}">${stateLabel}</span>
+      <div class="card-actions">
+        ${hasTasks ? `<button class="card-tasks-toggle" title="Show tasks" onclick="toggleTasks(this)">▾</button>` : ''}
+        <button class="key-toggle" title="${card.is_key ? 'Remove key responsibility' : 'Mark as key responsibility'}" onclick="toggleKey(this, '${card.id}')">★</button>
+      </div>
+    </div>
+    ${hasTasks ? `<div class="card-tasks">${tasks.map(t => `<div class="card-task-item">${t}</div>`).join('')}</div>` : ''}
+  `;
+
+  return el;
+}
+
+// ─────────────────────────────────────────
+// DRAG & DROP
+// ─────────────────────────────────────────
+function onDragStart(e) {
+  dragCard = e.currentTarget;
+  dragSource = dragCard.closest('.column-cards').dataset.person;
+  dragCard.classList.add('dragging');
+  e.dataTransfer.effectAllowed = 'move';
+  e.dataTransfer.setData('text/plain', dragCard.dataset.id);
+}
+
+function onDragEnd(e) {
+  if (dragCard) dragCard.classList.remove('dragging');
+  document.querySelectorAll('.column-cards').forEach(c => c.closest('.column').classList.remove('drag-over'));
+}
+
+function onDragOver(e) {
+  e.preventDefault();
+  e.dataTransfer.dropEffect = 'move';
+  const col = e.currentTarget.closest('.column');
+  col.classList.add('drag-over');
+}
+
+function onDragLeave(e) {
+  const col = e.currentTarget.closest('.column');
+  if (!col.contains(e.relatedTarget)) col.classList.remove('drag-over');
+}
+
+function onDrop(e) {
+  e.preventDefault();
+  const target = e.currentTarget;
+  const col = target.closest('.column');
+  col.classList.remove('drag-over');
+
+  const cardId = e.dataTransfer.getData('text/plain');
+  const targetPerson = target.dataset.person;
+
+  if (!cardId || dragSource === targetPerson) return;
+
+  moveCard(cardId, dragSource, targetPerson);
+}
+
+function moveCard(cardId, fromPerson, toPerson) {
+  const stateData = boardData[currentState];
+
+  // Find card
+  const fromList = stateData[fromPerson];
+  const cardIdx = fromList.findIndex(c => c.id === cardId);
+  if (cardIdx === -1) return;
+
+  const card = fromList.splice(cardIdx, 1)[0];
+
+  // Update assignment
+  if (currentState === 'current') card.assigned_current = toPerson;
+  else card.assigned_future = toPerson;
+
+  stateData[toPerson].push(card);
+  markUnsaved();
+
+  // Log change
+  const fromName = PEOPLE.find(p => p.key === fromPerson)?.name || fromPerson;
+  const toName = PEOPLE.find(p => p.key === toPerson)?.name || toPerson;
+  addLogEntry(`Moved "${card.text}" from ${fromName} → ${toName} (${currentState} state)`);
+
+  renderBoard();
+}
+
+// ─────────────────────────────────────────
+// KEY TOGGLE
+// ─────────────────────────────────────────
+function toggleKey(btn, cardId) {
+  const stateData = boardData[currentState];
+  let found = null;
+  let foundPerson = null;
+
+  for (const person of PEOPLE) {
+    const list = stateData[person.key];
+    const card = list.find(c => c.id === cardId);
+    if (card) { found = card; foundPerson = person; break; }
+  }
+  if (!found) return;
+
+  if (currentState === 'current') {
+    found.is_key_current = !found.is_key_current;
+    found.is_key = found.is_key_current;
+  } else {
+    found.is_key_future = !found.is_key_future;
+    found.is_key = found.is_key_future;
+  }
+
+  markUnsaved();
+  const label = found.is_key ? 'key' : 'standard';
+  addLogEntry(`Marked "${found.text}" as ${label} responsibility (${currentState} state)`);
+  renderBoard();
+}
+
+// ─────────────────────────────────────────
+// TASK EXPAND
+// ─────────────────────────────────────────
+function toggleTasks(btn) {
+  const card = btn.closest('.resp-card');
+  const tasks = card.querySelector('.card-tasks');
+  if (!tasks) return;
+  tasks.classList.toggle('open');
+  btn.textContent = tasks.classList.contains('open') ? '▴' : '▾';
+}
+
+// ─────────────────────────────────────────
+// STATE SWITCHING
+// ─────────────────────────────────────────
+function setState(state) {
+  currentState = state;
+  document.getElementById('btnCurrent').className = 'state-btn' + (state === 'current' ? ' active-current' : '');
+  document.getElementById('btnFuture').className = 'state-btn' + (state === 'future' ? ' active-future' : '');
+  document.getElementById('statusText').textContent = `Viewing: ${state === 'current' ? 'Current' : 'Future'} State`;
+
+  if (state === 'future') {
+    document.body.classList.add('future-mode');
+  } else {
+    document.body.classList.remove('future-mode');
+  }
+  renderBoard();
+}
+
+// ─────────────────────────────────────────
+// SAVE
+// ─────────────────────────────────────────
+async function saveState() {
+  showToast('Saving…', 'info');
+
+  // Build update payloads from boardData
+  const updates = [];
+  const allIds = new Set();
+
+  ['current', 'future'].forEach(state => {
+    PEOPLE.forEach(person => {
+      (boardData[state][person.key] || []).forEach(card => {
+        if (!allIds.has(card.id)) {
+          allIds.add(card.id);
+          updates.push({
+            id: card.id,
+            responsibility: card.text,
+            tasks: card.tasks,
+            is_key_current: card.is_key_current,
+            is_key_future: card.is_key_future,
+            assigned_to_current: card.assigned_current,
+            assigned_to_future: card.assigned_future,
+          });
+        }
+      });
+    });
+  });
+
+  const batchSize = 50;
+  let success = true;
+  for (let i = 0; i < updates.length; i += batchSize) {
+    const { error } = await db.from('responsibilities').upsert(updates.slice(i, i + batchSize));
+    if (error) { success = false; console.error(error); }
+  }
+
+  if (success) {
+    hasUnsaved = false;
+    document.getElementById('unsavedBadge').classList.remove('visible');
+    showToast('Saved successfully', 'success');
+  } else {
+    showToast('Save failed — check console', 'error');
+  }
+}
+
+// ─────────────────────────────────────────
+// APPLY TO BIOS
+// ─────────────────────────────────────────
+async function applyToBios() {
+  await saveState();
+  addLogEntry(`Applied ${currentState} state assignments to bios`);
+  showToast('Applied to bios ✓', 'success');
+}
+
+// ─────────────────────────────────────────
+// CLEAR ALL
+// ─────────────────────────────────────────
+function clearAllAssignments() {
+  if (!confirm(`Move all ${currentState} state assignments back to Unassigned?`)) return;
+
+  const stateData = boardData[currentState];
+  const allCards = [];
+  PEOPLE.forEach(p => {
+    allCards.push(...stateData[p.key]);
+    stateData[p.key] = [];
+  });
+  allCards.forEach(card => {
+    if (currentState === 'current') card.assigned_current = 'backlog';
+    else card.assigned_future = 'backlog';
+    stateData['backlog'].push(card);
+  });
+
+  markUnsaved();
+  addLogEntry(`Cleared all ${currentState} state assignments`);
+  renderBoard();
+}
+
+// ─────────────────────────────────────────
+// ADD RESPONSIBILITY
+// ─────────────────────────────────────────
+async function addResponsibility() {
+  const input = document.getElementById('newRespInput');
+  const text = input.value.trim();
+  if (!text) return;
+
+  const newRow = {
+    responsibility: text,
+    tasks: '',
+    is_key_current: false,
+    is_key_future: false,
+    assigned_to_current: 'backlog',
+    assigned_to_future: 'backlog',
+    sort_order: 9999,
+  };
+
+  const { data, error } = await db.from('responsibilities').insert(newRow).select().single();
+  if (error) { showToast('Failed to add', 'error'); return; }
+
+  const card = {
+    id: data.id,
+    text: data.responsibility,
+    tasks: '',
+    is_key: false,
+    is_key_current: false,
+    is_key_future: false,
+    assigned_current: 'backlog',
+    assigned_future: 'backlog',
+    sort_order: 9999,
+  };
+
+  boardData.current['backlog'].push({ ...card });
+  boardData.future['backlog'].push({ ...card });
+
+  addLogEntry(`Added new responsibility: "${text}"`);
+  input.value = '';
+  renderBoard();
+  showToast('Responsibility added', 'success');
+}
+
+// ─────────────────────────────────────────
+// CHANGE LOG
+// ─────────────────────────────────────────
+async function loadChangeLog() {
+  const { data } = await db.from('change_log')
+    .select('*')
+    .order('created_at', { ascending: false })
+    .limit(100);
+
+  if (data && data.length > 0) {
+    changeLog = data;
+    renderLog();
+  }
+}
+
+function addLogEntry(action) {
+  const entry = {
+    user_email: currentUser?.email || 'unknown',
+    action,
+    state: currentState,
+    created_at: new Date().toISOString(),
+  };
+  changeLog.unshift(entry);
+  db.from('change_log').insert(entry);
+  renderLog();
+}
+
+function renderLog() {
+  const list = document.getElementById('logList');
+  if (changeLog.length === 0) {
+    list.innerHTML = '<div class="log-empty">No changes recorded yet.</div>';
+    return;
+  }
+  list.innerHTML = changeLog.slice(0, 50).map(entry => {
+    const date = new Date(entry.created_at);
+    const time = date.toLocaleString('en-US', { month: 'short', day: 'numeric', hour: 'numeric', minute: '2-digit' });
+    const name = (entry.user_email || '').split('@')[0];
+    return `
+      <div class="log-item">
+        <div class="log-action">${entry.action}</div>
+        <div class="log-meta">${name} · ${time}</div>
+      </div>
+    `;
+  }).join('');
+}
+
+function toggleLog() {
+  document.getElementById('logDrawer').classList.toggle('open');
+}
+
+// ─────────────────────────────────────────
+// HELPERS
+// ─────────────────────────────────────────
+function markUnsaved() {
+  hasUnsaved = true;
+  document.getElementById('unsavedBadge').classList.add('visible');
+}
+
+function showToast(msg, type = 'info') {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.className = `toast show ${type}`;
+  setTimeout(() => { t.className = 'toast'; }, 2500);
+}
+
+// ─────────────────────────────────────────
+// DATE
+// ─────────────────────────────────────────
+document.addEventListener('DOMContentLoaded', () => {
+  init();
+});
+</script>
+</body>
+</html>
