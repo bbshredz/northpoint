@@ -3,13 +3,13 @@
 
 const NP_AUTH = {
     passwords: {
-        'it-overview': 'onwardandupward',
-        'budget':      'money2026',
-        'team':        'welcome2026',
-        'facilities':  'kingdom2026',
-        'software':    'softwarez2026',
-        'projects':    'projects2026',
-        'field-guide': 'field2026',
+        'it-overview': 'hello',
+        'budget':      'hello',
+        'team':        'hello',
+        'facilities':  'hello',
+        'software':    'hello',
+        'projects':    'hello',
+        'field-guide': 'hello',
     },
 
     // Derive which module we're on from the URL
