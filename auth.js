@@ -201,6 +201,16 @@ const NP_AUTH = {
                 <input id="np-gate-input" type="password" placeholder="· · · · · · · · · · · ·" autocomplete="off" />
                 <button id="np-gate-btn">Continue</button>
                 <div id="np-gate-error"></div>
+                <a href="${location.origin}/northpoint/index.html" style="
+                    display: inline-block;
+                    margin-top: 20px;
+                    font-size: 12px;
+                    color: #475569;
+                    text-decoration: none;
+                    transition: color 0.2s;
+                " onmouseover="this.style.color='#94a3b8'" onmouseout="this.style.color='#475569'">
+                    ← Back to Hub
+                </a>
             </div>
         `;
         document.body.appendChild(gate);
