@@ -190,8 +190,116 @@
         @media (max-width: 640px) {
             .fte-grid { grid-template-columns: 1fr; }
         }
+
+        /* CAROUSEL */
+        .carousel-wrap {
+            position: relative;
+            margin-bottom: 40px;
+            overflow: hidden;
+        }
+        .carousel-track {
+            display: flex;
+            transition: transform 0.45s cubic-bezier(0.4,0,0.2,1);
+        }
+        .carousel-track .team-card {
+            min-width: 100%;
+            border-radius: 14px;
+            box-sizing: border-box;
+        }
+        .carousel-controls {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 16px;
+            margin-top: 16px;
+        }
+        .carousel-btn {
+            width: 34px; height: 34px;
+            border-radius: 50%;
+            border: 1px solid var(--border);
+            background: var(--card);
+            color: var(--text-secondary);
+            font-size: 16px;
+            cursor: pointer;
+            display: flex; align-items: center; justify-content: center;
+            transition: all 0.18s;
+        }
+        .carousel-btn:hover {
+            border-color: var(--accent);
+            color: var(--accent);
+            box-shadow: 0 0 0 3px var(--accent-dim);
+        }
+        .carousel-dots {
+            display: flex;
+            gap: 6px;
+            align-items: center;
+        }
+        .carousel-dot {
+            width: 6px; height: 6px;
+            border-radius: 50%;
+            background: var(--border);
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        .carousel-dot.active {
+            background: var(--accent);
+            width: 18px;
+            border-radius: 3px;
+        }
+        .team-profile-link {
+            display: inline-block;
+            margin-top: 14px;
+            font-size: 12px;
+            font-weight: 600;
+            color: var(--accent);
+            text-decoration: none;
+            transition: opacity 0.2s;
+        }
+        .team-profile-link:hover { opacity: 0.7; }
     </style>
 </head>
+<script>
+(function() {
+    const track  = document.getElementById('carouselTrack');
+    const dotsEl = document.getElementById('carouselDots');
+    const prev   = document.getElementById('carouselPrev');
+    const next   = document.getElementById('carouselNext');
+    const cards  = track.querySelectorAll('.team-card');
+    let current  = 0;
+    let timer;
+
+    // Build dots
+    cards.forEach((_, i) => {
+        const d = document.createElement('div');
+        d.className = 'carousel-dot' + (i === 0 ? ' active' : '');
+        d.addEventListener('click', () => goTo(i));
+        dotsEl.appendChild(d);
+    });
+
+    function goTo(n) {
+        current = (n + cards.length) % cards.length;
+        track.style.transform = `translateX(-${current * 100}%)`;
+        dotsEl.querySelectorAll('.carousel-dot').forEach((d, i) => {
+            d.classList.toggle('active', i === current);
+        });
+        resetTimer();
+    }
+
+    function resetTimer() {
+        clearInterval(timer);
+        timer = setInterval(() => goTo(current + 1), 4000);
+    }
+
+    prev.addEventListener('click', () => goTo(current - 1));
+    next.addEventListener('click', () => goTo(current + 1));
+
+    // Pause on hover
+    track.addEventListener('mouseenter', () => clearInterval(timer));
+    track.addEventListener('mouseleave', resetTimer);
+
+    resetTimer();
+})();
+</script>
 <body class="mod-overview">
 <div class="layout">
     <div id="rail-mount"></div>
@@ -295,124 +403,120 @@
 
             </div>
 
-            <!-- IT TEAM -->
+            <!-- TEAM CAROUSEL -->
             <div class="section-header animate-4">
                 <span class="section-title">IT Team</span>
                 <div class="section-line"></div>
             </div>
 
-            <div class="fte-grid animate-4">
+            <div class="carousel-wrap animate-4">
+                <div class="carousel-track" id="carouselTrack">
 
-                <div class="fte-card">
-                    <div class="fte-header">
-                        <div class="fte-avatar">AT</div>
-                        <div>
-                            <div class="fte-name">Anthony Trujillo</div>
-                            <div class="fte-title">IT Director — South</div>
+                    <div class="team-card">
+                        <div class="team-card-header">
+                            <div class="team-avatar" style="background:linear-gradient(135deg,#3b82f6,#6366f1)">AT</div>
+                            <div>
+                                <div class="team-name">Anthony Trujillo</div>
+                                <div class="team-role">IT Director — South</div>
+                            </div>
                         </div>
-                    </div>
-                    <div class="fte-domains">
-                        <span class="fte-domain">Platform Strategy</span>
-                        <span class="fte-domain">Vendor Management</span>
-                        <span class="fte-domain">Executive Reporting</span>
-                        <span class="fte-domain">Budget & Finance</span>
-                    </div>
-                    <div class="fte-focus">
-                        <strong>Current focus:</strong> 2026 budget planning, merger integration strategy, and platform consolidation across Southern facilities.
-                    </div>
-                </div>
-
-                <div class="fte-card">
-                    <div class="fte-header">
-                        <div class="fte-avatar" style="background: linear-gradient(135deg, #10b981 0%, #0891b2 100%)">GD</div>
-                        <div>
-                            <div class="fte-name">Geremia Doan</div>
-                            <div class="fte-title">IT Director — North</div>
+                        <div class="team-domains">
+                            <span class="team-domain">Platform Strategy</span>
+                            <span class="team-domain">Vendor Management</span>
+                            <span class="team-domain">Budget & Finance</span>
+                            <span class="team-domain">Executive Reporting</span>
                         </div>
+                        <a href="https://bbshredz.github.io/it-leadership-overview" target="_blank" class="team-profile-link">View full profile →</a>
                     </div>
-                    <div class="fte-domains">
-                        <span class="fte-domain">Northern Facilities</span>
-                        <span class="fte-domain">Infrastructure</span>
-                        <span class="fte-domain">Team Coordination</span>
-                    </div>
-                    <div class="fte-focus">
-                        <strong>Current focus:</strong> Northern facility operations, infrastructure stability, and field team coordination across the Northern region.
-                    </div>
-                </div>
 
-                <div class="fte-card">
-                    <div class="fte-header">
-                        <div class="fte-avatar" style="background: linear-gradient(135deg, #f59e0b 0%, #ef4444 100%)">TJ</div>
-                        <div>
-                            <div class="fte-name">Tom Jarrell</div>
-                            <div class="fte-title">Network Administrator</div>
+                    <div class="team-card">
+                        <div class="team-card-header">
+                            <div class="team-avatar" style="background:linear-gradient(135deg,#10b981,#0891b2)">GD</div>
+                            <div>
+                                <div class="team-name">Geremia Doan</div>
+                                <div class="team-role">IT Director — North</div>
+                            </div>
                         </div>
-                    </div>
-                    <div class="fte-domains">
-                        <span class="fte-domain">Network Infrastructure</span>
-                        <span class="fte-domain">Connectivity</span>
-                        <span class="fte-domain">Hardware Lifecycle</span>
-                    </div>
-                    <div class="fte-focus">
-                        <strong>Current focus:</strong> Network stability across all facilities, TPX connectivity review, and hardware refresh planning.
-                    </div>
-                </div>
-
-                <div class="fte-card">
-                    <div class="fte-header">
-                        <div class="fte-avatar" style="background: linear-gradient(135deg, #8b5cf6 0%, #ec4899 100%)">RP</div>
-                        <div>
-                            <div class="fte-name">Rogi Poblete</div>
-                            <div class="fte-title">Clinical Project Specialist</div>
+                        <div class="team-domains">
+                            <span class="team-domain">Northern Facilities</span>
+                            <span class="team-domain">Infrastructure</span>
+                            <span class="team-domain">Team Coordination</span>
                         </div>
+                        <a href="https://bbshredz.github.io/it-leadership-overview" target="_blank" class="team-profile-link">View full profile →</a>
                     </div>
-                    <div class="fte-domains">
-                        <span class="fte-domain">EHR Optimization</span>
-                        <span class="fte-domain">Clinical Workflow</span>
-                        <span class="fte-domain">PointClickCare</span>
-                    </div>
-                    <div class="fte-focus">
-                        <strong>Current focus:</strong> PointClickCare optimization, clinical workflow improvements, and system integration with ancillary tools.
-                    </div>
-                </div>
 
-                <div class="fte-card">
-                    <div class="fte-header">
-                        <div class="fte-avatar" style="background: linear-gradient(135deg, #14b8a6 0%, #3b82f6 100%)">FF</div>
-                        <div>
-                            <div class="fte-name">Francis Ferma</div>
-                            <div class="fte-title">IT Technician</div>
+                    <div class="team-card">
+                        <div class="team-card-header">
+                            <div class="team-avatar" style="background:linear-gradient(135deg,#f59e0b,#ef4444)">TJ</div>
+                            <div>
+                                <div class="team-name">Tom Jarrell</div>
+                                <div class="team-role">Network Administrator</div>
+                            </div>
                         </div>
-                    </div>
-                    <div class="fte-domains">
-                        <span class="fte-domain">End-User Support</span>
-                        <span class="fte-domain">Field Operations</span>
-                        <span class="fte-domain">Help Desk</span>
-                    </div>
-                    <div class="fte-focus">
-                        <strong>Current focus:</strong> Day-to-day end-user support, field technician coverage across Southern facilities, and help desk operations.
-                    </div>
-                </div>
-
-                <div class="fte-card">
-                    <div class="fte-header">
-                        <div class="fte-avatar" style="background: linear-gradient(135deg, #f97316 0%, #eab308 100%)">JA</div>
-                        <div>
-                            <div class="fte-name">Jon Andrews</div>
-                            <div class="fte-title">Database Administrator</div>
+                        <div class="team-domains">
+                            <span class="team-domain">Network Infrastructure</span>
+                            <span class="team-domain">Connectivity</span>
+                            <span class="team-domain">Hardware Lifecycle</span>
                         </div>
+                        <a href="https://bbshredz.github.io/it-leadership-overview" target="_blank" class="team-profile-link">View full profile →</a>
                     </div>
-                    <div class="fte-domains">
-                        <span class="fte-domain">Data Integrity</span>
-                        <span class="fte-domain">SQL</span>
-                        <span class="fte-domain">Reporting Infrastructure</span>
-                    </div>
-                    <div class="fte-focus">
-                        <strong>Current focus:</strong> Database performance, reporting infrastructure, and data integrity across clinical and operational systems.
-                    </div>
-                </div>
 
-            </div>
+                    <div class="team-card">
+                        <div class="team-card-header">
+                            <div class="team-avatar" style="background:linear-gradient(135deg,#8b5cf6,#ec4899)">RP</div>
+                            <div>
+                                <div class="team-name">Rogi Poblete</div>
+                                <div class="team-role">Clinical Project Specialist</div>
+                            </div>
+                        </div>
+                        <div class="team-domains">
+                            <span class="team-domain">EHR Optimization</span>
+                            <span class="team-domain">Clinical Workflow</span>
+                            <span class="team-domain">PointClickCare</span>
+                        </div>
+                        <a href="https://bbshredz.github.io/it-leadership-overview" target="_blank" class="team-profile-link">View full profile →</a>
+                    </div>
+
+                    <div class="team-card">
+                        <div class="team-card-header">
+                            <div class="team-avatar" style="background:linear-gradient(135deg,#14b8a6,#3b82f6)">FF</div>
+                            <div>
+                                <div class="team-name">Francis Ferma</div>
+                                <div class="team-role">IT Technician</div>
+                            </div>
+                        </div>
+                        <div class="team-domains">
+                            <span class="team-domain">End-User Support</span>
+                            <span class="team-domain">Field Operations</span>
+                            <span class="team-domain">Help Desk</span>
+                        </div>
+                        <a href="https://bbshredz.github.io/it-leadership-overview" target="_blank" class="team-profile-link">View full profile →</a>
+                    </div>
+
+                    <div class="team-card">
+                        <div class="team-card-header">
+                            <div class="team-avatar" style="background:linear-gradient(135deg,#f97316,#eab308)">JA</div>
+                            <div>
+                                <div class="team-name">Jon Andrews</div>
+                                <div class="team-role">Database Administrator</div>
+                            </div>
+                        </div>
+                        <div class="team-domains">
+                            <span class="team-domain">Data Integrity</span>
+                            <span class="team-domain">SQL</span>
+                            <span class="team-domain">Reporting Infrastructure</span>
+                        </div>
+                        <a href="https://bbshredz.github.io/it-leadership-overview" target="_blank" class="team-profile-link">View full profile →</a>
+                    </div>
+
+                </div><!-- /.carousel-track -->
+
+                <div class="carousel-controls">
+                    <button class="carousel-btn" id="carouselPrev">←</button>
+                    <div class="carousel-dots" id="carouselDots"></div>
+                    <button class="carousel-btn" id="carouselNext">→</button>
+                </div>
+            </div><!-- /.carousel-wrap -->
 
         </div>
     </div>

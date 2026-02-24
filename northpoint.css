@@ -284,6 +284,9 @@ body {
     opacity: 0.7;
 }
 
+/* Prevent font-load flash */
+html { background: var(--navy); }
+
 .topbar-left {
     display: flex;
     align-items: center;
