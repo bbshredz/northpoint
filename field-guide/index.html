@@ -5,47 +5,10 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>IT Field Guide — NorthPoint</title>
     <link rel="stylesheet" href="../northpoint.css">
-    <style>
-        .uc-page {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            min-height: 400px;
-            text-align: center;
-            gap: 16px;
-        }
-        .uc-icon { font-size: 48px; margin-bottom: 8px; opacity: 0.4; }
-        .uc-title {
-            font-family: 'DM Serif Display', serif;
-            font-size: 28px;
-            color: var(--text-primary);
-            font-weight: 400;
-        }
-        .uc-desc {
-            font-size: 14px;
-            color: var(--text-secondary);
-            max-width: 400px;
-            line-height: 1.7;
-            font-weight: 300;
-        }
-        .uc-pill {
-            background: var(--navy);
-            color: rgba(255,255,255,0.7);
-            font-size: 11px;
-            font-weight: 600;
-            padding: 6px 16px;
-            border-radius: 20px;
-            text-transform: uppercase;
-            letter-spacing: 0.8px;
-        }
-    </style>
 </head>
-<body>
-
+<body class="mod-field-guide">
 <div class="layout">
     <div id="rail-mount"></div>
-
     <div class="main">
         <header class="topbar">
             <div class="topbar-left">
@@ -58,27 +21,22 @@
                 <div class="topbar-avatar">AT</div>
             </div>
         </header>
-
         <div class="content">
-
             <div class="page-header animate-1">
-                <h1 class="page-title">IT Field Guide<br><em>For techs in the field.</em></h1>
-                <p class="page-desc">Runbooks, SOPs, escalation paths, and facility-specific reference sheets — the operational knowledge base for NACS IT staff.</p>
+                <h1 class="page-title">IT Field Guide</h1>
+                <p class="page-subtitle">Operational knowledge base · Field technicians</p>
+                <p class="page-desc">Runbooks, SOPs, escalation paths, and facility-specific reference sheets for NACS IT staff.</p>
             </div>
-
             <div class="uc-page animate-2">
                 <div class="uc-icon">📖</div>
                 <div class="uc-title">In Development</div>
-                <p class="uc-desc">Runbooks, facility SOPs, and the IT knowledge base are being compiled and structured. This will be the go-to resource for field technicians.</p>
+                <p class="uc-desc">Runbooks, facility SOPs, and the IT knowledge base are being compiled and structured.</p>
                 <div class="uc-pill">Coming Soon</div>
             </div>
-
         </div>
     </div>
 </div>
-
 <script src="../nav.js"></script>
 <script>renderNav('field-guide');</script>
-
 </body>
 </html>

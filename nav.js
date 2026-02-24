@@ -1,6 +1,6 @@
-// NorthPoint Shared Navigation
-// Usage: renderNav('active-page-id')
-// IDs: 'hub' | 'it-overview' | 'budget' | 'team' | 'facilities' | 'software' | 'projects' | 'field-guide'
+// NorthPoint nav.js v3
+// Expanding rail with collapse toggle
+// renderNav('page-id')
 
 function renderNav(active) {
     const isRoot = !location.pathname.split('/').filter(Boolean).some(seg =>
@@ -63,31 +63,74 @@ function renderNav(active) {
     if (!mount) return;
 
     mount.innerHTML = `
-    <aside class="rail">
-        <a href="${base}/index.html" class="rail-logo" title="NorthPoint">
-            <svg viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.5"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
-        </a>
+    <aside class="rail" id="np-rail">
+
+        <button class="rail-toggle" id="rail-toggle-btn" title="Collapse">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                <polyline points="15 18 9 12 15 6"/>
+            </svg>
+        </button>
+
+        <div class="rail-logo-row">
+            <a href="${base}/index.html" class="rail-logo" title="NorthPoint">
+                <svg viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.5">
+                    <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/>
+                </svg>
+            </a>
+            <span class="rail-logo-label">NorthPoint</span>
+        </div>
+
         <nav class="rail-nav">
             <div class="rail-divider"></div>
             ${pages.map(p => `
-            <a href="${p.href}" class="rail-item ${active === p.id ? 'active' : ''}" title="${p.label}">
+            <a href="${p.href}" class="rail-item ${active === p.id ? 'active' : ''}">
                 ${p.icon}
-                <span class="rail-tooltip">${p.label}</span>
+                <span class="rail-item-label">${p.label}</span>
             </a>`).join('')}
         </nav>
+
         <div class="rail-footer">
-            <div class="rail-item" title="Anthony Trujillo" style="cursor:default;">
+            <div class="rail-user">
                 <div class="rail-avatar">AT</div>
-                <span class="rail-tooltip">Anthony Trujillo · IT Director</span>
+                <div class="rail-user-info">
+                    <div class="rail-user-name">Anthony Trujillo</div>
+                    <div class="rail-user-role">IT Director</div>
+                </div>
             </div>
         </div>
+
     </aside>`;
 
-    // Date/time injection
+    // Collapse toggle logic
+    const rail = document.getElementById('np-rail');
+    const toggleBtn = document.getElementById('rail-toggle-btn');
+    const STORAGE_KEY = 'np-rail-collapsed';
+
+    // Restore state
+    if (localStorage.getItem(STORAGE_KEY) === 'true') {
+        rail.classList.add('collapsed');
+    }
+
+    toggleBtn.addEventListener('click', (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        const isExpanded = rail.matches(':hover') || rail.classList.contains('expanded');
+
+        if (rail.classList.contains('collapsed')) {
+            rail.classList.remove('collapsed');
+            localStorage.setItem(STORAGE_KEY, 'false');
+        } else {
+            rail.classList.add('collapsed');
+            localStorage.setItem(STORAGE_KEY, 'true');
+        }
+    });
+
+    // Date injection
     const dateEl = document.getElementById('currentDate');
     if (dateEl) {
-        const now = new Date();
-        dateEl.textContent = now.toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric', year: 'numeric' });
+        dateEl.textContent = new Date().toLocaleDateString('en-US', {
+            weekday: 'short', month: 'short', day: 'numeric', year: 'numeric'
+        });
     }
     const updatedEl = document.getElementById('lastUpdated');
     if (updatedEl) {

@@ -7,10 +7,11 @@
     <link rel="stylesheet" href="northpoint.css">
     <style>
         .hub-hero {
-            background: linear-gradient(135deg, var(--navy) 0%, #1e3a5f 100%);
-            border-radius: 20px;
-            padding: 40px 48px;
-            margin-bottom: 48px;
+            background: linear-gradient(135deg, #0f172a 0%, #1e3a5f 60%, #1a2a4a 100%);
+            border: 1px solid rgba(59,130,246,0.2);
+            border-radius: 16px;
+            padding: 36px 44px;
+            margin-bottom: 40px;
             display: flex;
             align-items: center;
             justify-content: space-between;
@@ -21,67 +22,65 @@
         .hub-hero::before {
             content: '';
             position: absolute;
-            top: -60px; right: -60px;
-            width: 300px; height: 300px;
-            background: radial-gradient(circle, rgba(59,130,246,0.15) 0%, transparent 70%);
+            top: -80px; right: -80px;
+            width: 360px; height: 360px;
+            background: radial-gradient(circle, rgba(59,130,246,0.12) 0%, transparent 65%);
             pointer-events: none;
         }
         .hub-hero-text h1 {
             font-family: 'DM Serif Display', serif;
-            font-size: 36px;
-            color: white;
+            font-size: 32px;
+            color: #f1f5f9;
             font-weight: 400;
             line-height: 1.15;
             letter-spacing: -0.5px;
-            margin-bottom: 10px;
+            margin-bottom: 8px;
         }
-        .hub-hero-text h1 em { color: rgba(255,255,255,0.5); font-style: italic; }
         .hub-hero-text p {
-            font-size: 14px;
-            color: rgba(255,255,255,0.55);
+            font-size: 13px;
+            color: rgba(148,163,184,0.8);
             line-height: 1.7;
-            max-width: 420px;
+            max-width: 400px;
             font-weight: 300;
         }
         .hub-hero-stats {
             display: flex;
-            gap: 32px;
+            gap: 0;
             flex-shrink: 0;
+            background: rgba(255,255,255,0.04);
+            border: 1px solid rgba(255,255,255,0.07);
+            border-radius: 12px;
+            overflow: hidden;
         }
-        .hero-stat { text-align: center; }
+        .hero-stat {
+            text-align: center;
+            padding: 18px 28px;
+            border-right: 1px solid rgba(255,255,255,0.07);
+        }
+        .hero-stat:last-child { border-right: none; }
         .hero-stat-value {
-            font-size: 32px;
+            font-size: 26px;
             font-weight: 600;
-            color: white;
+            color: #f1f5f9;
             letter-spacing: -1px;
             line-height: 1;
             margin-bottom: 4px;
         }
         .hero-stat-label {
-            font-size: 11px;
-            color: rgba(255,255,255,0.4);
+            font-size: 10px;
+            color: rgba(100,116,139,0.9);
             font-weight: 500;
             text-transform: uppercase;
             letter-spacing: 0.8px;
         }
-        .hero-divider {
-            width: 1px;
-            height: 48px;
-            background: rgba(255,255,255,0.1);
-            align-self: center;
-        }
-        .system-status {
+        .hub-system-status {
             display: inline-flex;
             align-items: center;
             gap: 6px;
-            background: rgba(16,185,129,0.15);
-            border: 1px solid rgba(16,185,129,0.25);
-            border-radius: 20px;
-            padding: 5px 12px;
-            font-size: 12px;
+            margin-top: 12px;
+            font-size: 11px;
             color: #34d399;
             font-weight: 500;
-            margin-top: 14px;
         }
     </style>
 </head>
@@ -108,14 +107,13 @@
 
         <div class="content">
 
-            <!-- HERO -->
             <div class="hub-hero animate-1">
                 <div class="hub-hero-text">
-                    <h1>NorthPoint<br><em>Where IT gets done.</em></h1>
-                    <p>The operational command center for NACS Information Technology — budget, team, facilities, and strategy in a single platform.</p>
-                    <div class="system-status">
+                    <h1>NorthPoint</h1>
+                    <p>Alignment, growth, and clarity for NACS Information Technology. Select a module to begin.</p>
+                    <div class="hub-system-status">
                         <span class="status-dot"></span>
-                        All systems operational · 12 facilities connected
+                        12 facilities · 6 staff · All systems operational
                     </div>
                 </div>
                 <div class="hub-hero-stats">
@@ -123,17 +121,14 @@
                         <div class="hero-stat-value">12</div>
                         <div class="hero-stat-label">Facilities</div>
                     </div>
-                    <div class="hero-divider"></div>
                     <div class="hero-stat">
                         <div class="hero-stat-value">6</div>
                         <div class="hero-stat-label">IT Staff</div>
                     </div>
-                    <div class="hero-divider"></div>
                     <div class="hero-stat">
                         <div class="hero-stat-value">$1.6M</div>
                         <div class="hero-stat-label">IT Spend</div>
                     </div>
-                    <div class="hero-divider"></div>
                     <div class="hero-stat">
                         <div class="hero-stat-value">104</div>
                         <div class="hero-stat-label">Software Tools</div>
@@ -141,7 +136,6 @@
                 </div>
             </div>
 
-            <!-- MODULES -->
             <div class="section-header animate-2">
                 <span class="section-title">Modules</span>
                 <div class="section-line"></div>
@@ -149,38 +143,36 @@
 
             <div class="modules-grid animate-2">
 
-                <!-- IT OVERVIEW -->
-                <a href="it-overview/index.html" class="module-card purple">
+                <a href="it-overview/index.html" class="module-card" data-mod="overview">
                     <div class="module-card-top">
-                        <div class="module-card-icon purple">📡</div>
+                        <div class="module-card-icon" style="background:rgba(59,130,246,0.15)">📡</div>
                         <span class="module-card-arrow">→</span>
                     </div>
                     <div class="module-card-title">IT Overview</div>
-                    <div class="module-card-desc">The executive snapshot — team posture, spend allocation, and organizational health across all 12 facilities.</div>
+                    <div class="module-card-desc">Team posture, spend allocation, and organizational health across all facilities.</div>
                     <div class="module-metrics">
                         <div class="module-metric">
                             <div class="module-metric-value">$1.6M</div>
-                            <div class="module-metric-label">Total IT Spend</div>
+                            <div class="module-metric-label">Total Spend</div>
                         </div>
                         <div class="module-metric">
                             <div class="module-metric-value">6</div>
-                            <div class="module-metric-label">Team Members</div>
+                            <div class="module-metric-label">Team</div>
                         </div>
                         <div class="module-metric">
-                            <div class="module-metric-value">✓</div>
-                            <div class="module-metric-label">Live</div>
+                            <div class="module-metric-value" style="color:#34d399">Live</div>
+                            <div class="module-metric-label">Status</div>
                         </div>
                     </div>
                 </a>
 
-                <!-- BUDGET & FINANCE -->
-                <a href="budget/index.html" class="module-card blue">
+                <a href="budget/index.html" class="module-card" data-mod="budget">
                     <div class="module-card-top">
-                        <div class="module-card-icon blue">💰</div>
+                        <div class="module-card-icon" style="background:rgba(16,185,129,0.15)">💰</div>
                         <span class="module-card-arrow">→</span>
                     </div>
                     <div class="module-card-title">Budget & Finance</div>
-                    <div class="module-card-desc">2026 IT budget, spend modeling, compensation restructure, and financial benchmarks against industry standards.</div>
+                    <div class="module-card-desc">2026 budget modeling, spend analysis, and compensation restructure.</div>
                     <div class="module-metrics">
                         <div class="module-metric">
                             <div class="module-metric-value">$2.4M</div>
@@ -191,45 +183,42 @@
                             <div class="module-metric-label">Tools</div>
                         </div>
                         <div class="module-metric">
-                            <div class="module-metric-value">✓</div>
-                            <div class="module-metric-label">Live</div>
+                            <div class="module-metric-value" style="color:#34d399">Live</div>
+                            <div class="module-metric-label">Status</div>
                         </div>
                     </div>
                 </a>
 
-                <!-- TEAM & ORG -->
-                <a href="team/index.html" class="module-card green">
+                <a href="team/index.html" class="module-card" data-mod="team">
                     <div class="module-card-top">
-                        <div class="module-card-icon green">👥</div>
+                        <div class="module-card-icon" style="background:rgba(245,158,11,0.15)">👥</div>
                         <span class="module-card-arrow">→</span>
                     </div>
                     <div class="module-card-title">Team & Organization</div>
-                    <div class="module-card-desc">Roles, responsibilities, RACI matrix, and organizational structure — current state and proposed for the merged organization.</div>
+                    <div class="module-card-desc">Roles, responsibilities, and RACI matrix — current and proposed structure.</div>
                     <div class="module-metrics">
                         <div class="module-metric">
                             <div class="module-metric-value">6</div>
-                            <div class="module-metric-label">Team Members</div>
+                            <div class="module-metric-label">Members</div>
                         </div>
                         <div class="module-metric">
                             <div class="module-metric-value">3</div>
                             <div class="module-metric-label">Tools</div>
                         </div>
                         <div class="module-metric">
-                            <div class="module-metric-value">✓</div>
-                            <div class="module-metric-label">Live</div>
+                            <div class="module-metric-value" style="color:#34d399">Live</div>
+                            <div class="module-metric-label">Status</div>
                         </div>
                     </div>
                 </a>
 
-                <!-- FACILITY OPERATIONS -->
-                <a href="facilities/index.html" class="module-card amber">
+                <a href="facilities/index.html" class="module-card" data-mod="facilities">
                     <div class="module-card-top">
-                        <div class="module-card-icon amber">🏥</div>
+                        <div class="module-card-icon" style="background:rgba(139,92,246,0.15)">🏥</div>
                         <span class="module-card-arrow">→</span>
                     </div>
-                    <div class="uc-badge">In Development</div>
                     <div class="module-card-title">Facility Operations</div>
-                    <div class="module-card-desc">Onboarding forecaster, integration checklists, and the 30×30 roadmap for scaling to 30 facilities by 2030.</div>
+                    <div class="module-card-desc">Onboarding forecaster, integration checklists, and the 30×30 roadmap.</div>
                     <div class="module-metrics">
                         <div class="module-metric">
                             <div class="module-metric-value">+4</div>
@@ -237,56 +226,54 @@
                         </div>
                         <div class="module-metric">
                             <div class="module-metric-value">2030</div>
-                            <div class="module-metric-label">30×30 Target</div>
+                            <div class="module-metric-label">Target</div>
                         </div>
                         <div class="module-metric">
-                            <div class="module-metric-value">Soon</div>
+                            <div class="module-metric-value" style="color:#fbbf24">Building</div>
                             <div class="module-metric-label">Status</div>
                         </div>
                     </div>
                 </a>
 
-                <!-- SOFTWARE & VENDORS -->
-                <a href="software/index.html" class="module-card teal" style="border-color: var(--silver);">
+                <a href="software/index.html" class="module-card" data-mod="software">
                     <div class="module-card-top">
-                        <div class="module-card-icon teal">🗂️</div>
+                        <div class="module-card-icon" style="background:rgba(20,184,166,0.15)">🗂️</div>
                         <span class="module-card-arrow">→</span>
                     </div>
                     <div class="module-card-title">Software & Vendors</div>
-                    <div class="module-card-desc">Full software asset portfolio, vendor relationships, contract renewals, and the M365 vs Google Workspace analysis.</div>
+                    <div class="module-card-desc">Full software portfolio, vendor governance, and platform decisions.</div>
                     <div class="module-metrics">
                         <div class="module-metric">
                             <div class="module-metric-value">104</div>
-                            <div class="module-metric-label">Tools Tracked</div>
+                            <div class="module-metric-label">Tools</div>
                         </div>
                         <div class="module-metric">
                             <div class="module-metric-value">11</div>
                             <div class="module-metric-label">Unowned</div>
                         </div>
                         <div class="module-metric">
-                            <div class="module-metric-value">✓</div>
-                            <div class="module-metric-label">Live</div>
+                            <div class="module-metric-value" style="color:#34d399">Live</div>
+                            <div class="module-metric-label">Status</div>
                         </div>
                     </div>
                 </a>
 
-                <!-- PROJECTS -->
-                <a href="projects/index.html" class="module-card under-construction">
+                <a href="projects/index.html" class="module-card under-construction" data-mod="projects">
+                    <div class="uc-badge">In Development</div>
                     <div class="module-card-top">
-                        <div class="module-card-icon orange">📋</div>
+                        <div class="module-card-icon" style="background:rgba(249,115,22,0.15)">📋</div>
                         <span class="module-card-arrow">→</span>
                     </div>
-                    <div class="uc-badge">In Development</div>
                     <div class="module-card-title">Projects & Pipelines</div>
-                    <div class="module-card-desc">Project roadmap, initiative tracking, workcenters, and pipeline management across all active IT programs.</div>
+                    <div class="module-card-desc">Project roadmap, initiative tracking, and pipeline management.</div>
                     <div class="module-metrics">
                         <div class="module-metric">
                             <div class="module-metric-value">—</div>
-                            <div class="module-metric-label">Active Projects</div>
+                            <div class="module-metric-label">Active</div>
                         </div>
                         <div class="module-metric">
                             <div class="module-metric-value">—</div>
-                            <div class="module-metric-label">In Pipeline</div>
+                            <div class="module-metric-label">Pipeline</div>
                         </div>
                         <div class="module-metric">
                             <div class="module-metric-value">Soon</div>
@@ -295,15 +282,14 @@
                     </div>
                 </a>
 
-                <!-- FIELD GUIDE -->
-                <a href="field-guide/index.html" class="module-card under-construction">
+                <a href="field-guide/index.html" class="module-card under-construction" data-mod="field-guide">
+                    <div class="uc-badge">In Development</div>
                     <div class="module-card-top">
-                        <div class="module-card-icon blue">📖</div>
+                        <div class="module-card-icon" style="background:rgba(234,179,8,0.15)">📖</div>
                         <span class="module-card-arrow">→</span>
                     </div>
-                    <div class="uc-badge">In Development</div>
                     <div class="module-card-title">IT Field Guide</div>
-                    <div class="module-card-desc">Runbooks, SOPs, escalation paths, and facility-specific reference sheets for techs in the field and end users.</div>
+                    <div class="module-card-desc">Runbooks, SOPs, and facility-specific reference for field technicians.</div>
                     <div class="module-metrics">
                         <div class="module-metric">
                             <div class="module-metric-value">—</div>
@@ -311,7 +297,7 @@
                         </div>
                         <div class="module-metric">
                             <div class="module-metric-value">—</div>
-                            <div class="module-metric-label">Facility SOPs</div>
+                            <div class="module-metric-label">SOPs</div>
                         </div>
                         <div class="module-metric">
                             <div class="module-metric-value">Soon</div>
@@ -328,6 +314,5 @@
 
 <script src="nav.js"></script>
 <script>renderNav('hub');</script>
-
 </body>
 </html>

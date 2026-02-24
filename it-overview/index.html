@@ -6,11 +6,9 @@
     <title>IT Overview — NorthPoint</title>
     <link rel="stylesheet" href="../northpoint.css">
 </head>
-<body>
-
+<body class="mod-overview">
 <div class="layout">
     <div id="rail-mount"></div>
-
     <div class="main">
         <header class="topbar">
             <div class="topbar-left">
@@ -19,41 +17,37 @@
                 <span class="topbar-section">IT Overview</span>
             </div>
             <div class="topbar-right">
-                <div class="topbar-status">
-                    <span class="status-dot"></span>
-                    All Systems Operational
-                </div>
+                <div class="topbar-status"><span class="status-dot"></span>All Systems Operational</div>
                 <span class="topbar-date" id="currentDate"></span>
                 <div class="topbar-avatar">AT</div>
             </div>
         </header>
-
         <div class="content">
 
             <div class="page-header animate-1">
-                <h1 class="page-title">IT Overview<br><em>The executive snapshot.</em></h1>
-                <p class="page-desc">NACS Information Technology at a glance — team posture, spend allocation, software governance, and organizational health across all 12 facilities.</p>
+                <h1 class="page-title">IT Overview</h1>
+                <p class="page-subtitle">Executive snapshot · NACS Information Technology</p>
+                <p class="page-desc">Team posture, spend allocation, and organizational health across all 12 facilities.</p>
             </div>
 
-            <!-- KEY METRICS -->
             <div class="metric-row cols-4 animate-2">
                 <div class="metric-card">
                     <div class="metric-label">Total IT Spend · 2025</div>
                     <div class="metric-value">$1.6M</div>
-                    <div class="metric-sub">Personnel + Non-personnel</div>
+                    <div class="metric-sub">Personnel + non-personnel</div>
                     <span class="metric-badge badge-warn">~1% of revenue</span>
                 </div>
                 <div class="metric-card">
                     <div class="metric-label">Facilities Supported</div>
                     <div class="metric-value">12</div>
                     <div class="metric-sub">Skilled nursing facilities</div>
-                    <span class="metric-badge badge-info">+4 incoming via merger</span>
+                    <span class="metric-badge badge-accent">+4 incoming</span>
                 </div>
                 <div class="metric-card">
                     <div class="metric-label">IT Team</div>
                     <div class="metric-value">6</div>
                     <div class="metric-sub">Full-time staff</div>
-                    <span class="metric-badge badge-warn">Understaffed vs benchmark</span>
+                    <span class="metric-badge badge-warn">Below benchmark</span>
                 </div>
                 <div class="metric-card">
                     <div class="metric-label">Software Portfolio</div>
@@ -63,47 +57,45 @@
                 </div>
             </div>
 
-            <!-- TEAM -->
             <div class="section-header animate-3">
-                <span class="section-title">IT Team</span>
+                <span class="section-title">Team</span>
                 <div class="section-line"></div>
             </div>
 
             <div class="metric-row cols-3 animate-3">
                 <div class="metric-card">
                     <div class="metric-label">Anthony Trujillo</div>
-                    <div class="metric-value" style="font-size:17px;letter-spacing:0">IT Director — South</div>
-                    <div class="metric-sub" style="margin-top:6px">Platform strategy · Vendor management · Executive reporting</div>
-                    <span class="metric-badge badge-purple" style="margin-top:10px">VP Candidate</span>
+                    <div class="metric-value" style="font-size:16px;letter-spacing:0;margin-bottom:6px">IT Director — South</div>
+                    <div class="metric-sub">Platform strategy · Vendor management · Executive reporting</div>
+                    <span class="metric-badge badge-accent" style="margin-top:8px">VP Candidate</span>
                 </div>
                 <div class="metric-card">
                     <div class="metric-label">Geremia Doan</div>
-                    <div class="metric-value" style="font-size:17px;letter-spacing:0">IT Director — North</div>
-                    <div class="metric-sub" style="margin-top:6px">Northern facilities · Infrastructure · Team coordination</div>
+                    <div class="metric-value" style="font-size:16px;letter-spacing:0;margin-bottom:6px">IT Director — North</div>
+                    <div class="metric-sub">Northern facilities · Infrastructure · Team coordination</div>
                 </div>
                 <div class="metric-card">
                     <div class="metric-label">Tom Jarrell</div>
-                    <div class="metric-value" style="font-size:17px;letter-spacing:0">Network Administrator</div>
-                    <div class="metric-sub" style="margin-top:6px">Network infrastructure · Connectivity · Hardware lifecycle</div>
+                    <div class="metric-value" style="font-size:16px;letter-spacing:0;margin-bottom:6px">Network Administrator</div>
+                    <div class="metric-sub">Network infrastructure · Connectivity · Hardware lifecycle</div>
                 </div>
                 <div class="metric-card">
                     <div class="metric-label">Rogi Poblete</div>
-                    <div class="metric-value" style="font-size:17px;letter-spacing:0">Clinical Project Specialist</div>
-                    <div class="metric-sub" style="margin-top:6px">EHR optimization · Clinical workflow · PointClickCare</div>
+                    <div class="metric-value" style="font-size:16px;letter-spacing:0;margin-bottom:6px">Clinical Project Specialist</div>
+                    <div class="metric-sub">EHR optimization · Clinical workflow · PointClickCare</div>
                 </div>
                 <div class="metric-card">
                     <div class="metric-label">Francis Ferma</div>
-                    <div class="metric-value" style="font-size:17px;letter-spacing:0">IT Technician</div>
-                    <div class="metric-sub" style="margin-top:6px">End-user support · Field operations · Help desk</div>
+                    <div class="metric-value" style="font-size:16px;letter-spacing:0;margin-bottom:6px">IT Technician</div>
+                    <div class="metric-sub">End-user support · Field operations · Help desk</div>
                 </div>
                 <div class="metric-card">
                     <div class="metric-label">Jon Andrews</div>
-                    <div class="metric-value" style="font-size:17px;letter-spacing:0">Database Administrator</div>
-                    <div class="metric-sub" style="margin-top:6px">Data integrity · SQL · Reporting infrastructure</div>
+                    <div class="metric-value" style="font-size:16px;letter-spacing:0;margin-bottom:6px">Database Administrator</div>
+                    <div class="metric-sub">Data integrity · SQL · Reporting infrastructure</div>
                 </div>
             </div>
 
-            <!-- SPEND BREAKDOWN -->
             <div class="section-header animate-4">
                 <span class="section-title">Spend Breakdown · 2025</span>
                 <div class="section-line"></div>
@@ -113,14 +105,14 @@
                 <div class="metric-card">
                     <div class="metric-label">Connectivity</div>
                     <div class="metric-value">$678K</div>
-                    <div class="metric-sub">65% of non-personnel spend</div>
+                    <div class="metric-sub">65% of non-personnel</div>
                     <span class="metric-badge badge-warn">TPX consolidation needed</span>
                 </div>
                 <div class="metric-card">
                     <div class="metric-label">Clinical Systems</div>
                     <div class="metric-value">$258K</div>
                     <div class="metric-sub">PointClickCare · EHR</div>
-                    <span class="metric-badge badge-info">Clinical ownership</span>
+                    <span class="metric-badge badge-neutral">Clinical ownership</span>
                 </div>
                 <div class="metric-card">
                     <div class="metric-label">Personnel</div>
@@ -132,107 +124,52 @@
                     <div class="metric-label">Non-Personnel</div>
                     <div class="metric-value">$1.04M</div>
                     <div class="metric-sub">695 transactions · Full year</div>
-                    <span class="metric-badge badge-neutral">695 transactions</span>
+                    <span class="metric-badge badge-neutral">Baseline established</span>
                 </div>
             </div>
 
-            <!-- KEY VENDORS -->
-            <div class="section-header animate-4">
-                <span class="section-title">Key Vendors</span>
-                <div class="section-line"></div>
-            </div>
-
-            <div class="metric-row cols-4 animate-4">
-                <div class="metric-card">
-                    <div class="metric-label">TPX / TelePacific</div>
-                    <div class="metric-value">$678K</div>
-                    <div class="metric-sub">Connectivity · Largest vendor</div>
-                    <span class="metric-badge badge-warn">Under review</span>
-                </div>
-                <div class="metric-card">
-                    <div class="metric-label">PointClickCare</div>
-                    <div class="metric-value">$258K</div>
-                    <div class="metric-sub">Clinical EHR · Core system</div>
-                    <span class="metric-badge badge-info">Clinical ownership</span>
-                </div>
-                <div class="metric-card">
-                    <div class="metric-label">Verizon Wireless</div>
-                    <div class="metric-value">$73K</div>
-                    <div class="metric-sub">Mobile · Multiple accounts</div>
-                    <span class="metric-badge badge-neutral">Under review</span>
-                </div>
-                <div class="metric-card">
-                    <div class="metric-label">NinjaOne</div>
-                    <div class="metric-value">$42K</div>
-                    <div class="metric-sub">RMM · Device management</div>
-                    <span class="metric-badge badge-good">Core tool</span>
-                </div>
-            </div>
-
-            <!-- TOOLS -->
             <div class="section-header animate-5">
                 <span class="section-title">Tools</span>
                 <div class="section-line"></div>
             </div>
 
             <div class="tools-grid animate-5">
-
                 <a href="https://bbshredz.github.io/it-leadership-overview" class="tool-card clickable" target="_blank">
                     <div class="card-top">
-                        <div class="card-icon purple">📊</div>
+                        <div class="card-icon">📊</div>
                         <span class="card-status status-live">Live</span>
                     </div>
                     <div class="card-title">IT Leadership Overview</div>
-                    <div class="card-desc">Full executive dashboard — headcount, spend allocation, project status, RACI matrix, and organizational risk in a single interactive view.</div>
+                    <div class="card-desc">Full executive dashboard — headcount, spend, project status, RACI, and organizational risk in one view.</div>
                     <div class="card-footer">
-                        <div class="card-tags">
-                            <span class="card-tag">CEO · CFO</span>
-                            <span class="card-tag">Executive</span>
-                        </div>
+                        <div class="card-tags"><span class="card-tag">CEO · CFO</span><span class="card-tag">Executive</span></div>
                         <span class="card-arrow">→</span>
                     </div>
                 </a>
-
                 <div class="tool-card under-construction">
                     <div class="uc-badge">In Development</div>
                     <div class="card-top">
-                        <div class="card-icon blue">📈</div>
+                        <div class="card-icon">📈</div>
                         <span class="card-status status-coming">Coming Soon</span>
                     </div>
                     <div class="card-title">Live KPI Dashboard</div>
-                    <div class="card-desc">Real-time metrics — ticket volume, SLA compliance, system uptime, and service health across all facilities.</div>
-                    <div class="card-footer">
-                        <div class="card-tags">
-                            <span class="card-tag">Operational</span>
-                            <span class="card-tag">Real-time</span>
-                        </div>
-                    </div>
+                    <div class="card-desc">Real-time metrics — ticket volume, SLA compliance, system uptime across all facilities.</div>
                 </div>
-
                 <div class="tool-card under-construction">
                     <div class="uc-badge">In Development</div>
                     <div class="card-top">
-                        <div class="card-icon teal">🔒</div>
+                        <div class="card-icon">🔒</div>
                         <span class="card-status status-coming">Coming Soon</span>
                     </div>
                     <div class="card-title">Security Posture</div>
-                    <div class="card-desc">MFA coverage, patch compliance, backup verification rates, and vulnerability trend tracking across the environment.</div>
-                    <div class="card-footer">
-                        <div class="card-tags">
-                            <span class="card-tag">Security</span>
-                            <span class="card-tag">Compliance</span>
-                        </div>
-                    </div>
+                    <div class="card-desc">MFA coverage, patch compliance, backup verification, and vulnerability trends.</div>
                 </div>
-
             </div>
 
         </div>
     </div>
 </div>
-
 <script src="../nav.js"></script>
 <script>renderNav('it-overview');</script>
-
 </body>
 </html>

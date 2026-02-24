@@ -5,51 +5,10 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Projects & Pipelines — NorthPoint</title>
     <link rel="stylesheet" href="../northpoint.css">
-    <style>
-        .uc-page {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            min-height: 400px;
-            text-align: center;
-            gap: 16px;
-        }
-        .uc-icon {
-            font-size: 48px;
-            margin-bottom: 8px;
-            opacity: 0.4;
-        }
-        .uc-title {
-            font-family: 'DM Serif Display', serif;
-            font-size: 28px;
-            color: var(--text-primary);
-            font-weight: 400;
-        }
-        .uc-desc {
-            font-size: 14px;
-            color: var(--text-secondary);
-            max-width: 400px;
-            line-height: 1.7;
-            font-weight: 300;
-        }
-        .uc-pill {
-            background: var(--navy);
-            color: rgba(255,255,255,0.7);
-            font-size: 11px;
-            font-weight: 600;
-            padding: 6px 16px;
-            border-radius: 20px;
-            text-transform: uppercase;
-            letter-spacing: 0.8px;
-        }
-    </style>
 </head>
-<body>
-
+<body class="mod-projects">
 <div class="layout">
     <div id="rail-mount"></div>
-
     <div class="main">
         <header class="topbar">
             <div class="topbar-left">
@@ -62,27 +21,22 @@
                 <div class="topbar-avatar">AT</div>
             </div>
         </header>
-
         <div class="content">
-
             <div class="page-header animate-1">
-                <h1 class="page-title">Projects & Pipelines<br><em>What's in motion.</em></h1>
-                <p class="page-desc">Project roadmap, initiative tracking, workcenters, and pipeline management across all active and upcoming IT programs.</p>
+                <h1 class="page-title">Projects & Pipelines</h1>
+                <p class="page-subtitle">Initiative tracking · Program management</p>
+                <p class="page-desc">Project roadmap, pipeline management, and workcenter dashboards across all active IT programs.</p>
             </div>
-
             <div class="uc-page animate-2">
                 <div class="uc-icon">📋</div>
                 <div class="uc-title">In Development</div>
-                <p class="uc-desc">The project roadmap, pipeline tracker, and workcenter dashboards are actively being built. Check back soon.</p>
+                <p class="uc-desc">Project roadmap, pipeline tracker, and workcenter dashboards are being built.</p>
                 <div class="uc-pill">Coming Soon</div>
             </div>
-
         </div>
     </div>
 </div>
-
 <script src="../nav.js"></script>
 <script>renderNav('projects');</script>
-
 </body>
 </html>
