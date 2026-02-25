@@ -444,11 +444,8 @@ body.future-mode .log-action { color: #e2e8f0; }
 
 <script src="/nav.js"></script>
 <script>
-// ── SUPABASE ──
-const SUPABASE_URL = 'https://vpxlgtgavjmftbdsajtk.supabase.co';
-const SUPABASE_KEY = 'sb_publishable_xrH6NCenOJGh84f9NTf3WQ_xL8cmp3a';
-const { createClient } = supabase;
-const db = createClient(SUPABASE_URL, SUPABASE_KEY);
+// ── SUPABASE ── (client provided by /auth.js)
+const db = _npSupabase;
 
 // ── STATE ──
 let currentState = 'current';
