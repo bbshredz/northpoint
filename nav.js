@@ -1,9 +1,7 @@
-// =============================================
 // NorthPoint — nav.js v4
 // Subdomain: northpoint.nacs.space
 // Absolute paths from /
 // Role-aware: requires auth.js loaded first
-// =============================================
 
 function renderNav(active) {
 
@@ -66,20 +64,18 @@ function renderNav(active) {
     },
   ];
 
-  // Filter by role — hide pages user doesn't have access to
   const visiblePages = pages.filter(p => {
     if (!p.module) return true;
     if (typeof npHasModule === 'function') return npHasModule(p.module);
-    return false; // if auth not loaded, hide sensitive pages
+    return false;
   });
 
   const mount = document.getElementById('rail-mount');
   if (!mount) return;
 
-  // Pull user info from auth.js if available
-  const initials    = typeof npGetInitials     === 'function' ? npGetInitials()     : 'AT';
-  const displayName = typeof npGetDisplayName  === 'function' ? npGetDisplayName()  : '';
-  const role        = typeof npGetRole         === 'function' ? npGetRole()         : '';
+  const initials    = typeof npGetInitials    === 'function' ? npGetInitials()    : 'AT';
+  const displayName = typeof npGetDisplayName === 'function' ? npGetDisplayName() : '';
+  const role        = typeof npGetRole        === 'function' ? npGetRole()        : '';
 
   mount.innerHTML = `
   <aside class="rail" id="np-rail">
@@ -116,7 +112,6 @@ function renderNav(active) {
     </div>
   </aside>`;
 
-  // ── Expand / collapse ──
   const rail      = document.getElementById('np-rail');
   const toggleBtn = document.getElementById('rail-toggle-btn');
   const STORAGE_KEY = 'np-rail-pinned';
@@ -140,7 +135,6 @@ function renderNav(active) {
     toggleBtn.title = pinned ? 'Unpin' : 'Pin open';
   });
 
-  // ── User menu ──
   const userBtn  = document.getElementById('rail-user-btn');
   const userMenu = document.getElementById('rail-user-menu');
   if (userBtn && userMenu) {
@@ -151,7 +145,6 @@ function renderNav(active) {
     document.addEventListener('click', () => userMenu.classList.remove('open'));
   }
 
-  // ── Date injection ──
   const dateEl = document.getElementById('currentDate');
   if (dateEl) dateEl.textContent = new Date().toLocaleDateString('en-US', {
     weekday: 'short', month: 'short', day: 'numeric', year: 'numeric'

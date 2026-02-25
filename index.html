@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>NorthPoint — NACS IT</title>
-    <link rel="stylesheet" href="northpoint.css">
+    <link rel="stylesheet" href="/northpoint.css">
     <style>
         .hub-hero {
             background: linear-gradient(135deg, #0f172a 0%, #1e3a5f 60%, #1a2a4a 100%);
@@ -83,6 +83,8 @@
             font-weight: 500;
         }
     </style>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="/auth.js"></script>
 </head>
 <body>
 
@@ -335,7 +337,13 @@
     </div>
 </div>
 
-<script src="nav.js"></script>
-<script>renderNav('hub');</script>
+<script src="/nav.js"></script>
+<script>
+npInit(null).then(session => {
+  if (!session) return;
+  npPopulateTopbar();
+  renderNav('hub');
+});
+</script>
 </body>
 </html>

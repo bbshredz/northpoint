@@ -4,10 +4,11 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>IT Overview — NorthPoint</title>
-    <link rel="stylesheet" href="../northpoint.css">
+    <link rel="stylesheet" href="/northpoint.css">
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="/auth.js"></script>
 </head>
 <body class="mod-overview">
-<script src="../auth.js"></script>
 <div class="layout">
     <div id="rail-mount"></div>
     <div class="main">
@@ -170,7 +171,13 @@
         </div>
     </div>
 </div>
-<script src="../nav.js"></script>
-<script>renderNav('it-overview');</script>
+<script src="/nav.js"></script>
+<script>
+npInit(null).then(session => {
+  if (!session) return;
+  npPopulateTopbar();
+  renderNav('it-overview');
+});
+</script>
 </body>
 </html>
