@@ -258,7 +258,6 @@ body {
     display: flex;
     flex-direction: column;
     min-height: 100vh;
-    margin-left: var(--rail-width);
 }
 
 /* ── TOPBAR ── */
@@ -808,7 +807,6 @@ html { background: var(--navy); }
 @media (max-width: 640px) {
     .layout { grid-template-columns: 1fr; }
     .rail   { display: none; }
-    .main   { margin-left: 0; }
     .metric-row.cols-4,
     .metric-row.cols-3 { grid-template-columns: repeat(2, 1fr); }
 }
