@@ -262,17 +262,9 @@
     </style>
 </head>
 <body>
-<div class="shell">
-    <div class="topbar">
-        <div class="topbar-left">
-            <a href="/" class="topbar-brand">NorthPoint</a>
-        </div>
-        <div class="topbar-right">
-            <span class="topbar-role" id="topbarRole"></span>
-        </div>
-    </div>
-    <div class="body-row">
-        <nav class="sidebar" id="sidebar"></nav>
+<div class="layout">
+    <div id="rail-mount"></div>
+    <div class="main">
         <div class="content">
         <div class="doc">
 
@@ -908,15 +900,15 @@
 
         </div><!-- /doc -->
         </div><!-- /content -->
-    </div>
-</div>
+    </div><!-- /main -->
+</div><!-- /layout -->
 
 <script src="/nav.js"></script>
 <script>
 npInit(['budget', 'restructure']).then(session => {
     if (!session) return;
     npPopulateTopbar();
-    renderNav('budget');
+    renderNav('restructure');
     renderWaterfall();
     showOptionDetail('optB');
 });
