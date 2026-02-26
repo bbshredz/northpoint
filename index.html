@@ -103,7 +103,7 @@
             </div>
             <div class="topbar-right">
                 <span class="topbar-date" id="currentDate"></span>
-                <div class="topbar-avatar">AT</div>
+                <div class="topbar-avatar" id="topbarAvatar">AT</div>
             </div>
         </header>
 
@@ -145,7 +145,7 @@
 
             <div class="modules-grid animate-2">
                 
-                <a href="executive-overview/index.html" class="module-card" data-mod="overview">
+                <a href="executive-overview/index.html" class="module-card" data-mod="executive">
                     <div class="module-card-top">
                         <div class="module-card-icon" style="background:rgba(59,130,246,0.15)">📋</div>
                         <span class="module-card-arrow">→</span>
@@ -168,7 +168,7 @@
                     </div>
                 </a>
 
-                <a href="it-overview/index.html" class="module-card" data-mod="overview">
+                <a href="it-overview/index.html" class="module-card" data-mod="it-overview">
                     <div class="module-card-top">
                         <div class="module-card-icon" style="background:rgba(59,130,246,0.15)">📡</div>
                         <span class="module-card-arrow">→</span>
@@ -339,10 +339,21 @@
 
 <script src="/nav.js"></script>
 <script>
+// Modules that require explicit access — anything not in this list is always visible
+const GATED_MODULES = ['executive','budget','team','facilities','software','projects','field-guide','it-overview'];
+
 npInit(null).then(session => {
   if (!session) return;
   npPopulateTopbar();
   renderNav('hub');
+
+  // Frost module cards the current user doesn't have access to
+  document.querySelectorAll('[data-mod]').forEach(card => {
+    const mod = card.dataset.mod;
+    if (GATED_MODULES.includes(mod) && !npHasModule(mod)) {
+      card.classList.add('tile-locked');
+    }
+  });
 });
 </script>
 </body>

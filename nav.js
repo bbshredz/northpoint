@@ -71,7 +71,9 @@ function renderNav(active) {
   const displayName = typeof npGetDisplayName === 'function' ? npGetDisplayName() : '';
   const role        = typeof npGetRole        === 'function' ? npGetRole()        : '';
 
-  const lockIcon = `<svg class="rail-lock-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="5" y="11" width="14" height="10" rx="2"/><path d="M8 11V7a4 4 0 018 0v4"/></svg>`;
+  const visiblePages = pages.filter(p =>
+    !p.module || (typeof npHasModule === 'function' && npHasModule(p.module))
+  );
 
   mount.innerHTML = `
   <aside class="rail" id="np-rail">
@@ -86,16 +88,11 @@ function renderNav(active) {
     </div>
     <nav class="rail-nav">
       <div class="rail-divider"></div>
-      ${pages.map(p => {
-        const hasAccess = !p.module || (typeof npHasModule === 'function' && npHasModule(p.module));
-        const locked = !hasAccess;
-        return `
-      <a ${locked ? '' : `href="${p.href}"`} class="rail-item ${active === p.id ? 'active' : ''} ${locked ? 'rail-item--locked' : ''}" ${locked ? 'tabindex="-1" aria-hidden="true"' : ''}>
+      ${visiblePages.map(p => `
+      <a href="${p.href}" class="rail-item ${active === p.id ? 'active' : ''}">
         ${p.icon}
         <span class="rail-item-label">${p.label}</span>
-        ${locked ? lockIcon : ''}
-      </a>`;
-      }).join('')}
+      </a>`).join('')}
     </nav>
     <div class="rail-footer">
       <div class="rail-user" id="rail-user-btn">
