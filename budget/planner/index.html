@@ -187,6 +187,23 @@
         .bench-gap { font-size: 11px; text-align: right; white-space: nowrap; font-weight: 600; }
         .bench-gap-neg { color: #ef4444; }
         .bench-gap-ok  { color: #10b981; }
+
+        /* ── Context module ── */
+        .ctx-card-dept { background: #fffbeb; border: 1px solid #fde68a; border-radius: 10px; padding: 16px 20px; margin-bottom: 24px; }
+        .ctx-card-personnel { background: #f0f9ff; border: 1px solid #bae6fd; border-radius: 10px; padding: 16px 20px; margin-bottom: 24px; }
+        .ctx-title { font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.1em; margin-bottom: 12px; }
+        .ctx-person-row { display: flex; align-items: flex-start; gap: 12px; padding: 10px 0; border-bottom: 1px solid #e0f2fe; }
+        .ctx-person-row:last-of-type { border-bottom: none; }
+        .ctx-person-name { font-weight: 700; color: #0a1628; font-size: 13px; }
+        .ctx-person-change { font-size: 11px; color: #5d6779; margin-top: 2px; }
+        .ctx-person-note  { font-size: 11px; color: #0369a1; margin-top: 3px; }
+        .ctx-badge { font-size: 10px; font-weight: 700; padding: 2px 9px; border-radius: 99px; white-space: nowrap; flex-shrink: 0; }
+        .ctx-badge-title   { background: #dcfce7; color: #065f46; }
+        .ctx-badge-expand  { background: #dbeafe; color: #1e40af; }
+        .ctx-badge-dissolve { background: #fee2e2; color: #991b1b; }
+        .ctx-badge-eoy     { background: #fef3c7; color: #92400e; }
+        .ctx-badge-hold    { background: #f4f6f8; color: #5d6779; }
+        .ctx-footer { padding-top: 12px; margin-top: 4px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 8px; }
         .bench-callout { margin-top: 14px; padding: 12px 16px; background: #fff7ed; border-radius: 8px; border: 1px solid #fed7aa; font-size: 12px; color: #92400e; line-height: 1.6; }
         .bench-source { font-size: 11px; color: #8a95a8; margin-top: 12px; }
     </style>
@@ -275,10 +292,8 @@
                 <div id="d-body"></div>
             </div>
 
-            <!-- Dept-owned module (dynamic) -->
-            <div class="excl-card" id="dept-module" style="display:none;">
-                <div id="dept-module-body"></div>
-            </div>
+            <!-- Context module (changes based on active category) -->
+            <div id="context-module" style="display:none;"></div>
 
             <!-- Benchmark section -->
             <div class="section-lbl">Healthcare IT Benchmark Comparison</div>
@@ -498,7 +513,7 @@ function fmtFull(n) { return '$' + Math.round(n).toLocaleString(); }
 function renderAll() {
     renderSummary();
     renderCatGrid();
-    renderDeptModule();
+    renderContextModule();
     if (_activeCategory) renderDetail(_activeCategory);
 }
 
@@ -589,23 +604,77 @@ function renderBenchmark(total) {
     }
 }
 
-// ── Dept-owned module ─────────────────────────────────────────────────────
-function renderDeptModule() {
+// ── Context module (changes based on active category) ─────────────────────
+function renderContextModule() {
+    const el = document.getElementById('context-module');
+    if (!el) return;
+
+    if (_activeCategory === 'personnel') {
+        el.style.display = 'block';
+        el.innerHTML = renderPersonnelContext();
+    } else if (_activeCategory === 'software' || !_activeCategory) {
+        el.innerHTML = renderDeptSoftwareContext();
+        el.style.display = el.innerHTML ? 'block' : 'none';
+    } else {
+        el.style.display = 'none';
+    }
+}
+
+function renderPersonnelContext() {
+    const dissolved = _jonDissolved;
+    const people = [
+        { name: 'Anthony Trujillo', badge: 'Title Correction',   cls: 'ctx-badge-title',
+          change: 'IT Director, South → VP, Business Systems & Technology',
+          note: 'Assumes ownership of software portfolio — Stage, Adobe, Google Workspace, AWS' },
+        { name: 'Francis Ferma',    badge: 'Scope Expansion',    cls: 'ctx-badge-expand',
+          change: 'Network Administrator → IT Service Delivery Manager',
+          note: 'Field ops, vendor relationships, and service delivery added to role' },
+        { name: 'Jon Andrews',      badge: dissolved ? 'Dissolving ✓' : 'Proposed Dissolution', cls: 'ctx-badge-dissolve',
+          change: 'Database Administrator → —',
+          note: 'Position dissolving in FY2026 · responsibilities redistributed to team' },
+        { name: 'Rogi Poblete',     badge: 'Scope Expansion',    cls: 'ctx-badge-expand',
+          change: 'Clinical Project Specialist → Clinical Systems Specialist',
+          note: 'Absorbs clinical data responsibilities; expands from project to systems ownership' },
+        { name: 'Geremia Doan',     badge: 'Hold — EOY Review',  cls: 'ctx-badge-eoy',
+          change: 'IT Director, North → Director, IT Infrastructure & Security',
+          note: 'Current structure holds through FY2026 · title and scope review in Q4' },
+        { name: 'Tom Jarrell',      badge: 'No Change',          cls: 'ctx-badge-hold',
+          change: 'Network Administrator → Systems Administrator',
+          note: 'No structural changes proposed at this time' },
+    ];
+
+    const expandCount  = people.filter(p => p.cls === 'ctx-badge-expand').length;
+    const dissolveNote = dissolved ? ' · 1 dissolved' : ' · 1 dissolving';
+
+    return `<div class="ctx-card-personnel">
+        <div class="ctx-title" style="color:#0369a1;">FY2026 Restructuring — Personnel Changes</div>
+        ${people.map(p => `<div class="ctx-person-row">
+            <div style="flex:1;">
+                <div class="ctx-person-name">${p.name}</div>
+                <div class="ctx-person-change">${p.change}</div>
+                <div class="ctx-person-note">${p.note}</div>
+            </div>
+            <span class="ctx-badge ${p.cls}">${p.badge}</span>
+        </div>`).join('')}
+        <div class="ctx-footer" style="border-top:1px solid #bae6fd;margin-top:4px;">
+            <span style="font-size:11px;color:#0369a1;">1 title correction · ${expandCount} scope expansions${dissolveNote} · 2 holds</span>
+            <a href="/budget/restructure/index.html" style="font-size:11px;font-weight:700;color:#0369a1;text-decoration:none;">View full restructuring case →</a>
+        </div>
+    </div>`;
+}
+
+function renderDeptSoftwareContext() {
     const softCat  = CATS.find(c => c.id === 'software');
     const excluded = softCat.items.filter(i => i.dept && !_deptInIT[i.name]);
-    const module   = document.getElementById('dept-module');
-    if (!module) return;
+    if (excluded.length === 0) return '';
 
-    if (excluded.length === 0) { module.style.display = 'none'; return; }
-    module.style.display = 'block';
-
-    const byDept = {};
+    const byDept     = {};
     excluded.forEach(i => { if (!byDept[i.dept]) byDept[i.dept] = []; byDept[i.dept].push(i); });
-
     const totalKnown = excluded.reduce((s, i) => s + (i.cost || 0), 0);
     const tbdCount   = excluded.filter(i => i.cost === null).length;
 
-    let html = `<div class="excl-title">Software in Other Departments' Budgets</div>`;
+    let html = `<div class="ctx-card-dept">
+        <div class="ctx-title excl-title">Software in Other Departments' Budgets</div>`;
     Object.entries(byDept).forEach(([dept, items]) => {
         html += `<div class="excl-dept-group">
             <div class="excl-dept-name">${dept}</div>
@@ -616,11 +685,10 @@ function renderDeptModule() {
         </div>`;
     });
     html += `<div class="excl-footer">
-        <span class="excl-footer-label">${excluded.length} items tracked · IT provides stewardship${tbdCount > 0 ? ` · ${tbdCount} costs TBD` : ''}</span>
+        <span class="excl-footer-label">${excluded.length} items tracked · IT stewardship${tbdCount > 0 ? ` · ${tbdCount} costs TBD` : ''}</span>
         <span class="excl-footer-total">${totalKnown > 0 ? fmtFull(totalKnown) + '/yr confirmed' : 'Costs TBD'}</span>
-    </div>`;
-
-    document.getElementById('dept-module-body').innerHTML = html;
+    </div></div>`;
+    return html;
 }
 
 // ── Category grid ─────────────────────────────────────────────────────────
@@ -658,6 +726,7 @@ function toggleDetail(catId) {
         document.getElementById('cat-grid').querySelectorAll('.cat-card').forEach((el, i) => {
             el.classList.toggle('active', CATS[i].id === catId);
         });
+        renderContextModule();
         document.getElementById('detail-panel').classList.add('open');
         setTimeout(() => document.getElementById('detail-panel').scrollIntoView({ behavior: 'smooth', block: 'nearest' }), 50);
     }
@@ -667,6 +736,7 @@ function closeDetail() {
     _activeCategory = null;
     document.getElementById('detail-panel').classList.remove('open');
     document.getElementById('cat-grid').querySelectorAll('.cat-card').forEach(el => el.classList.remove('active'));
+    renderContextModule();
 }
 
 function renderDetail(catId) {
@@ -1026,6 +1096,7 @@ function toggleJonDissolved() {
     renderPersonnelDetail();
     renderSummary();
     renderCatGrid();
+    renderContextModule();
 }
 </script>
 </body>
