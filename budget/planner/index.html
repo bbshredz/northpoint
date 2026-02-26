@@ -625,22 +625,28 @@ function renderPersonnelContext() {
     const people = [
         { name: 'Anthony Trujillo', badge: 'Title Correction',   cls: 'ctx-badge-title',
           change: 'IT Director, South → VP, Business Systems & Technology',
-          note: 'Assumes ownership of software portfolio — Stage, Adobe, Google Workspace, AWS' },
+          note: 'Compensation inversion · VP-level scope without VP title or pay',
+          why: 'Anthony manages the full enterprise software portfolio — Stage/Fullcast, Adobe, Google Workspace, AWS, NinjaOne, and more — on top of leading the south region. His current $93k base sits below some reports. Proactive initiatives (vendor consolidations, MDM standardization, NinjaOne migration) have measurably reduced spend and improved the company\'s security posture. Market rate for this scope in SNF IT leadership: $110–130k+.' },
         { name: 'Francis Ferma',    badge: 'Scope Expansion',    cls: 'ctx-badge-expand',
           change: 'Network Administrator → IT Service Delivery Manager',
-          note: 'Field ops, vendor relationships, and service delivery added to role' },
+          note: 'Manages 36-facility help desk · owns phones, MDM, email security, and NorthPoint',
+          why: 'After the VP of IT and DBA both departed in 2022, Francis held down the Service Center largely on his own — stepping into roles well beyond Network Administrator. He now owns Acronis backups, the intranet, Adobe Admin, TPX phone systems, mobile services across three carriers, Coronet (email security), SentinelOne, asset management, and onboarding/offboarding. He also supported the Dynamics 2018 implementation voluntarily. Going forward he will lead the helpdesk buildout and own this platform (NorthPoint). At $66k, replacing him would require an IT Manager ($130k+) plus a Help Desk Associate.' },
         { name: 'Jon Andrews',      badge: dissolved ? 'Dissolving ✓' : 'Proposed Dissolution', cls: 'ctx-badge-dissolve',
           change: 'Database Administrator → —',
-          note: 'Position dissolving in FY2026 · responsibilities redistributed to team' },
+          note: 'Responsibilities redistributed to team · savings fund FY2026 restructure',
+          why: 'DB and application support responsibilities are absorbed by team members with complementary skill sets. Eliminating the position frees $120k/yr — the primary funding source for title corrections and scope-based increases across the rest of the department.' },
         { name: 'Rogi Poblete',     badge: 'Scope Expansion',    cls: 'ctx-badge-expand',
           change: 'Clinical Project Specialist → Clinical Systems Specialist',
-          note: 'Absorbs clinical data responsibilities; expands from project to systems ownership' },
+          note: 'Absorbs clinical data responsibilities vacated by Jon Andrews',
+          why: 'Rogi transitions from a project-based role to full systems ownership, taking on clinical application support and data responsibilities previously under the DBA scope. This reflects an ongoing shift from implementation work toward sustained platform stewardship.' },
         { name: 'Geremia Doan',     badge: 'Hold — EOY Review',  cls: 'ctx-badge-eoy',
           change: 'IT Director, North → Director, IT Infrastructure & Security',
-          note: 'Current structure holds through FY2026 · title and scope review in Q4' },
+          note: 'Infrastructure & security focus · title and comp review deferred to Q4',
+          why: 'Geremia\'s responsibilities have shifted significantly toward infrastructure management and cybersecurity oversight. The proposed title better reflects that scope. The update is deferred to Q4 FY2026 to allow the full scope of the role to be defined before compensation is adjusted.' },
         { name: 'Tom Jarrell',      badge: 'No Change',          cls: 'ctx-badge-hold',
           change: 'Network Administrator → Systems Administrator',
-          note: 'No structural changes proposed at this time' },
+          note: 'Scope and compensation align with current market expectations',
+          why: 'No structural changes proposed at this time. Tom\'s role is stable and appropriately compensated for the current scope. May be revisited in FY2027 as the team\'s structure and environment continue to evolve.' },
     ];
 
     const expandCount  = people.filter(p => p.cls === 'ctx-badge-expand').length;
@@ -653,6 +659,7 @@ function renderPersonnelContext() {
                 <div class="ctx-person-name">${p.name}</div>
                 <div class="ctx-person-change">${p.change}</div>
                 <div class="ctx-person-note">${p.note}</div>
+                ${p.why ? `<details style="margin-top:4px;"><summary style="font-size:11px;color:#94a3b8;cursor:pointer;list-style:none;display:inline-flex;align-items:center;gap:4px;"><span style="font-size:9px;">&#9654;</span> Why this change?</summary><div style="font-size:11px;color:#64748b;padding:5px 0 2px;line-height:1.5;">${p.why}</div></details>` : ''}
             </div>
             <span class="ctx-badge ${p.cls}">${p.badge}</span>
         </div>`).join('')}
