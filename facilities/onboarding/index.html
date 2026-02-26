@@ -1,0 +1,773 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Facility Onboarding Estimator — NorthPoint</title>
+    <link rel="stylesheet" href="/northpoint.css">
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="/auth.js"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&display=swap');
+
+        .content { background: #f4f6f8; font-family: 'Manrope', 'DM Sans', sans-serif; }
+
+        /* ── Page header ── */
+        .page-wrap { max-width: 1100px; margin: 0 auto; padding: 36px 28px 80px; }
+
+        .pg-eyebrow { font-size: 10px; font-weight: 700; letter-spacing: 0.14em; text-transform: uppercase; color: #8b5cf6; margin-bottom: 8px; }
+        .pg-title { font-family: 'Manrope', sans-serif; font-size: 26px; font-weight: 800; color: #0a1628; margin-bottom: 6px; }
+        .pg-desc { font-size: 13px; color: #5d6779; margin-bottom: 32px; }
+
+        /* ── Two-column layout ── */
+        .calc-layout {
+            display: grid;
+            grid-template-columns: 300px 1fr;
+            gap: 20px;
+            align-items: start;
+        }
+        @media (max-width: 760px) { .calc-layout { grid-template-columns: 1fr; } }
+
+        /* ── Input panel ── */
+        .input-panel {
+            background: #fff;
+            border: 1px solid #dce1e9;
+            border-radius: 12px;
+            padding: 24px;
+            position: sticky;
+            top: 72px;
+        }
+        .input-panel-title {
+            font-size: 11px; font-weight: 700; letter-spacing: 0.12em;
+            text-transform: uppercase; color: #8a95a8; margin-bottom: 20px;
+        }
+
+        .input-group { margin-bottom: 22px; }
+        .input-label {
+            font-size: 12px; font-weight: 600; color: #3e4554;
+            margin-bottom: 6px; display: flex; justify-content: space-between;
+        }
+        .input-label-val { font-weight: 700; color: #0f1f3a; font-size: 14px; }
+
+        input[type="text"].input-field {
+            width: 100%; padding: 9px 12px; border: 1px solid #dce1e9;
+            border-radius: 7px; font-size: 13px; font-family: inherit;
+            color: #0a1628; background: #fafbfc; outline: none;
+        }
+        input[type="text"].input-field:focus { border-color: #8b5cf6; background: #fff; }
+
+        input[type="range"] {
+            -webkit-appearance: none; width: 100%; height: 5px;
+            border-radius: 99px; background: #e8ecf1; outline: none; margin-top: 8px;
+        }
+        input[type="range"]::-webkit-slider-thumb {
+            -webkit-appearance: none; width: 16px; height: 16px;
+            border-radius: 50%; background: #8b5cf6; cursor: pointer;
+            box-shadow: 0 0 0 3px rgba(139,92,246,0.2);
+        }
+
+        .input-stepper {
+            display: flex; align-items: center; gap: 8px; margin-top: 8px;
+        }
+        .stepper-btn {
+            width: 28px; height: 28px; border: 1px solid #dce1e9; border-radius: 6px;
+            background: #fafbfc; font-size: 16px; cursor: pointer; display: flex;
+            align-items: center; justify-content: center; color: #5d6779; font-weight: 700;
+            flex-shrink: 0;
+        }
+        .stepper-btn:hover { background: #f0f2f5; color: #0f1f3a; }
+        .stepper-num {
+            flex: 1; text-align: center; font-size: 18px; font-weight: 800;
+            color: #0f1f3a;
+        }
+
+        .auto-badge {
+            display: inline-block; font-size: 10px; background: #f0fdf4;
+            color: #065f46; padding: 2px 7px; border-radius: 99px;
+            font-weight: 600; margin-left: 4px; vertical-align: middle;
+        }
+
+        .toggle-row {
+            display: flex; justify-content: space-between; align-items: center;
+            padding: 10px 0; border-top: 1px solid #f0f2f5;
+        }
+        .toggle-label { font-size: 12px; font-weight: 600; color: #3e4554; }
+        .toggle-sub { font-size: 11px; color: #8a95a8; }
+        .toggle { position: relative; width: 36px; height: 20px; flex-shrink: 0; }
+        .toggle input { opacity: 0; width: 0; height: 0; }
+        .toggle-slider {
+            position: absolute; inset: 0; border-radius: 99px; background: #dce1e9;
+            cursor: pointer; transition: 0.2s;
+        }
+        .toggle-slider::before {
+            content: ''; position: absolute; width: 14px; height: 14px;
+            border-radius: 50%; background: #fff; left: 3px; top: 3px; transition: 0.2s;
+        }
+        .toggle input:checked + .toggle-slider { background: #8b5cf6; }
+        .toggle input:checked + .toggle-slider::before { transform: translateX(16px); }
+
+        /* ── Results panel ── */
+        .results-panel { display: flex; flex-direction: column; gap: 16px; }
+
+        /* Summary strip */
+        .summary-strip {
+            display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px;
+        }
+        @media (max-width: 600px) { .summary-strip { grid-template-columns: 1fr 1fr; } }
+
+        .sum-card {
+            background: #fff; border: 1px solid #dce1e9; border-radius: 10px;
+            padding: 16px 18px;
+        }
+        .sum-card.sum-highlight {
+            background: #0f1f3a; border-color: #0f1f3a;
+        }
+        .sum-label { font-size: 10px; font-weight: 700; letter-spacing: 0.1em;
+            text-transform: uppercase; color: #8a95a8; margin-bottom: 6px; }
+        .sum-highlight .sum-label { color: #4d6899; }
+        .sum-value { font-size: 22px; font-weight: 800; color: #0a1628; line-height: 1; }
+        .sum-highlight .sum-value { color: #fff; }
+        .sum-sub { font-size: 11px; color: #8a95a8; margin-top: 4px; }
+        .sum-highlight .sum-sub { color: #4d6899; }
+        .sum-savings { font-size: 11px; color: #10b981; font-weight: 700; margin-top: 4px; }
+
+        /* Breakdown */
+        .breakdown-card {
+            background: #fff; border: 1px solid #dce1e9; border-radius: 10px;
+            overflow: hidden;
+        }
+        .breakdown-header {
+            display: flex; justify-content: space-between; align-items: center;
+            padding: 16px 20px; border-bottom: 1px solid #e8ecf1;
+        }
+        .breakdown-title { font-size: 12px; font-weight: 700; letter-spacing: 0.1em;
+            text-transform: uppercase; color: #3e4554; }
+        .breakdown-total { font-size: 12px; font-weight: 700; color: #0a1628; }
+
+        table.bd-table { width: 100%; border-collapse: collapse; }
+        .bd-table th {
+            font-size: 10px; font-weight: 700; letter-spacing: 0.1em;
+            text-transform: uppercase; color: #8a95a8; text-align: right;
+            padding: 10px 20px; border-bottom: 1px solid #e8ecf1; background: #fafbfc;
+        }
+        .bd-table th:first-child { text-align: left; }
+        .bd-table td {
+            padding: 13px 20px; border-bottom: 1px solid #f4f6f8;
+            font-size: 13px; text-align: right; vertical-align: top;
+        }
+        .bd-table td:first-child { text-align: left; }
+        .bd-table tr:last-child td { border-bottom: none; }
+        .bd-table tr:hover td { background: #fafbfc; }
+        .bd-table tr.bd-total td {
+            border-top: 2px solid #dce1e9; border-bottom: none;
+            font-weight: 700; background: #fafbfc; font-size: 13px;
+        }
+
+        .bd-cat { font-weight: 700; color: #0a1628; }
+        .bd-desc { font-size: 11px; color: #8a95a8; margin-top: 2px; }
+        .bd-bar { height: 4px; border-radius: 99px; background: #e8ecf1; margin-top: 6px; max-width: 180px; }
+        .bd-bar-fill { height: 100%; border-radius: 99px; background: #8b5cf6; }
+
+        td.onetime { color: #0a1628; font-weight: 600; }
+        td.annual  { color: #5d6779; }
+        td.total   { font-weight: 700; color: #0f1f3a; }
+
+        /* Timeline */
+        .timeline-card {
+            background: #fff; border: 1px solid #dce1e9; border-radius: 10px; padding: 20px;
+        }
+        .timeline-title { font-size: 12px; font-weight: 700; letter-spacing: 0.1em;
+            text-transform: uppercase; color: #3e4554; margin-bottom: 18px; }
+        .timeline-phases { display: flex; flex-direction: column; gap: 12px; }
+        .phase-row { display: flex; align-items: center; gap: 12px; }
+        .phase-label { font-size: 12px; font-weight: 600; color: #3e4554; width: 180px; flex-shrink: 0; }
+        .phase-bar-wrap { flex: 1; position: relative; height: 20px; }
+        .phase-track { height: 8px; background: #f0f2f5; border-radius: 99px; width: 100%; position: absolute; top: 6px; }
+        .phase-fill {
+            height: 8px; border-radius: 99px; position: absolute; top: 6px;
+            transition: width 0.4s ease, left 0.4s ease;
+        }
+        .phase-duration { font-size: 11px; color: #8a95a8; width: 56px; flex-shrink: 0; text-align: right; }
+
+        .phase-0 { background: #a78bfa; }  /* Assessment */
+        .phase-1 { background: #8b5cf6; }  /* Infrastructure */
+        .phase-2 { background: #7c3aed; }  /* Devices */
+        .phase-3 { background: #6d28d9; }  /* Clinical */
+        .phase-4 { background: #10b981; }  /* Go-live */
+
+        .timeline-weeks { display: flex; margin-left: 192px; margin-bottom: 6px; }
+        .week-label { flex: 1; text-align: center; font-size: 9px; color: #bec6d3; }
+
+        /* Incoming facilities */
+        .incoming-card {
+            background: #fff; border: 1px solid #dce1e9; border-radius: 10px; overflow: hidden;
+        }
+        .incoming-header { padding: 16px 20px; border-bottom: 1px solid #e8ecf1; }
+        .incoming-title { font-size: 12px; font-weight: 700; letter-spacing: 0.1em;
+            text-transform: uppercase; color: #3e4554; }
+        .incoming-sub { font-size: 11px; color: #8a95a8; margin-top: 3px; }
+        .incoming-body { padding: 8px 0; }
+        .inc-row {
+            display: flex; justify-content: space-between; align-items: center;
+            padding: 12px 20px; border-bottom: 1px solid #f4f6f8; gap: 12px;
+        }
+        .inc-row:last-child { border-bottom: none; }
+        .inc-name { font-size: 13px; font-weight: 700; color: #0a1628; }
+        .inc-region { font-size: 11px; color: #8a95a8; }
+        .inc-nums { display: flex; gap: 20px; font-size: 12px; }
+        .inc-num { text-align: right; }
+        .inc-num-val { font-weight: 700; color: #0a1628; }
+        .inc-num-label { font-size: 10px; color: #8a95a8; }
+        .inc-badge {
+            font-size: 10px; font-weight: 700; padding: 2px 8px; border-radius: 99px;
+            background: #f3f0ff; color: #5b21b6; flex-shrink: 0;
+        }
+
+        /* Assumptions */
+        .assumptions-toggle {
+            display: flex; align-items: center; gap: 8px; font-size: 12px;
+            color: #8a95a8; cursor: pointer; padding: 4px 0; user-select: none;
+        }
+        .assumptions-toggle:hover { color: #5d6779; }
+        .assumptions-body {
+            display: none; background: #fff; border: 1px solid #e8ecf1;
+            border-radius: 10px; padding: 20px; margin-top: 8px;
+            font-size: 12px; color: #5d6779; line-height: 1.7;
+        }
+        .assumptions-body.open { display: block; }
+        .assumptions-body ul { padding-left: 16px; }
+        .assumptions-body li { margin-bottom: 4px; }
+        .assumptions-section { margin-bottom: 12px; }
+        .assumptions-section strong { color: #0a1628; }
+    </style>
+</head>
+<body class="mod-facilities">
+<div class="layout">
+    <div id="rail-mount"></div>
+    <div class="main">
+        <header class="topbar">
+            <div class="topbar-left">
+                <a href="/index.html" class="topbar-name">NorthPoint</a>
+                <div class="topbar-sep"></div>
+                <a href="/facilities/index.html" class="topbar-section" style="text-decoration:none;color:inherit;">Facilities</a>
+                <div class="topbar-sep"></div>
+                <span class="topbar-section">Onboarding Estimator</span>
+            </div>
+            <div class="topbar-right">
+                <span class="topbar-date" id="currentDate"></span>
+                <div class="topbar-avatar" id="topbarAvatar">AT</div>
+            </div>
+        </header>
+
+        <div class="content">
+        <div class="page-wrap">
+
+            <div class="pg-eyebrow">Facilities · Planning Tool</div>
+            <h1 class="pg-title">Facility Onboarding Estimator</h1>
+            <p class="pg-desc">Project the full IT cost and timeline to onboard a new facility — hardware, connectivity, security, licensing, and labor. Adjust bed count and staff to model any size.</p>
+
+            <div class="calc-layout">
+
+                <!-- ── Input Panel ── -->
+                <div class="input-panel">
+                    <div class="input-panel-title">Facility Parameters</div>
+
+                    <div class="input-group">
+                        <div class="input-label">Facility Name <span style="color:#bec6d3;font-size:11px;">(optional)</span></div>
+                        <input type="text" class="input-field" id="fac-name" placeholder="e.g. Woodcrest SNF #43" />
+                    </div>
+
+                    <div class="input-group">
+                        <div class="input-label">
+                            <span>Bed Count</span>
+                            <span class="input-label-val" id="bed-display">120</span>
+                        </div>
+                        <input type="range" id="bed-slider" min="40" max="350" value="120" step="5" />
+                        <div class="input-stepper">
+                            <button class="stepper-btn" onclick="step('bed',-5)">−</button>
+                            <div class="stepper-num" id="bed-num">120</div>
+                            <button class="stepper-btn" onclick="step('bed',5)">+</button>
+                        </div>
+                    </div>
+
+                    <div class="input-group">
+                        <div class="input-label">
+                            <span>Staff Count <span class="auto-badge" id="auto-badge">Auto</span></span>
+                            <span class="input-label-val" id="staff-display">84</span>
+                        </div>
+                        <input type="range" id="staff-slider" min="10" max="300" value="84" step="1" />
+                        <div class="input-stepper">
+                            <button class="stepper-btn" onclick="step('staff',-1)">−</button>
+                            <div class="stepper-num" id="staff-num">84</div>
+                            <button class="stepper-btn" onclick="step('staff',1)">+</button>
+                        </div>
+                    </div>
+
+                    <div class="toggle-row">
+                        <div>
+                            <div class="toggle-label">Internal-Led</div>
+                            <div class="toggle-sub">vs. outside consultant</div>
+                        </div>
+                        <label class="toggle">
+                            <input type="checkbox" id="internal-toggle" checked />
+                            <span class="toggle-slider"></span>
+                        </label>
+                    </div>
+
+                    <div class="toggle-row">
+                        <div>
+                            <div class="toggle-label">Include Clinical Systems</div>
+                            <div class="toggle-sub">PCC setup + training</div>
+                        </div>
+                        <label class="toggle">
+                            <input type="checkbox" id="clinical-toggle" checked />
+                            <span class="toggle-slider"></span>
+                        </label>
+                    </div>
+
+                </div><!-- /input-panel -->
+
+                <!-- ── Results Panel ── -->
+                <div class="results-panel">
+
+                    <!-- Summary -->
+                    <div class="summary-strip">
+                        <div class="sum-card sum-highlight">
+                            <div class="sum-label">Year-1 Total</div>
+                            <div class="sum-value" id="sum-year1">—</div>
+                            <div class="sum-sub">One-time + first year recurring</div>
+                        </div>
+                        <div class="sum-card">
+                            <div class="sum-label">One-Time Cost</div>
+                            <div class="sum-value" id="sum-onetime">—</div>
+                            <div class="sum-sub">Hardware · infra · labor</div>
+                        </div>
+                        <div class="sum-card">
+                            <div class="sum-label">Annual Recurring</div>
+                            <div class="sum-value" id="sum-annual">—</div>
+                            <div class="sum-sub">Licensing · connectivity · support</div>
+                        </div>
+                        <div class="sum-card">
+                            <div class="sum-label">vs. Consultant</div>
+                            <div class="sum-value" id="sum-vscons">—</div>
+                            <div class="sum-savings" id="sum-savings">—</div>
+                            <div class="sum-sub" id="sum-cons-sub">Estimated external rate</div>
+                        </div>
+                    </div>
+
+                    <!-- Breakdown table -->
+                    <div class="breakdown-card">
+                        <div class="breakdown-header">
+                            <span class="breakdown-title">Cost Breakdown</span>
+                            <span class="breakdown-total" id="bd-header-total"></span>
+                        </div>
+                        <table class="bd-table">
+                            <thead>
+                                <tr>
+                                    <th>Category</th>
+                                    <th>One-Time</th>
+                                    <th>Annual</th>
+                                    <th>Year-1 Total</th>
+                                </tr>
+                            </thead>
+                            <tbody id="bd-tbody"></tbody>
+                        </table>
+                    </div>
+
+                    <!-- Timeline -->
+                    <div class="timeline-card">
+                        <div class="timeline-title">Estimated Timeline</div>
+                        <div class="timeline-weeks" id="week-labels"></div>
+                        <div class="timeline-phases" id="timeline-phases"></div>
+                        <div style="margin-top:14px;font-size:11px;color:#8a95a8;" id="timeline-total"></div>
+                    </div>
+
+                    <!-- Incoming facilities projection -->
+                    <div class="incoming-card">
+                        <div class="incoming-header">
+                            <div class="incoming-title">Incoming Facilities — Projected Cost</div>
+                            <div class="incoming-sub">Live from Supabase · estimates use employee count as proxy for scale</div>
+                        </div>
+                        <div class="incoming-body" id="incoming-body">
+                            <div style="padding:20px;text-align:center;color:#bec6d3;font-size:13px;">Loading&hellip;</div>
+                        </div>
+                    </div>
+
+                    <!-- Assumptions -->
+                    <div>
+                        <div class="assumptions-toggle" onclick="this.nextElementSibling.classList.toggle('open')">
+                            ▸ View cost assumptions & methodology
+                        </div>
+                        <div class="assumptions-body" id="assumptions-body">
+                            <div class="assumptions-section">
+                                <strong>Hardware</strong>
+                                <ul>
+                                    <li>Workstations/laptops: $1,200/device · 1 device per staff member</li>
+                                    <li>Mobile devices (tablets/phones): $800/device · ~40% of staff</li>
+                                    <li>VOIP desk phones: $350/unit · ~15% of bed count (nurses stations)</li>
+                                    <li>Security cameras: $350/camera · ~1 per 4 beds + common areas fixed</li>
+                                </ul>
+                            </div>
+                            <div class="assumptions-section">
+                                <strong>Network & Connectivity</strong>
+                                <ul>
+                                    <li>Network infrastructure (switches, cabling, core): $45,000 base + $50/bed</li>
+                                    <li>Wireless (APs, controllers, site survey): $35,000 base + $100/bed</li>
+                                    <li>Annual connectivity: $18,000 base + $20/bed (ISP, WAN)</li>
+                                </ul>
+                            </div>
+                            <div class="assumptions-section">
+                                <strong>Software & Licensing</strong>
+                                <ul>
+                                    <li>Microsoft 365, MDM, productivity: $850/staff/year</li>
+                                    <li>Cybersecurity (EDR, email security, NinjaRMM): $180/endpoint/year + $8,000 base</li>
+                                    <li>Clinical systems (PointClickCare): $15,000 setup + $180/bed/year</li>
+                                </ul>
+                            </div>
+                            <div class="assumptions-section">
+                                <strong>Labor</strong>
+                                <ul>
+                                    <li>Internal-led: $40,000 base + $80/bed (AT + team travel, configuration, testing)</li>
+                                    <li>External consultant: 2.0–2.5× internal labor estimate · industry standard markup</li>
+                                    <li>Timeline scales with facility size: +1 week per 50 beds above 100-bed baseline</li>
+                                </ul>
+                            </div>
+                            <div class="assumptions-section">
+                                <strong>Exclusions</strong>
+                                <ul>
+                                    <li>Building cabling infrastructure (pre-existing assumed adequate)</li>
+                                    <li>Clinical hardware beyond IT scope (nurse call systems, medical devices)</li>
+                                    <li>Staff training beyond IT system orientation</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+
+                </div><!-- /results-panel -->
+            </div><!-- /calc-layout -->
+
+        </div><!-- /page-wrap -->
+        </div><!-- /content -->
+    </div>
+</div>
+
+<script src="/nav.js"></script>
+<script>
+// ── State ──────────────────────────────────────────────────────────────────
+let _beds = 120;
+let _staff = 84;
+let _autoStaff = true;
+
+// ── Init ───────────────────────────────────────────────────────────────────
+npInit(null).then(session => {
+    if (!session) return;
+    npPopulateTopbar();
+    renderNav('facilities');
+    calculate();
+    loadIncoming();
+    wireInputs();
+});
+
+// ── Wire inputs ────────────────────────────────────────────────────────────
+function wireInputs() {
+    const bedSlider   = document.getElementById('bed-slider');
+    const staffSlider = document.getElementById('staff-slider');
+
+    bedSlider.addEventListener('input', () => {
+        _beds = parseInt(bedSlider.value);
+        if (_autoStaff) _staff = autoStaff(_beds);
+        syncUI();
+        calculate();
+    });
+
+    staffSlider.addEventListener('input', () => {
+        _autoStaff = false;
+        document.getElementById('auto-badge').style.display = 'none';
+        _staff = parseInt(staffSlider.value);
+        syncUI();
+        calculate();
+    });
+
+    document.getElementById('internal-toggle').addEventListener('change', calculate);
+    document.getElementById('clinical-toggle').addEventListener('change', calculate);
+}
+
+function autoStaff(beds) { return Math.round(beds * 0.7); }
+
+function step(type, delta) {
+    if (type === 'bed') {
+        _beds = Math.min(350, Math.max(40, _beds + delta));
+        if (_autoStaff) _staff = autoStaff(_beds);
+        document.getElementById('bed-slider').value = _beds;
+    } else {
+        _autoStaff = false;
+        document.getElementById('auto-badge').style.display = 'none';
+        _staff = Math.min(300, Math.max(10, _staff + delta));
+        document.getElementById('staff-slider').value = _staff;
+    }
+    syncUI();
+    calculate();
+}
+
+function syncUI() {
+    document.getElementById('bed-display').textContent  = _beds;
+    document.getElementById('bed-num').textContent      = _beds;
+    document.getElementById('staff-display').textContent = _staff;
+    document.getElementById('staff-num').textContent    = _staff;
+    document.getElementById('bed-slider').value         = _beds;
+    document.getElementById('staff-slider').value       = _staff;
+}
+
+// ── Cost model ────────────────────────────────────────────────────────────
+function computeCosts(beds, staff, includeClinical) {
+    const cameras = Math.round(8 + beds / 4);  // base 8 + 1 per 4 beds
+    const voip    = Math.round(beds * 0.15);
+    const mobile  = Math.round(staff * 0.4);
+
+    return [
+        {
+            id: 'network',
+            cat: 'Network Infrastructure',
+            desc: `Switches, cabling, SD-WAN, firewalls`,
+            onetime: 45000 + (beds * 50),
+            annual:  18000 + (beds * 20),
+            color: '#8b5cf6',
+        },
+        {
+            id: 'wireless',
+            cat: 'Wireless Infrastructure',
+            desc: `Access points, controllers, site survey`,
+            onetime: 35000 + (beds * 100),
+            annual:  6000,
+            color: '#a78bfa',
+        },
+        {
+            id: 'endpoints',
+            cat: 'Workstations & Laptops',
+            desc: `${staff} devices @ $1,200 ea`,
+            onetime: staff * 1200,
+            annual:  staff * 180,
+            color: '#7c3aed',
+        },
+        {
+            id: 'mobile',
+            cat: 'Mobile Devices',
+            desc: `${mobile} tablets/phones @ $800 ea (40% of staff)`,
+            onetime: mobile * 800,
+            annual:  mobile * 300,
+            color: '#6d28d9',
+        },
+        {
+            id: 'voip',
+            cat: 'VOIP Phones',
+            desc: `${voip} desk phones @ $350 ea`,
+            onetime: voip * 350,
+            annual:  voip * 120,
+            color: '#5b21b6',
+        },
+        {
+            id: 'cameras',
+            cat: 'Security Cameras',
+            desc: `${cameras} cameras @ $350 ea + installation`,
+            onetime: cameras * 350 + 4000,
+            annual:  cameras * 40,
+            color: '#4c1d95',
+        },
+        {
+            id: 'cybersec',
+            cat: 'Cybersecurity',
+            desc: `EDR, email security, RMM, firewall licensing`,
+            onetime: 5000,
+            annual:  staff * 180 + 8000,
+            color: '#7c3aed',
+        },
+        {
+            id: 'licensing',
+            cat: 'Software Licensing',
+            desc: `M365, MDM, productivity — ${staff} seats`,
+            onetime: 0,
+            annual:  staff * 850,
+            color: '#8b5cf6',
+        },
+        ...(includeClinical ? [{
+            id: 'clinical',
+            cat: 'Clinical Systems',
+            desc: `PointClickCare setup, training, integrations`,
+            onetime: 15000,
+            annual:  beds * 180,
+            color: '#10b981',
+        }] : []),
+        {
+            id: 'labor',
+            cat: 'Labor & Professional Services',
+            desc: `Installation, config, travel, testing`,
+            onetime: 40000 + (beds * 80),
+            annual:  0,
+            color: '#3d5580',
+        },
+    ];
+}
+
+function consultantMultiplier(beds) {
+    // Larger facilities get slightly less relative markup
+    if (beds > 250) return 1.9;
+    if (beds > 150) return 2.1;
+    return 2.3;
+}
+
+// ── Calculate ──────────────────────────────────────────────────────────────
+function calculate() {
+    const includeClinical = document.getElementById('clinical-toggle').checked;
+    const isInternal      = document.getElementById('internal-toggle').checked;
+    const items           = computeCosts(_beds, _staff, includeClinical);
+
+    const totalOnetime = items.reduce((s, i) => s + i.onetime, 0);
+    const totalAnnual  = items.reduce((s, i) => s + i.annual,  0);
+    const totalYear1   = totalOnetime + totalAnnual;
+    const consEst      = totalOnetime * consultantMultiplier(_beds);
+    const savings      = consEst - (isInternal ? totalOnetime : consEst);
+
+    // Summary strip
+    document.getElementById('sum-year1').textContent   = fmt(totalYear1);
+    document.getElementById('sum-onetime').textContent = fmt(totalOnetime);
+    document.getElementById('sum-annual').textContent  = fmt(totalAnnual);
+
+    if (isInternal) {
+        document.getElementById('sum-vscons').textContent  = fmt(consEst);
+        document.getElementById('sum-savings').textContent = `You save ${fmt(savings)}`;
+        document.getElementById('sum-cons-sub').textContent = 'External consultant estimate';
+    } else {
+        document.getElementById('sum-vscons').textContent  = fmt(totalOnetime);
+        document.getElementById('sum-savings').textContent = '';
+        document.getElementById('sum-cons-sub').textContent = 'Consultant-led estimate';
+    }
+
+    // Header total
+    document.getElementById('bd-header-total').textContent =
+        `One-time: ${fmt(totalOnetime)} · Annual: ${fmt(totalAnnual)}`;
+
+    // Breakdown table
+    const tbody = document.getElementById('bd-tbody');
+    const maxYear1 = Math.max(...items.map(i => i.onetime + i.annual));
+    tbody.innerHTML = items.map(item => {
+        const y1 = item.onetime + item.annual;
+        const pct = Math.round((y1 / maxYear1) * 100);
+        return `<tr>
+            <td>
+                <div class="bd-cat">${item.cat}</div>
+                <div class="bd-desc">${item.desc}</div>
+                <div class="bd-bar"><div class="bd-bar-fill" style="width:${pct}%;background:${item.color};"></div></div>
+            </td>
+            <td class="onetime">${item.onetime > 0 ? fmt(item.onetime) : '—'}</td>
+            <td class="annual">${item.annual > 0 ? fmt(item.annual) : '—'}</td>
+            <td class="total">${fmt(y1)}</td>
+        </tr>`;
+    }).join('') + `<tr class="bd-total">
+        <td>Total</td>
+        <td>${fmt(totalOnetime)}</td>
+        <td>${fmt(totalAnnual)}</td>
+        <td>${fmt(totalYear1)}</td>
+    </tr>`;
+
+    // Timeline
+    renderTimeline(_beds);
+}
+
+// ── Timeline ───────────────────────────────────────────────────────────────
+function renderTimeline(beds) {
+    // Week durations scale with size
+    const scale = Math.max(1, 1 + (beds - 100) / 100);
+    const phases = [
+        { name: 'Assessment & Procurement', start: 0, dur: Math.round(2 * scale), cls: 'phase-0' },
+        { name: 'Network & Infrastructure', start: Math.round(1 * scale), dur: Math.round(3 * scale), cls: 'phase-1' },
+        { name: 'Devices & Configuration',  start: Math.round(3 * scale), dur: Math.round(2 * scale), cls: 'phase-2' },
+        { name: 'Clinical Systems',         start: Math.round(4 * scale), dur: Math.round(2 * scale), cls: 'phase-3' },
+        { name: 'Training & Go-Live',       start: Math.round(5 * scale), dur: Math.round(2 * scale), cls: 'phase-4' },
+    ];
+
+    const totalWeeks = Math.max(...phases.map(p => p.start + p.dur));
+
+    // Week labels
+    const labelsEl = document.getElementById('week-labels');
+    labelsEl.innerHTML = '';
+    for (let w = 1; w <= totalWeeks; w++) {
+        const el = document.createElement('div');
+        el.className = 'week-label';
+        el.textContent = `W${w}`;
+        labelsEl.appendChild(el);
+    }
+
+    const container = document.getElementById('timeline-phases');
+    container.innerHTML = phases.map(p => {
+        const leftPct  = (p.start / totalWeeks) * 100;
+        const widthPct = (p.dur  / totalWeeks) * 100;
+        return `<div class="phase-row">
+            <div class="phase-label">${p.name}</div>
+            <div class="phase-bar-wrap">
+                <div class="phase-track"></div>
+                <div class="phase-fill ${p.cls}" style="left:${leftPct}%;width:${widthPct}%;"></div>
+            </div>
+            <div class="phase-duration">${p.dur}w</div>
+        </div>`;
+    }).join('');
+
+    document.getElementById('timeline-total').textContent =
+        `Estimated total: ${totalWeeks} weeks · Internal-led, concurrent phases`;
+}
+
+// ── Incoming facilities ────────────────────────────────────────────────────
+async function loadIncoming() {
+    const { data } = await _npSupabase
+        .from('facilities')
+        .select('name, region, emp_count, notes')
+        .eq('is_incoming', true)
+        .order('name');
+
+    const el = document.getElementById('incoming-body');
+
+    if (!data || data.length === 0) {
+        el.innerHTML = '<div style="padding:20px;text-align:center;color:#bec6d3;font-size:13px;">No incoming facilities found in Supabase.</div>';
+        return;
+    }
+
+    el.innerHTML = data.map(f => {
+        // Use emp_count as proxy: beds ≈ emp_count * 1.35 for SNF context
+        const estBeds  = f.emp_count ? Math.round(f.emp_count * 1.35) : 120;
+        const estStaff = Math.round(estBeds * 0.7);
+        const items    = computeCosts(estBeds, estStaff, true);
+        const onetime  = items.reduce((s, i) => s + i.onetime, 0);
+        const annual   = items.reduce((s, i) => s + i.annual,  0);
+
+        return `<div class="inc-row">
+            <div>
+                <div class="inc-name">${f.name}</div>
+                <div class="inc-region">${f.region || ''} · ~${estBeds} beds est.</div>
+            </div>
+            <div class="inc-nums">
+                <div class="inc-num">
+                    <div class="inc-num-val">${fmt(onetime)}</div>
+                    <div class="inc-num-label">One-Time</div>
+                </div>
+                <div class="inc-num">
+                    <div class="inc-num-val">${fmt(annual)}</div>
+                    <div class="inc-num-label">Annual</div>
+                </div>
+                <div class="inc-num">
+                    <div class="inc-num-val">${fmt(onetime + annual)}</div>
+                    <div class="inc-num-label">Year-1</div>
+                </div>
+            </div>
+            <span class="inc-badge">Incoming</span>
+        </div>`;
+    }).join('');
+}
+
+// ── Utilities ──────────────────────────────────────────────────────────────
+function fmt(n) {
+    if (n >= 1000000) return `$${(n / 1000000).toFixed(1)}M`;
+    if (n >= 1000)    return `$${Math.round(n / 1000)}K`;
+    return `$${Math.round(n)}`;
+}
+</script>
+</body>
+</html>
