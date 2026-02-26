@@ -363,6 +363,20 @@ html { background: var(--navy); }
     flex-shrink: 0;
 }
 
+/* ── TOPBAR ROLE BADGE ── */
+.topbar-role {
+    font-size: 10px;
+    font-weight: 600;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: rgba(255,255,255,0.35);
+    background: rgba(255,255,255,0.07);
+    border: 1px solid rgba(255,255,255,0.1);
+    border-radius: 99px;
+    padding: 3px 10px;
+    white-space: nowrap;
+}
+
 /* ── CONTENT ── */
 .content {
     padding: 44px 52px;
@@ -1227,13 +1241,15 @@ html { background: var(--navy); }
     display: block;
 }
 
-/* Frosted tool card — for module index pages */
-.tool-card.tile-locked {
+/* Frosted tile — applies to both tool cards and hub module cards */
+.tool-card.tile-locked,
+.module-card.tile-locked {
     pointer-events: none;
     position: relative;
     overflow: hidden;
 }
-.tool-card.tile-locked::after {
+.tool-card.tile-locked::after,
+.module-card.tile-locked::after {
     content: '';
     position: absolute;
     inset: 0;
@@ -1243,7 +1259,8 @@ html { background: var(--navy); }
     border-radius: inherit;
     z-index: 5;
 }
-.tool-card.tile-locked::before {
+.tool-card.tile-locked::before,
+.module-card.tile-locked::before {
     content: '🔒';
     position: absolute;
     top: 50%;

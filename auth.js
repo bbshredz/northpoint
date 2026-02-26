@@ -60,10 +60,13 @@ async function npSignOut() {
 }
 
 function npPopulateTopbar() {
-  const avatar = document.getElementById('topbarAvatar');
+  const roleEl = document.getElementById('topbarRole');
   const date   = document.getElementById('currentDate');
-  if (avatar) avatar.textContent = npGetInitials();
-  if (date)   date.textContent   = new Date().toLocaleDateString('en-US', {
+  if (roleEl) {
+    const labels = { admin: 'Admin', staff: 'Staff', director: 'Director', exec: 'Executive', executive: 'Executive' };
+    roleEl.textContent = labels[_npRole] || _npRole || '';
+  }
+  if (date) date.textContent = new Date().toLocaleDateString('en-US', {
     weekday: 'short', month: 'short', day: 'numeric', year: 'numeric'
   });
 }
