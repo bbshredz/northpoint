@@ -3,867 +3,726 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>IT Restructuring Case — NorthPoint</title>
+    <title>A Case for Restructure — NorthPoint</title>
     <link rel="stylesheet" href="/northpoint.css">
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script src="/auth.js"></script>
     <style>
-        /* ── Import Manrope for document feel ── */
         @import url('https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&display=swap');
 
-        /* ── Page-level overrides: light, clinical, authoritative ── */
-        .content {
-            background: #f4f6f8;
-            font-family: 'Manrope', 'DM Sans', sans-serif;
-        }
+        .content { background: #f4f6f8; font-family: 'Manrope', 'DM Sans', sans-serif; }
 
-        /* ── Document container ── */
-        .doc {
-            max-width: 860px;
-            margin: 0 auto;
-            padding: 40px 32px 80px;
-        }
+        .doc { max-width: 920px; margin: 0 auto; padding: 40px 32px 80px; }
 
-        /* ── Doc header ── */
-        .doc-eyebrow {
-            font-size: 10px;
-            font-weight: 700;
-            letter-spacing: 0.14em;
-            text-transform: uppercase;
-            color: #10b981;
-            margin-bottom: 10px;
-        }
-        .doc-title {
-            font-family: 'Manrope', sans-serif;
-            font-size: 32px;
-            font-weight: 800;
-            color: #0a1628;
-            line-height: 1.15;
-            margin-bottom: 10px;
-        }
-        .doc-meta {
-            font-size: 13px;
-            color: #5d6779;
-            margin-bottom: 36px;
-            display: flex;
-            gap: 20px;
-            flex-wrap: wrap;
-        }
-        .doc-meta span { display: flex; align-items: center; gap: 5px; }
-        .doc-divider {
-            height: 1px;
-            background: #dce1e9;
-            margin-bottom: 40px;
-        }
+        /* ── Hero ── */
+        .hero { background: linear-gradient(140deg, #0a1628 0%, #152844 100%); border-radius: 16px; padding: 48px 48px 40px; margin-bottom: 56px; }
+        .hero-eyebrow { font-size: 10px; font-weight: 700; letter-spacing: 0.14em; text-transform: uppercase; color: #10b981; margin-bottom: 14px; }
+        .hero-title { font-size: 38px; font-weight: 800; color: #fff; line-height: 1.1; margin-bottom: 10px; }
+        .hero-subtitle { font-size: 15px; color: #94a3b8; margin-bottom: 36px; line-height: 1.6; max-width: 560px; }
+        .hero-stats { display: grid; grid-template-columns: repeat(4, 1fr); gap: 1px; background: rgba(255,255,255,0.08); border-radius: 10px; overflow: hidden; }
+        .hero-stat { background: rgba(255,255,255,0.04); padding: 18px 16px; }
+        .hero-stat-value { font-size: 20px; font-weight: 800; color: #fff; margin-bottom: 4px; line-height: 1; }
+        .hero-stat-label { font-size: 10px; color: #64748b; text-transform: uppercase; letter-spacing: 0.06em; }
 
         /* ── Section headers ── */
-        .section-label {
-            font-size: 10px;
-            font-weight: 700;
-            letter-spacing: 0.14em;
-            text-transform: uppercase;
-            color: #8a95a8;
-            margin-bottom: 16px;
-            display: flex;
-            align-items: center;
-            gap: 10px;
-        }
-        .section-label::after {
-            content: '';
-            flex: 1;
-            height: 1px;
-            background: #dce1e9;
-        }
+        .sec-num { font-size: 10px; font-weight: 700; letter-spacing: 0.12em; text-transform: uppercase; color: #94a3b8; margin-bottom: 4px; }
+        .sec-title { font-size: 22px; font-weight: 800; color: #0a1628; margin-bottom: 8px; }
+        .sec-desc { font-size: 13px; color: #5d6779; line-height: 1.65; margin-bottom: 28px; max-width: 680px; }
+        .sec-divider { height: 1px; background: #dce1e9; margin: 52px 0; }
 
-        .section-gap { margin-bottom: 48px; }
+        /* ── Problem cards ── */
+        .prob-grid-top { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; margin-bottom: 12px; }
+        .prob-grid-bot { display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; margin-bottom: 40px; }
+        .prob-card { background: #fff; border: 1px solid #e8ecf1; border-radius: 12px; padding: 20px; }
+        .prob-card.structural { border-top: 3px solid #ef4444; }
+        .prob-card.roadmap { border-top: 3px solid #8b5cf6; }
+        .prob-icon { font-size: 20px; margin-bottom: 10px; }
+        .prob-title { font-size: 14px; font-weight: 800; color: #0a1628; margin-bottom: 6px; }
+        .prob-desc { font-size: 12px; color: #5d6779; line-height: 1.65; }
+        .prob-stat { margin-top: 12px; padding-top: 10px; border-top: 1px solid #f1f5f9; font-size: 11px; font-weight: 700; }
+        .prob-stat.red { color: #dc2626; }
+        .prob-stat.amber { color: #b45309; }
+        .prob-stat.purple { color: #7c3aed; }
+        .prob-row-label { font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.08em; margin-bottom: 10px; }
+        .prob-row-label.structural { color: #dc2626; }
+        .prob-row-label.roadmap { color: #7c3aed; }
 
-        /* ── The Ask card ── */
-        .ask-card {
-            background: #0f1f3a;
-            border-radius: 12px;
-            padding: 28px 32px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 48px;
-            gap: 24px;
-            flex-wrap: wrap;
-        }
-        .ask-left {}
-        .ask-tag {
-            font-size: 10px;
-            font-weight: 700;
-            letter-spacing: 0.12em;
-            text-transform: uppercase;
-            color: #10b981;
-            margin-bottom: 8px;
-        }
-        .ask-name {
-            font-size: 22px;
-            font-weight: 800;
-            color: #ffffff;
-            margin-bottom: 4px;
-        }
-        .ask-title {
-            font-size: 14px;
-            color: #7088b3;
-        }
-        .ask-right { text-align: right; }
-        .ask-comp-label {
-            font-size: 11px;
-            color: #4d6899;
-            margin-bottom: 4px;
-            text-transform: uppercase;
-            letter-spacing: 0.1em;
-        }
-        .ask-comp-value {
-            font-size: 36px;
-            font-weight: 800;
-            color: #ffffff;
-            line-height: 1;
-            margin-bottom: 6px;
-        }
-        .ask-comp-delta {
-            font-size: 12px;
-            color: #10b981;
-            font-weight: 600;
-        }
-        .ask-comp-current {
-            font-size: 11px;
-            color: #4d6899;
-            margin-top: 3px;
-        }
+        /* ── Specialization matrix ── */
+        .spec-table { width: 100%; border-collapse: collapse; font-size: 12px; background: #fff; border: 1px solid #e8ecf1; border-radius: 12px; overflow: hidden; margin-bottom: 40px; }
+        .spec-table th { font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.08em; color: #8a95a8; padding: 10px 16px; text-align: left; border-bottom: 1px solid #e8ecf1; background: #f8fafc; }
+        .spec-table td { padding: 12px 16px; border-bottom: 1px solid #f1f5f9; vertical-align: top; }
+        .spec-table tr:last-child td { border-bottom: none; }
+        .spec-area { font-weight: 700; color: #0a1628; font-size: 12px; }
+        .spec-before { color: #dc2626; font-size: 11px; display: flex; align-items: flex-start; gap: 5px; margin-top: 2px; line-height: 1.4; }
+        .spec-after { color: #059669; font-size: 11px; font-weight: 600; display: flex; align-items: flex-start; gap: 5px; margin-top: 2px; line-height: 1.4; }
 
-        /* ── Inversion alert ── */
-        .inversion-alert {
-            background: #fffbeb;
-            border: 1px solid #fcd34d;
-            border-left: 4px solid #d97706;
-            border-radius: 8px;
-            padding: 16px 20px;
-            margin-bottom: 24px;
-        }
-        .inversion-alert-title {
-            font-size: 12px;
-            font-weight: 700;
-            color: #92400e;
-            margin-bottom: 6px;
-            text-transform: uppercase;
-            letter-spacing: 0.08em;
-        }
-        .inversion-alert-body {
-            font-size: 13px;
-            color: #78350f;
-            line-height: 1.5;
-        }
-        .inversion-chain {
-            display: flex;
-            align-items: center;
-            gap: 6px;
-            margin-top: 12px;
-            flex-wrap: wrap;
-        }
-        .ic-person {
-            background: #fff;
-            border: 1px solid #fcd34d;
-            border-radius: 6px;
-            padding: 6px 12px;
-            font-size: 12px;
-            font-weight: 600;
-            color: #92400e;
-        }
-        .ic-person.ic-highlight {
-            background: #0f1f3a;
-            border-color: #0f1f3a;
-            color: #fff;
-        }
-        .ic-arrow {
-            font-size: 13px;
-            color: #d97706;
-            font-weight: 700;
-        }
-        .ic-label {
-            font-size: 10px;
-            color: #a16207;
-            margin-left: 2px;
-        }
-
-        /* ── Compensation table ── */
-        .comp-table {
-            width: 100%;
-            border-collapse: collapse;
-            font-size: 13px;
-            margin-bottom: 12px;
-        }
-        .comp-table th {
-            font-size: 10px;
-            font-weight: 700;
-            letter-spacing: 0.1em;
-            text-transform: uppercase;
-            color: #8a95a8;
-            text-align: left;
-            padding: 0 12px 10px;
-            border-bottom: 1px solid #dce1e9;
-        }
-        .comp-table th:not(:first-child) { text-align: right; }
-        .comp-table td {
-            padding: 14px 12px;
-            border-bottom: 1px solid #e8ecf1;
-            vertical-align: middle;
-        }
+        /* ── Comp table ── */
+        .comp-wrap { background: #fff; border: 1px solid #e8ecf1; border-radius: 12px; overflow: hidden; margin-bottom: 12px; }
+        .comp-table { width: 100%; border-collapse: collapse; font-size: 12px; }
+        .comp-table th { font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.08em; color: #8a95a8; padding: 10px 14px; text-align: left; border-bottom: 1px solid #e8ecf1; background: #f8fafc; }
+        .comp-table td { padding: 13px 14px; border-bottom: 1px solid #f8fafc; vertical-align: top; }
         .comp-table tr:last-child td { border-bottom: none; }
-        .comp-table tr:hover td { background: #f8fafc; }
-        .comp-table tr.row-highlighted td { background: #f0fdf4; }
-        .comp-table tr.row-highlighted:hover td { background: #ecfdf5; }
-        .comp-table td:not(:first-child) { text-align: right; }
+        .comp-table tr.row-hl { background: #f8fafc; }
+        .comp-table tr.row-consolidate { background: #fff8f8; }
+        .ct-name { font-weight: 700; color: #0a1628; font-size: 13px; margin-bottom: 2px; }
+        .ct-sub { font-size: 11px; color: #94a3b8; }
+        .ct-future { font-size: 11px; color: #10b981; font-weight: 600; }
+        .ct-consolidate { font-size: 11px; color: #dc2626; font-weight: 600; }
+        .ct-base { font-size: 13px; font-weight: 700; color: #0a1628; }
+        .ct-savings { font-size: 13px; font-weight: 700; color: #059669; }
+        .ct-new { font-size: 13px; font-weight: 700; color: #059669; }
+        .ct-none { font-size: 12px; color: #94a3b8; }
+        .ct-delta-pos { font-size: 12px; font-weight: 700; color: #059669; }
+        .ct-delta-neg { font-size: 12px; font-weight: 700; color: #dc2626; }
+        .badge { font-size: 9px; font-weight: 700; padding: 2px 8px; border-radius: 99px; text-transform: uppercase; letter-spacing: 0.05em; white-space: nowrap; }
+        .badge-primary { background: #dcfce7; color: #065f46; }
+        .badge-secondary { background: #dbeafe; color: #1e40af; }
+        .badge-consolidate { background: #fee2e2; color: #991b1b; }
+        .badge-deferred { background: #fef3c7; color: #92400e; }
+        .badge-hold { background: #f4f6f8; color: #5d6779; }
+        .market-bar-wrap { display: flex; flex-direction: column; gap: 3px; }
+        .market-bar { height: 6px; background: #e8ecf1; border-radius: 3px; position: relative; width: 130px; }
+        .market-bar-fill { position: absolute; top: 0; bottom: 0; border-radius: 3px; background: #e8ecf1; }
+        .market-bar-sweet { position: absolute; top: -3px; bottom: -3px; width: 2px; background: #f59e0b; border-radius: 1px; }
+        .market-bar-curr { position: absolute; top: -3px; bottom: -3px; width: 3px; background: #374151; border-radius: 2px; }
+        .market-bar-prop { position: absolute; top: -3px; bottom: -3px; width: 3px; background: #10b981; border-radius: 2px; }
+        .mbl-warn { font-size: 10px; color: #dc2626; font-weight: 600; }
+        .mbl-ok { font-size: 10px; color: #059669; font-weight: 600; }
+        .mbl-range { font-size: 9px; color: #94a3b8; }
+        .comp-footnote { font-size: 11px; color: #94a3b8; margin-bottom: 40px; }
 
-        .ct-name { font-weight: 700; color: #0a1628; font-size: 14px; }
-        .ct-title-current { font-size: 11px; color: #8a95a8; margin-top: 2px; }
-        .ct-title-future { font-size: 11px; color: #059669; margin-top: 2px; font-weight: 600; }
+        /* ── Waterfall ── */
+        .wf-card { background: #fff; border: 1px solid #e8ecf1; border-radius: 12px; padding: 24px; margin-bottom: 16px; }
+        .wf-card-title { font-size: 13px; font-weight: 700; color: #0a1628; margin-bottom: 4px; }
+        .wf-card-sub { font-size: 11px; color: #94a3b8; margin-bottom: 20px; }
+        .wf-sliders { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-bottom: 24px; padding-bottom: 20px; border-bottom: 1px solid #f1f5f9; }
+        .wf-slider-group label { font-size: 11px; font-weight: 700; color: #374151; display: block; margin-bottom: 6px; }
+        .wf-slider-group input[type=range] { width: 100%; -webkit-appearance: none; appearance: none; height: 5px; background: #e8ecf1; border-radius: 3px; outline: none; cursor: pointer; }
+        .wf-slider-group input[type=range]::-webkit-slider-thumb { -webkit-appearance: none; width: 16px; height: 16px; border-radius: 50%; background: #3d5580; cursor: pointer; border: 2px solid #fff; box-shadow: 0 1px 4px rgba(0,0,0,0.2); }
+        .wf-slider-val { font-size: 18px; font-weight: 800; color: #0a1628; margin-top: 6px; }
+        .wf-slider-delta { font-size: 11px; color: #94a3b8; }
+        .wf-toggle-row { display: flex; align-items: center; gap: 10px; margin-bottom: 24px; font-size: 12px; color: #374151; }
+        .wf-toggle { position: relative; width: 36px; height: 20px; flex-shrink: 0; }
+        .wf-toggle input { opacity: 0; width: 0; height: 0; }
+        .wf-toggle-knob { position: absolute; cursor: pointer; inset: 0; background: #e8ecf1; border-radius: 20px; transition: 0.2s; }
+        .wf-toggle-knob:before { position: absolute; content: ''; height: 14px; width: 14px; left: 3px; bottom: 3px; background: #fff; border-radius: 50%; transition: 0.2s; }
+        .wf-toggle input:checked + .wf-toggle-knob { background: #ef4444; }
+        .wf-toggle input:checked + .wf-toggle-knob:before { transform: translateX(16px); }
+        .wf-rows { display: flex; flex-direction: column; gap: 8px; margin-bottom: 16px; }
+        .wf-row { display: grid; grid-template-columns: 180px 1fr 120px; align-items: center; gap: 12px; }
+        .wf-row-label { font-size: 11px; color: #374151; }
+        .wf-row-label.bold { font-weight: 700; color: #0a1628; font-size: 12px; }
+        .wf-bar-track { height: 18px; background: #f1f5f9; border-radius: 4px; overflow: hidden; }
+        .wf-bar-fill { height: 100%; border-radius: 4px; transition: width 0.25s ease; }
+        .wf-bar-fill.baseline { background: #3d5580; }
+        .wf-bar-fill.savings { background: #10b981; }
+        .wf-bar-fill.cost { background: #ef4444; }
+        .wf-bar-fill.result { background: #0a1628; }
+        .wf-row-val { font-size: 12px; font-weight: 700; text-align: right; }
+        .wf-row-val.savings { color: #059669; }
+        .wf-row-val.cost { color: #dc2626; }
+        .wf-row-val.neutral { color: #0a1628; }
+        .wf-sep { height: 1px; background: #e8ecf1; margin: 4px 0; }
+        .wf-net { background: #f0f9ff; border: 1px solid #bae6fd; border-radius: 8px; padding: 14px 18px; display: flex; justify-content: space-between; align-items: center; }
+        .wf-net-label { font-size: 12px; color: #0369a1; }
+        .wf-net-right { text-align: right; }
+        .wf-net-value { font-size: 22px; font-weight: 800; }
+        .wf-net-value.positive { color: #dc2626; }
+        .wf-net-value.negative { color: #059669; }
+        .wf-net-sub { font-size: 11px; color: #94a3b8; margin-top: 2px; }
 
-        .ct-base { font-weight: 600; color: #0a1628; }
-        .ct-base-new { font-weight: 700; color: #059669; }
+        /* ── Coverage ── */
+        .cov-grid { display: grid; grid-template-columns: 1fr 36px 1fr; align-items: start; margin-bottom: 16px; }
+        .cov-col { background: #fff; border: 1px solid #e8ecf1; border-radius: 12px; padding: 20px; }
+        .cov-col.proposed { border-color: #bae6fd; background: #f0f9ff; }
+        .cov-col-title { font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.08em; color: #94a3b8; margin-bottom: 14px; }
+        .cov-col.proposed .cov-col-title { color: #0369a1; }
+        .cov-row { display: flex; align-items: center; gap: 8px; margin-bottom: 8px; font-size: 12px; color: #374151; }
+        .cov-badge { font-size: 9px; font-weight: 700; padding: 2px 7px; border-radius: 99px; white-space: nowrap; }
+        .cov-south { background: #fef3c7; color: #92400e; }
+        .cov-north { background: #ede9fe; color: #4c1d95; }
+        .cov-msp { background: #dcfce7; color: #065f46; }
+        .cov-new { background: #fee2e2; color: #991b1b; }
+        .cov-arrow { display: flex; align-items: center; justify-content: center; font-size: 20px; color: #94a3b8; padding-top: 56px; }
+        .cov-note { font-size: 11px; color: #94a3b8; margin-top: 10px; padding-top: 10px; border-top: 1px solid #f1f5f9; line-height: 1.5; }
+        .cov-callout { background: #f0fdf4; border: 1px solid #bbf7d0; border-radius: 8px; padding: 14px 18px; margin-bottom: 40px; font-size: 12px; color: #065f46; line-height: 1.65; }
 
-        .market-bar-wrap {
-            display: flex;
-            flex-direction: column;
-            align-items: flex-end;
-            gap: 4px;
-            min-width: 140px;
-        }
-        .market-bar {
-            width: 140px;
-            height: 6px;
-            background: #e8ecf1;
-            border-radius: 99px;
-            position: relative;
-        }
-        .market-bar-fill {
-            position: absolute;
-            top: 0;
-            height: 100%;
-            border-radius: 99px;
-            background: #dce1e9;
-        }
-        .market-bar-sweet {
-            position: absolute;
-            top: -2px;
-            width: 3px;
-            height: 10px;
-            background: #059669;
-            border-radius: 2px;
-        }
-        .market-bar-current {
-            position: absolute;
-            top: 50%;
-            transform: translateY(-50%);
-            width: 8px;
-            height: 8px;
-            border-radius: 50%;
-            border: 2px solid #fff;
-            box-shadow: 0 0 0 1px #8a95a8;
-            background: #3d5580;
-        }
-        .market-bar-proposed {
-            position: absolute;
-            top: 50%;
-            transform: translateY(-50%);
-            width: 8px;
-            height: 8px;
-            border-radius: 50%;
-            border: 2px solid #fff;
-            box-shadow: 0 0 0 1px #059669;
-            background: #059669;
-        }
-        .market-label { font-size: 10px; color: #8a95a8; }
-        .market-label-good { font-size: 10px; color: #059669; font-weight: 600; }
-        .market-label-warn { font-size: 10px; color: #d97706; font-weight: 600; }
+        /* ── Cost of inaction ── */
+        .cba-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; margin-bottom: 16px; }
+        .cba-card { background: #fff; border: 1px solid #e8ecf1; border-radius: 12px; padding: 20px; }
+        .cba-card-hdr { font-size: 12px; font-weight: 700; margin-bottom: 14px; padding-bottom: 10px; border-bottom: 1px solid #f1f5f9; }
+        .cba-card-hdr.green { color: #059669; }
+        .cba-card-hdr.red { color: #dc2626; }
+        .cba-card-hdr.purple { color: #7c3aed; }
+        .cba-line { display: flex; justify-content: space-between; margin-bottom: 7px; font-size: 11px; gap: 8px; }
+        .cba-lbl { color: #5d6779; }
+        .cba-val { font-weight: 700; flex-shrink: 0; }
+        .cba-val.red { color: #dc2626; }
+        .cba-total { display: flex; justify-content: space-between; margin-top: 12px; padding-top: 10px; border-top: 1px solid #f1f5f9; font-size: 12px; font-weight: 700; gap: 8px; }
+        .cba-fn { font-size: 10px; color: #94a3b8; margin-top: 10px; line-height: 1.5; }
 
-        .ct-delta-pos { color: #059669; font-weight: 700; font-size: 13px; }
-        .ct-delta-none { color: #8a95a8; font-size: 12px; }
+        /* ── Verdict ── */
+        .verdict { background: #0a1628; color: #fff; border-radius: 10px; padding: 20px 24px; display: flex; gap: 16px; align-items: flex-start; margin-bottom: 48px; }
+        .verdict-icon { font-size: 20px; flex-shrink: 0; margin-top: 1px; }
+        .verdict-text { font-size: 13px; line-height: 1.75; color: #cbd5e1; }
 
-        .badge {
-            display: inline-block;
-            font-size: 10px;
-            font-weight: 700;
-            padding: 2px 8px;
-            border-radius: 99px;
-            letter-spacing: 0.06em;
-        }
-        .badge-warn { background: #fef3c7; color: #92400e; }
-        .badge-ok   { background: #d1fae5; color: #065f46; }
-        .badge-ask  { background: #0f1f3a; color: #a3d0ff; }
-        .badge-none { background: #f4f6f8; color: #8a95a8; }
+        /* ── Options (Ariely) ── */
+        .options-intro { font-size: 13px; color: #5d6779; margin-bottom: 20px; font-style: italic; }
+        .options-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; margin-bottom: 12px; }
+        .opt-card { background: #fff; border: 2px solid #e8ecf1; border-radius: 12px; padding: 22px; cursor: pointer; transition: border-color 0.2s, box-shadow 0.2s; position: relative; }
+        .opt-card:hover { border-color: #93c5fd; }
+        .opt-card.selected { border-color: #3d5580; box-shadow: 0 0 0 3px rgba(61,85,128,0.12); }
+        .opt-card.selected-b { border-color: #10b981; box-shadow: 0 0 0 3px rgba(16,185,129,0.12); }
+        .opt-pin { position: absolute; top: -11px; left: 50%; transform: translateX(-50%); font-size: 9px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.08em; padding: 3px 10px; border-radius: 99px; white-space: nowrap; }
+        .opt-pin.recommended { background: #10b981; color: #fff; }
+        .opt-pin.selected-marker { background: #3d5580; color: #fff; display: none; }
+        .opt-card.selected .opt-pin.selected-marker { display: block; }
+        .opt-letter { font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.1em; color: #94a3b8; margin-bottom: 4px; }
+        .opt-title { font-size: 15px; font-weight: 800; color: #0a1628; margin-bottom: 8px; line-height: 1.3; }
+        .opt-desc { font-size: 11px; color: #5d6779; line-height: 1.65; margin-bottom: 14px; }
+        .opt-bullets { list-style: none; display: flex; flex-direction: column; gap: 5px; margin-bottom: 16px; }
+        .opt-bullets li { font-size: 11px; color: #374151; display: flex; gap: 6px; align-items: flex-start; line-height: 1.4; }
+        .opt-bullets li::before { content: '→'; color: #4d6899; font-weight: 700; flex-shrink: 0; }
+        .opt-bottom { border-top: 1px solid #f1f5f9; padding-top: 12px; display: flex; justify-content: space-between; font-size: 11px; }
+        .opt-cost-lbl { color: #94a3b8; }
+        .opt-cost-val { font-weight: 700; color: #0a1628; }
+        .opt-hint { font-size: 11px; color: #94a3b8; text-align: center; margin-bottom: 40px; }
 
-        /* ── Cost-benefit ── */
-        .cba-grid {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 16px;
-            margin-bottom: 8px;
-        }
-        @media (max-width: 640px) { .cba-grid { grid-template-columns: 1fr; } }
+        /* ── Value grid ── */
+        .val-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; margin-bottom: 48px; }
+        .val-card { background: #fff; border: 1px solid #e8ecf1; border-radius: 10px; padding: 20px; }
+        .val-num { font-size: 30px; font-weight: 800; color: #0a1628; margin-bottom: 4px; line-height: 1; }
+        .val-lbl { font-size: 11px; color: #5d6779; line-height: 1.55; }
 
-        .cba-card {
-            background: #fff;
-            border: 1px solid #e8ecf1;
-            border-radius: 10px;
-            padding: 20px;
-        }
-        .cba-card-header {
-            font-size: 10px;
-            font-weight: 700;
-            letter-spacing: 0.1em;
-            text-transform: uppercase;
-            margin-bottom: 14px;
-            display: flex;
-            align-items: center;
-            gap: 6px;
-        }
-        .cba-card-header.cost { color: #059669; }
-        .cba-card-header.risk { color: #dc2626; }
+        /* ── Footer ── */
+        .doc-footer { margin-top: 48px; padding-top: 20px; border-top: 1px solid #dce1e9; display: flex; justify-content: space-between; font-size: 11px; color: #94a3b8; flex-wrap: wrap; gap: 8px; }
 
-        .cba-line {
-            display: flex;
-            justify-content: space-between;
-            align-items: baseline;
-            padding: 7px 0;
-            border-bottom: 1px solid #f4f6f8;
-            font-size: 13px;
-        }
-        .cba-line:last-child { border-bottom: none; }
-        .cba-line-label { color: #3e4554; }
-        .cba-line-value { font-weight: 700; color: #0a1628; }
-        .cba-line-value.green { color: #059669; }
-        .cba-line-value.red   { color: #dc2626; }
-        .cba-total {
-            display: flex;
-            justify-content: space-between;
-            padding: 10px 0 0;
-            margin-top: 6px;
-            border-top: 2px solid #dce1e9;
-            font-weight: 700;
-            font-size: 14px;
-        }
-        .cba-footnote {
-            font-size: 11px;
-            color: #8a95a8;
-            margin-top: 10px;
-            line-height: 1.5;
-        }
-
-        .verdict-bar {
-            background: #0f1f3a;
-            border-radius: 10px;
-            padding: 20px 24px;
-            display: flex;
-            align-items: center;
-            gap: 16px;
-            margin-top: 16px;
-        }
-        .verdict-icon { font-size: 24px; }
-        .verdict-text { font-size: 13px; color: #b0bfcc; line-height: 1.5; }
-        .verdict-text strong { color: #fff; }
-
-        /* ── Options ── */
-        .options-grid {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 16px;
-        }
-        @media (max-width: 640px) { .options-grid { grid-template-columns: 1fr; } }
-
-        .option-card {
-            background: #fff;
-            border: 1px solid #dce1e9;
-            border-radius: 12px;
-            padding: 24px;
-            position: relative;
-        }
-        .option-card.option-preferred {
-            border-color: #10b981;
-            box-shadow: 0 0 0 3px rgba(16,185,129,0.12);
-        }
-        .option-preferred-badge {
-            position: absolute;
-            top: -10px;
-            right: 16px;
-            background: #10b981;
-            color: #fff;
-            font-size: 10px;
-            font-weight: 700;
-            letter-spacing: 0.08em;
-            padding: 3px 10px;
-            border-radius: 99px;
-            text-transform: uppercase;
-        }
-        .option-letter {
-            font-size: 10px;
-            font-weight: 700;
-            letter-spacing: 0.12em;
-            text-transform: uppercase;
-            color: #8a95a8;
-            margin-bottom: 6px;
-        }
-        .option-title {
-            font-size: 17px;
-            font-weight: 800;
-            color: #0a1628;
-            margin-bottom: 10px;
-        }
-        .option-desc {
-            font-size: 13px;
-            color: #5d6779;
-            line-height: 1.6;
-            margin-bottom: 16px;
-        }
-        .option-bullets {
-            list-style: none;
-            display: flex;
-            flex-direction: column;
-            gap: 7px;
-            margin-bottom: 18px;
-        }
-        .option-bullets li {
-            font-size: 12px;
-            color: #3e4554;
-            display: flex;
-            gap: 7px;
-            align-items: flex-start;
-        }
-        .option-bullets li::before {
-            content: '→';
-            color: #4d6899;
-            font-weight: 700;
-            flex-shrink: 0;
-            margin-top: 1px;
-        }
-        .option-bottom {
-            border-top: 1px solid #e8ecf1;
-            padding-top: 14px;
-            display: flex;
-            justify-content: space-between;
-            font-size: 12px;
-        }
-        .option-cost-label { color: #8a95a8; }
-        .option-cost-value { font-weight: 700; color: #0a1628; }
-
-        /* ── Value delivered ── */
-        .value-grid {
-            display: grid;
-            grid-template-columns: repeat(3, 1fr);
-            gap: 12px;
-        }
-        @media (max-width: 600px) { .value-grid { grid-template-columns: 1fr 1fr; } }
-
-        .value-card {
-            background: #fff;
-            border: 1px solid #e8ecf1;
-            border-radius: 10px;
-            padding: 16px 18px;
-        }
-        .value-number {
-            font-size: 26px;
-            font-weight: 800;
-            color: #0f1f3a;
-            line-height: 1;
-            margin-bottom: 4px;
-        }
-        .value-label {
-            font-size: 11px;
-            color: #5d6779;
-            line-height: 1.4;
-        }
-
-        /* ── Footer note ── */
-        .doc-footer {
-            margin-top: 56px;
-            padding-top: 20px;
-            border-top: 1px solid #dce1e9;
-            font-size: 11px;
-            color: #8a95a8;
-            display: flex;
-            justify-content: space-between;
-            flex-wrap: wrap;
-            gap: 8px;
+        @media (max-width: 700px) {
+            .hero { padding: 28px 20px; }
+            .hero-stats { grid-template-columns: repeat(2, 1fr); }
+            .prob-grid-top, .prob-grid-bot, .cba-grid, .options-grid, .val-grid { grid-template-columns: 1fr; }
+            .cov-grid { grid-template-columns: 1fr; }
+            .cov-arrow { display: none; }
+            .wf-row { grid-template-columns: 140px 1fr 90px; }
+            .wf-sliders { grid-template-columns: 1fr; }
         }
     </style>
 </head>
-<body class="mod-budget">
-<div class="layout">
-    <div id="rail-mount"></div>
-    <div class="main">
-        <header class="topbar">
-            <div class="topbar-left">
-                <a href="/index.html" class="topbar-name">NorthPoint</a>
-                <div class="topbar-sep"></div>
-                <a href="/budget/index.html" class="topbar-section" style="text-decoration:none;color:inherit;">Budget</a>
-                <div class="topbar-sep"></div>
-                <span class="topbar-section">Restructuring Case</span>
-            </div>
-            <div class="topbar-right">
-                <span class="topbar-date" id="currentDate"></span>
-                <span class="topbar-role" id="topbarRole"></span>
-            </div>
-        </header>
-
+<body>
+<div class="shell">
+    <div class="topbar">
+        <div class="topbar-left">
+            <a href="/" class="topbar-brand">NorthPoint</a>
+        </div>
+        <div class="topbar-right">
+            <span class="topbar-role" id="topbarRole"></span>
+        </div>
+    </div>
+    <div class="body-row">
+        <nav class="sidebar" id="sidebar"></nav>
         <div class="content">
         <div class="doc">
 
-            <!-- ── Doc Header ── -->
-            <div class="doc-eyebrow">Executive Review · Confidential</div>
-            <h1 class="doc-title">IT Department<br>Restructuring Case</h1>
-            <div class="doc-meta">
-                <span>📅 February 2026</span>
-                <span>👤 Prepared by: Anthony Trujillo</span>
-                <span>🏢 NACS IT Department</span>
-            </div>
-            <div class="doc-divider"></div>
-
-            <!-- ── Section: The Ask ── -->
-            <div class="section-label">Primary Ask</div>
-            <div class="ask-card">
-                <div class="ask-left">
-                    <div class="ask-tag">Restructuring & Retention</div>
-                    <div class="ask-name">Anthony Trujillo</div>
-                    <div class="ask-title">IT Director, South → Vice President, Business Systems & Technology</div>
-                </div>
-                <div class="ask-right">
-                    <div class="ask-comp-label">Proposed Base</div>
-                    <div class="ask-comp-value">$200,000</div>
-                    <div class="ask-comp-delta">+$107,000 · Market midpoint</div>
-                    <div class="ask-comp-current">Current base: $93,000</div>
-                </div>
-            </div>
-
-            <!-- ── Section: The Problem ── -->
-            <div class="section-label">The Problem</div>
-            <div class="inversion-alert">
-                <div class="inversion-alert-title">⚠ Compensation Hierarchy Inversion</div>
-                <div class="inversion-alert-body">
-                    The current compensation structure is inverted relative to responsibility. The IT Director overseeing enterprise systems, vendor contracts, and the 30×30 strategy earns less than both a peer director and a Database Administrator.
-                </div>
-                <div class="inversion-chain">
-                    <div class="ic-person">Jon (DBA)<br><small>$120,000</small></div>
-                    <span class="ic-arrow">earns more than</span>
-                    <div class="ic-person ic-highlight">Anthony (IT Director)<br><small>$93,000</small></div>
-                    <span class="ic-arrow">·</span>
-                    <div class="ic-person">Geremia (IT Director)<br><small>$133,000</small></div>
-                    <span class="ic-arrow">earns more than</span>
-                    <div class="ic-person ic-highlight">Anthony (IT Director)<br><small>$93,000</small></div>
+            <!-- ── Hero ── -->
+            <div class="hero">
+                <div class="hero-eyebrow">NACS IT Department · Confidential · FY2026</div>
+                <div class="hero-title">A Case for Restructure</div>
+                <div class="hero-subtitle">A proposal for sustainable specialization, operational accountability, and cost-effective scale as NACS grows to 16 facilities and beyond.</div>
+                <div class="hero-stats">
+                    <div class="hero-stat">
+                        <div class="hero-stat-value">6</div>
+                        <div class="hero-stat-label">IT team members</div>
+                    </div>
+                    <div class="hero-stat">
+                        <div class="hero-stat-value">12→16</div>
+                        <div class="hero-stat-label">Facilities (4 incoming)</div>
+                    </div>
+                    <div class="hero-stat">
+                        <div class="hero-stat-value">~$26K</div>
+                        <div class="hero-stat-label">Net annual cost increase</div>
+                    </div>
+                    <div class="hero-stat">
+                        <div class="hero-stat-value">Feb 2026</div>
+                        <div class="hero-stat-label">Prepared for review</div>
+                    </div>
                 </div>
             </div>
 
-            <div class="section-gap"></div>
+            <!-- ── Section 1: The Problem ── -->
+            <div class="sec-num">Section 01</div>
+            <div class="sec-title">The Problem</div>
+            <div class="sec-desc">Five distinct gaps currently limit the IT department's ability to support NACS at its current size — and each one compounds as the organization grows. Addressing them now, before the next four facilities come online, is materially less expensive than addressing them after.</div>
 
-            <!-- ── Section: Compensation Breakdown ── -->
-            <div class="section-label">Team Compensation — Current vs. Proposed</div>
+            <div class="prob-row-label structural">Structural gaps</div>
+            <div class="prob-grid-top">
+                <div class="prob-card structural">
+                    <div class="prob-icon">⚖️</div>
+                    <div class="prob-title">Compensation Inversion</div>
+                    <div class="prob-desc">The team responsible for onboarding facilities, governing enterprise software, and managing $2.3M in IT spend is compensated at entry-level rates. Two key contributors sit significantly below the market floor for their actual scope.</div>
+                    <div class="prob-stat red">Anthony at $93K · market floor $180K · 48% gap</div>
+                </div>
+                <div class="prob-card structural">
+                    <div class="prob-icon">📦</div>
+                    <div class="prob-title">Software Governance Vacuum</div>
+                    <div class="prob-desc">Until recently, no formal owner existed for the enterprise software portfolio. The result: shelfware, unchecked licensing spend, security exposure, and vendor relationships with no accountability. Governance is now being established — but the role must be formally recognized.</div>
+                    <div class="prob-stat amber">Unmanaged SaaS = waste, risk, and bloat at scale</div>
+                </div>
+                <div class="prob-card structural">
+                    <div class="prob-icon">🏗️</div>
+                    <div class="prob-title">No Scalable Coverage Model</div>
+                    <div class="prob-desc">Field tech coverage currently depends on senior staff driving to facilities on escalation. With the team transitioning into specialized strategic roles and four new sites incoming, this model breaks down. A defined, scalable coverage structure is required before expansion continues.</div>
+                    <div class="prob-stat red">12→16 facilities · no structured field coverage plan</div>
+                </div>
+            </div>
 
-            <div style="background:#fff;border:1px solid #e8ecf1;border-radius:10px;overflow:hidden;margin-bottom:12px;">
+            <div class="prob-row-label roadmap" style="margin-top:8px;">Roadmap blockers</div>
+            <div class="prob-grid-bot">
+                <div class="prob-card roadmap">
+                    <div class="prob-icon">🤖</div>
+                    <div class="prob-title">Helpdesk Scalability — No AI Layer</div>
+                    <div class="prob-desc">The helpdesk currently operates as a fully manual function with no formal structure, tiers, or automation. There is no Level 0 routing — every ticket requires direct human handling. As the facility count grows, this does not scale without proportional headcount. Implementing AI-assisted L0 triage (auto-routing, common resolutions, self-service) would dramatically reduce human touchpoints and allow the team to focus on higher-order work. This requires a formalized helpdesk function and an owner with the authority to build it.</div>
+                    <div class="prob-stat purple">No L0 automation · headcount scales linearly with demand</div>
+                </div>
+                <div class="prob-card roadmap">
+                    <div class="prob-icon">🔍</div>
+                    <div class="prob-title">Security Visibility Gap — No NDR</div>
+                    <div class="prob-desc">NACS has endpoint protection (SentinelOne) and email security (Coronet), but no network-layer behavioral detection. Tools like Darktrace, ExtraHop, or similar Network Detection &amp; Response solutions monitor east-west traffic for anomalies that endpoint tools cannot see. As the facility count grows and network complexity increases, the absence of this layer represents an escalating and addressable risk — one that sits squarely in Geremia's proposed security scope.</div>
+                    <div class="prob-stat purple">Endpoint + email covered · network layer blind · no NDR deployed</div>
+                </div>
+            </div>
+
+            <div class="sec-divider"></div>
+
+            <!-- ── Section 2: The Solution — Specialization ── -->
+            <div class="sec-num">Section 02</div>
+            <div class="sec-title">The Solution: Specialization</div>
+            <div class="sec-desc">The answer to scaling is not more headcount — it is the right structure. When each function has a defined owner, accountability is created, gaps become visible, and the team can move fast in parallel rather than competing for the same generalist bandwidth. The table below shows what is owned today versus what is owned in the proposed structure.</div>
+
+            <table class="spec-table">
+                <thead>
+                    <tr>
+                        <th style="width:200px;">Function</th>
+                        <th>Current State</th>
+                        <th>Proposed Owner</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><span class="spec-area">Software Portfolio Governance</span></td>
+                        <td><span class="spec-before">⚠ Unowned — fragmented across vendors, no lifecycle management</span></td>
+                        <td><span class="spec-after">✓ VP, Business Systems &amp; Technology (Anthony)</span></td>
+                    </tr>
+                    <tr>
+                        <td><span class="spec-area">Enterprise AI &amp; Automation</span></td>
+                        <td><span class="spec-before">⚠ No roadmap — 100% manual helpdesk triage and routing</span></td>
+                        <td><span class="spec-after">✓ VP (strategy) + IT Service Delivery Manager (execution)</span></td>
+                    </tr>
+                    <tr>
+                        <td><span class="spec-area">IT Infrastructure</span></td>
+                        <td><span class="spec-before">⚠ Managed informally — no formal title or accountability structure</span></td>
+                        <td><span class="spec-after">✓ Director, IT Infrastructure &amp; Security (Geremia)</span></td>
+                    </tr>
+                    <tr>
+                        <td><span class="spec-area">Security &amp; Network Detection</span></td>
+                        <td><span class="spec-before">⚠ Partial — endpoint and email covered, no NDR layer</span></td>
+                        <td><span class="spec-after">✓ Director, IT Infrastructure &amp; Security (Geremia)</span></td>
+                    </tr>
+                    <tr>
+                        <td><span class="spec-area">Helpdesk &amp; Service Delivery</span></td>
+                        <td><span class="spec-before">⚠ Unstructured — no tiers, no SLAs, no escalation workflows</span></td>
+                        <td><span class="spec-after">✓ IT Service Delivery Manager (Francis)</span></td>
+                    </tr>
+                    <tr>
+                        <td><span class="spec-area">Clinical Systems</span></td>
+                        <td><span class="spec-before">⚠ Project-based — no sustained platform ownership</span></td>
+                        <td><span class="spec-after">✓ Clinical Systems Specialist (Rogi)</span></td>
+                    </tr>
+                    <tr>
+                        <td><span class="spec-area">Facility Field Support</span></td>
+                        <td><span class="spec-before">⚠ Senior staff on-call — not scalable as team role shifts</span></td>
+                        <td><span class="spec-after">✓ Regional MSP Partner (per-site contract)</span></td>
+                    </tr>
+                </tbody>
+            </table>
+
+            <div class="sec-divider"></div>
+
+            <!-- ── Section 3: Team Before & After ── -->
+            <div class="sec-num">Section 03</div>
+            <div class="sec-title">Team — Before &amp; After</div>
+            <div class="sec-desc">The compensation adjustments proposed are targeted and data-driven. Two members are materially below market for their actual scope; one position is proposed for consolidation, with savings reinvested in the restructure. All market ranges are sourced from Salary.com, CompTIA, HIMSS, and Robert Half for healthcare IT roles in Southern California and remote-hybrid environments.</div>
+
+            <div class="comp-wrap">
             <table class="comp-table">
                 <thead>
                     <tr>
                         <th>Team Member</th>
                         <th>Current Base</th>
-                        <th style="text-align:left;padding-left:16px;">Market Position</th>
-                        <th>Proposed Base</th>
-                        <th>Δ Change</th>
+                        <th>Market Position</th>
+                        <th>Proposed</th>
+                        <th>Δ</th>
                         <th>Status</th>
                     </tr>
                 </thead>
                 <tbody>
-
-                    <!-- Anthony — primary ask -->
-                    <tr class="row-highlighted">
+                    <!-- Anthony -->
+                    <tr class="row-hl">
                         <td>
                             <div class="ct-name">Anthony Trujillo</div>
-                            <div class="ct-title-current">IT Director, South</div>
-                            <div class="ct-title-future">→ VP, Business Systems & Technology</div>
+                            <div class="ct-sub">IT Director, South</div>
+                            <div class="ct-future">→ VP, Business Systems &amp; Technology</div>
                         </td>
                         <td><span class="ct-base">$93,000</span></td>
                         <td>
-                            <!-- Market: $180K–$220K, sweet spot ~$200K -->
-                            <!-- Current at 0% of range, proposed at 56% -->
-                            <div class="market-bar-wrap" style="align-items:flex-start;">
-                                <div class="market-bar" style="width:140px;">
-                                    <div class="market-bar-fill" style="left:0;width:100%;background:#e8ecf1;"></div>
-                                    <!-- sweet spot marker at ~56% ($200K in $180–$220K range) -->
-                                    <div class="market-bar-sweet" style="left:56%;"></div>
-                                    <!-- current: $93K is well below $180K floor — show at 0 -->
-                                    <div class="market-bar-current" style="left:0;"></div>
-                                    <!-- proposed: $200K at 56% of range width -->
-                                    <div class="market-bar-proposed" style="left:56%;"></div>
+                            <div class="market-bar-wrap">
+                                <div class="market-bar">
+                                    <div class="market-bar-fill"></div>
+                                    <div class="market-bar-sweet" style="left:50%;"></div>
+                                    <div class="market-bar-curr" style="left:0%;"></div>
+                                    <div class="market-bar-prop" style="left:50%;"></div>
                                 </div>
-                                <div class="market-label-warn">Below market · $87K gap to floor</div>
-                                <div class="market-label" style="font-size:9px;">Range: $180K – $220K</div>
+                                <div class="mbl-warn">Well below market · $87K gap to floor</div>
+                                <div class="mbl-range">Range: $180K – $220K</div>
                             </div>
                         </td>
-                        <td><span class="ct-base-new">$200,000</span></td>
-                        <td><span class="ct-delta-pos">+$107K<br><small>+115%</small></span></td>
-                        <td><span class="badge badge-ask">Primary Ask</span></td>
+                        <td><span class="ct-new">$200,000</span></td>
+                        <td><span class="ct-delta-pos">+$107K</span></td>
+                        <td><span class="badge badge-primary">Primary Ask</span></td>
                     </tr>
-
+                    <!-- Francis -->
+                    <tr class="row-hl">
+                        <td>
+                            <div class="ct-name">Francis Ferma</div>
+                            <div class="ct-sub">Network Administrator</div>
+                            <div class="ct-future">→ IT Service Delivery Manager</div>
+                        </td>
+                        <td><span class="ct-base">$66,000</span></td>
+                        <td>
+                            <div class="market-bar-wrap">
+                                <div class="market-bar">
+                                    <div class="market-bar-fill"></div>
+                                    <div class="market-bar-sweet" style="left:44%;"></div>
+                                    <div class="market-bar-curr" style="left:0%;"></div>
+                                    <div class="market-bar-prop" style="left:44%;"></div>
+                                </div>
+                                <div class="mbl-warn">Below market · $19K gap to floor</div>
+                                <div class="mbl-range">Range: $85K – $120K</div>
+                            </div>
+                        </td>
+                        <td><span class="ct-new">$100,000</span></td>
+                        <td><span class="ct-delta-pos">+$34K</span></td>
+                        <td><span class="badge badge-secondary">Secondary Ask</span></td>
+                    </tr>
+                    <!-- Jon -->
+                    <tr class="row-consolidate">
+                        <td>
+                            <div class="ct-name">Jon Andrews</div>
+                            <div class="ct-sub">Database Administrator</div>
+                            <div class="ct-consolidate">→ Position consolidating FY2026</div>
+                        </td>
+                        <td><span class="ct-base">$120,000</span></td>
+                        <td>
+                            <div class="market-bar-wrap">
+                                <div class="market-bar">
+                                    <div class="market-bar-fill"></div>
+                                    <div class="market-bar-sweet" style="left:50%;"></div>
+                                    <div class="market-bar-curr" style="left:60%;"></div>
+                                </div>
+                                <div class="mbl-ok">At market</div>
+                                <div class="mbl-range">Range: $105K – $130K</div>
+                            </div>
+                        </td>
+                        <td><span class="ct-savings">–$150,500 saved</span></td>
+                        <td><span class="ct-delta-neg">–$120K base</span></td>
+                        <td><span class="badge badge-consolidate">Consolidating</span></td>
+                    </tr>
                     <!-- Geremia -->
                     <tr>
                         <td>
                             <div class="ct-name">Geremia Doan</div>
-                            <div class="ct-title-current">IT Director, North</div>
-                            <div class="ct-title-future">→ Director, IT Infrastructure & Security</div>
+                            <div class="ct-sub">IT Director, North</div>
+                            <div class="ct-future">→ Director, IT Infrastructure &amp; Security</div>
                         </td>
                         <td><span class="ct-base">$133,000</span></td>
                         <td>
-                            <!-- Market: $150K–$175K, current at ~0% (below floor) -->
-                            <div class="market-bar-wrap" style="align-items:flex-start;">
-                                <div class="market-bar" style="width:140px;">
-                                    <div class="market-bar-fill" style="left:0;width:100%;background:#e8ecf1;"></div>
+                            <div class="market-bar-wrap">
+                                <div class="market-bar">
+                                    <div class="market-bar-fill"></div>
                                     <div class="market-bar-sweet" style="left:50%;"></div>
-                                    <div class="market-bar-current" style="left:0;"></div>
+                                    <div class="market-bar-curr" style="left:0%;"></div>
                                 </div>
-                                <div class="market-label-warn">Below market · $17K to floor</div>
-                                <div class="market-label" style="font-size:9px;">Range: $150K – $175K</div>
+                                <div class="mbl-warn">Below market · $17K to floor</div>
+                                <div class="mbl-range">Range: $150K – $175K</div>
                             </div>
                         </td>
-                        <td><span class="ct-delta-none">—</span></td>
-                        <td><span class="ct-delta-none">—</span></td>
-                        <td><span class="badge badge-none">Future phase</span></td>
+                        <td><span class="ct-none">—</span></td>
+                        <td><span class="ct-none">—</span></td>
+                        <td><span class="badge badge-deferred">Phase 2 · Q4</span></td>
                     </tr>
-
-                    <!-- Jon -->
-                    <tr>
-                        <td>
-                            <div class="ct-name">Jon Andrews</div>
-                            <div class="ct-title-current">Database Administrator</div>
-                            <div class="ct-title-future">→ Database Administrator (no change)</div>
-                        </td>
-                        <td><span class="ct-base">$120,000</span></td>
-                        <td>
-                            <!-- Market: $105K–$130K, current ~60% through range -->
-                            <div class="market-bar-wrap" style="align-items:flex-start;">
-                                <div class="market-bar" style="width:140px;">
-                                    <div class="market-bar-fill" style="left:0;width:100%;background:#e8ecf1;"></div>
-                                    <div class="market-bar-sweet" style="left:50%;"></div>
-                                    <div class="market-bar-current" style="left:60%;"></div>
-                                </div>
-                                <div class="market-label-good">At market</div>
-                                <div class="market-label" style="font-size:9px;">Range: $105K – $130K</div>
-                            </div>
-                        </td>
-                        <td><span class="ct-delta-none">—</span></td>
-                        <td><span class="ct-delta-none">—</span></td>
-                        <td><span class="badge badge-ok">At market</span></td>
-                    </tr>
-
-                    <!-- Francis — secondary ask -->
-                    <tr class="row-highlighted">
-                        <td>
-                            <div class="ct-name">Francis Ferma</div>
-                            <div class="ct-title-current">Network Administrator</div>
-                            <div class="ct-title-future">→ IT Service Delivery Manager</div>
-                        </td>
-                        <td><span class="ct-base">$66,000</span></td>
-                        <td>
-                            <!-- Market: $85K–$120K, current well below floor -->
-                            <div class="market-bar-wrap" style="align-items:flex-start;">
-                                <div class="market-bar" style="width:140px;">
-                                    <div class="market-bar-fill" style="left:0;width:100%;background:#e8ecf1;"></div>
-                                    <div class="market-bar-sweet" style="left:44%;"></div>
-                                    <div class="market-bar-current" style="left:0;"></div>
-                                    <div class="market-bar-proposed" style="left:44%;"></div>
-                                </div>
-                                <div class="market-label-warn">Below market · $19K gap to floor</div>
-                                <div class="market-label" style="font-size:9px;">Range: $85K – $120K</div>
-                            </div>
-                        </td>
-                        <td><span class="ct-base-new">$100,000</span></td>
-                        <td><span class="ct-delta-pos">+$34K<br><small>+52%</small></span></td>
-                        <td><span class="badge badge-ask">Secondary Ask</span></td>
-                    </tr>
-
                     <!-- Tom -->
                     <tr>
                         <td>
                             <div class="ct-name">Tom Jarrell</div>
-                            <div class="ct-title-current">Network Administrator</div>
-                            <div class="ct-title-future">→ Systems Administrator</div>
+                            <div class="ct-sub">Network Administrator</div>
+                            <div class="ct-future">→ Systems Administrator</div>
                         </td>
                         <td><span class="ct-base">$75,000</span></td>
                         <td>
-                            <!-- Market: $70K–$85K, current at ~33% -->
-                            <div class="market-bar-wrap" style="align-items:flex-start;">
-                                <div class="market-bar" style="width:140px;">
-                                    <div class="market-bar-fill" style="left:0;width:100%;background:#e8ecf1;"></div>
+                            <div class="market-bar-wrap">
+                                <div class="market-bar">
+                                    <div class="market-bar-fill"></div>
                                     <div class="market-bar-sweet" style="left:50%;"></div>
-                                    <div class="market-bar-current" style="left:33%;"></div>
+                                    <div class="market-bar-curr" style="left:33%;"></div>
                                 </div>
-                                <div class="market-label-good">At market</div>
-                                <div class="market-label" style="font-size:9px;">Range: $70K – $85K</div>
+                                <div class="mbl-ok">At market</div>
+                                <div class="mbl-range">Range: $70K – $85K</div>
                             </div>
                         </td>
-                        <td><span class="ct-delta-none">—</span></td>
-                        <td><span class="ct-delta-none">—</span></td>
-                        <td><span class="badge badge-ok">At market</span></td>
+                        <td><span class="ct-none">—</span></td>
+                        <td><span class="ct-none">—</span></td>
+                        <td><span class="badge badge-hold">No change</span></td>
                     </tr>
-
                     <!-- Rogi -->
                     <tr>
                         <td>
                             <div class="ct-name">Rogi Poblete</div>
-                            <div class="ct-title-current">Clinical Project Specialist</div>
-                            <div class="ct-title-future">→ Clinical Systems Specialist</div>
+                            <div class="ct-sub">Clinical Project Specialist</div>
+                            <div class="ct-future">→ Clinical Systems Specialist</div>
                         </td>
                         <td><span class="ct-base">$75,000</span></td>
                         <td>
-                            <!-- Market: $75K–$95K, current at floor -->
-                            <div class="market-bar-wrap" style="align-items:flex-start;">
-                                <div class="market-bar" style="width:140px;">
-                                    <div class="market-bar-fill" style="left:0;width:100%;background:#e8ecf1;"></div>
+                            <div class="market-bar-wrap">
+                                <div class="market-bar">
+                                    <div class="market-bar-fill"></div>
                                     <div class="market-bar-sweet" style="left:40%;"></div>
-                                    <div class="market-bar-current" style="left:0;"></div>
+                                    <div class="market-bar-curr" style="left:0%;"></div>
                                 </div>
-                                <div class="market-label-warn">At market floor</div>
-                                <div class="market-label" style="font-size:9px;">Range: $75K – $95K</div>
+                                <div class="mbl-warn">At market floor</div>
+                                <div class="mbl-range">Range: $75K – $95K</div>
                             </div>
                         </td>
-                        <td><span class="ct-delta-none">—</span></td>
-                        <td><span class="ct-delta-none">—</span></td>
-                        <td><span class="badge badge-none">Future phase</span></td>
+                        <td><span class="ct-none">—</span></td>
+                        <td><span class="ct-none">—</span></td>
+                        <td><span class="badge badge-deferred">Phase 2</span></td>
                     </tr>
-
                 </tbody>
             </table>
             </div>
-            <div style="font-size:11px;color:#8a95a8;margin-bottom:48px;">
-                Market ranges sourced from Salary.com, CompTIA, HIMSS, Robert Half, and BLS — healthcare IT, Southern California / remote-hybrid roles. All-in cost includes 25% burden (taxes, benefits). ● Current &nbsp; ● Proposed &nbsp; | Sweet spot marker.
+            <div class="comp-footnote">All-in cost includes 25% burden (taxes, benefits, employer contribution). Jon consolidation savings: $150,500 all-in/yr. ● Current &nbsp; ● Proposed &nbsp; | Sweet spot marker</div>
+
+            <div class="sec-divider"></div>
+
+            <!-- ── Section 4: The Math ── -->
+            <div class="sec-num">Section 04</div>
+            <div class="sec-title">The Math</div>
+            <div class="sec-desc">The Jon Andrews consolidation funds the majority of the compensation corrections. Adjust the sliders below to model different proposed salaries and see the real-time net impact on personnel cost.</div>
+
+            <div class="wf-card">
+                <div class="wf-card-title">Interactive Budget Impact Model</div>
+                <div class="wf-card-sub">Drag sliders to explore · Jon toggle activates consolidation savings</div>
+
+                <div class="wf-toggle-row">
+                    <label class="wf-toggle">
+                        <input type="checkbox" id="jonToggle" checked onchange="renderWaterfall()">
+                        <span class="wf-toggle-knob"></span>
+                    </label>
+                    <span>Jon Andrews consolidation <strong>(saves $150,500/yr all-in)</strong> — toggle off to see cost without consolidation</span>
+                </div>
+
+                <div class="wf-sliders">
+                    <div class="wf-slider-group">
+                        <label>Anthony Trujillo — Proposed Base</label>
+                        <input type="range" id="sliderAnthony" min="150000" max="220000" step="5000" value="200000" oninput="renderWaterfall()">
+                        <div class="wf-slider-val" id="valAnthony">$200,000</div>
+                        <div class="wf-slider-delta" id="deltaAnthony"></div>
+                    </div>
+                    <div class="wf-slider-group">
+                        <label>Francis Ferma — Proposed Base</label>
+                        <input type="range" id="sliderFrancis" min="85000" max="120000" step="5000" value="100000" oninput="renderWaterfall()">
+                        <div class="wf-slider-val" id="valFrancis">$100,000</div>
+                        <div class="wf-slider-delta" id="deltaFrancis"></div>
+                    </div>
+                </div>
+
+                <div class="wf-rows" id="wfRows"></div>
+                <div class="wf-net" id="wfNet"></div>
             </div>
 
-            <!-- ── Section: Cost-Benefit ── -->
-            <div class="section-label">Cost-Benefit Analysis</div>
+            <div class="sec-divider"></div>
+
+            <!-- ── Section 5: Field Coverage Model ── -->
+            <div class="sec-num">Section 05</div>
+            <div class="sec-title">Field Coverage Model</div>
+            <div class="sec-desc">As the team shifts into specialized strategic roles, facility-level on-site support requires a dedicated solution. The current model — senior staff traveling to sites on escalation — is not compatible with the scope and accountability the proposed structure demands.</div>
+
+            <div class="cov-grid">
+                <div class="cov-col">
+                    <div class="cov-col-title">Current (12 facilities)</div>
+                    <div class="cov-row"><span class="cov-badge cov-south">South</span> Anthony → 4 facilities</div>
+                    <div class="cov-row"><span class="cov-badge cov-north">North</span> Tom → 4 facilities</div>
+                    <div class="cov-row" style="font-size:11px;color:#94a3b8;">4 facilities · shared / informal coverage</div>
+                    <div class="cov-note">Senior staff on-call for site visits. No structured escalation model. Time spent driving is time not spent on systems governance, security posture, or strategic projects.</div>
+                </div>
+                <div class="cov-arrow">→</div>
+                <div class="cov-col proposed">
+                    <div class="cov-col-title">Proposed (16 facilities + MSP)</div>
+                    <div class="cov-row"><span class="cov-badge cov-south">South</span> Anthony → strategy &amp; oversight</div>
+                    <div class="cov-row"><span class="cov-badge cov-north">North</span> Geremia / Tom → strategy &amp; oversight</div>
+                    <div class="cov-row"><span class="cov-badge cov-new">+4 New</span> 3 north · 1 south</div>
+                    <div class="cov-row"><span class="cov-badge cov-msp">MSP</span> Regional partner → all on-site field tech</div>
+                    <div class="cov-note">Regional MSP partner handles break/fix, hardware installs, and end-user support at all sites. Coverage scales with the portfolio — not with headcount. Contract cost: <strong>TBD (RFQ in progress)</strong>.</div>
+                </div>
+            </div>
+            <div class="cov-callout">
+                <strong>Why MSP vs. additional headcount?</strong> A regional MSP partner is embedded near each facility cluster — no long drives for senior staff, no geographic constraints on hiring, and pricing scales per site. As NACS onboards 3 north and 1 south facility, the MSP model absorbs that volume without adding a single IT headcount. This is the scalable alternative to asking Anthony and Tom to absorb four more facilities on top of their current load.
+            </div>
+
+            <div class="sec-divider"></div>
+
+            <!-- ── Section 6: Cost of Inaction ── -->
+            <div class="sec-num">Section 06</div>
+            <div class="sec-title">Cost of Inaction</div>
+            <div class="sec-desc">This proposal is not just a compensation request — it is the IT department's plan for making NACS's expansion cost-effective and operationally sound. Without the structure and specialization proposed here, onboarding additional facilities will be slower, more expensive, and more prone to failure.</div>
+
             <div class="cba-grid">
-
                 <div class="cba-card">
-                    <div class="cba-card-header cost">✓ Cost of the Raises</div>
-                    <div class="cba-line">
-                        <span class="cba-line-label">Anthony: $93K → $200K</span>
-                        <span class="cba-line-value">+$107,000</span>
-                    </div>
-                    <div class="cba-line">
-                        <span class="cba-line-label">Francis: $66K → $100K</span>
-                        <span class="cba-line-value">+$34,000</span>
-                    </div>
-                    <div class="cba-line">
-                        <span class="cba-line-label">Burden (25%) on delta</span>
-                        <span class="cba-line-value">+$35,250</span>
-                    </div>
-                    <div class="cba-total">
-                        <span>Annual increase</span>
-                        <span style="color:#059669;">$176,250</span>
-                    </div>
-                    <div class="cba-footnote">Spread across 12–16 facilities, this is roughly $11–15K per facility per year — less than one week of downtime cost.</div>
+                    <div class="cba-card-hdr green">✓ Cost of the Proposal</div>
+                    <div class="cba-line"><span class="cba-lbl">Anthony: $93K → $200K (base delta)</span><span class="cba-val">+$107,000</span></div>
+                    <div class="cba-line"><span class="cba-lbl">Francis: $66K → $100K (base delta)</span><span class="cba-val">+$34,000</span></div>
+                    <div class="cba-line"><span class="cba-lbl">Burden (25%) on deltas</span><span class="cba-val">+$35,250</span></div>
+                    <div class="cba-line"><span class="cba-lbl">Jon consolidation savings</span><span class="cba-val" style="color:#059669;">–$150,500</span></div>
+                    <div class="cba-total"><span>Net annual impact</span><span style="color:#059669;">+$25,750</span></div>
+                    <div class="cba-fn">Spread across 16 facilities: roughly $1,600/facility/year — less than one hour of system downtime cost.</div>
                 </div>
-
                 <div class="cba-card">
-                    <div class="cba-card-header risk">✗ Cost of Inaction</div>
-                    <div class="cba-line">
-                        <span class="cba-line-label">VP-level IT recruiter fee (20–25%)</span>
-                        <span class="cba-line-value red">$40,000–$50,000</span>
-                    </div>
-                    <div class="cba-line">
-                        <span class="cba-line-label">Onboarding & ramp (6–12 mo.)</span>
-                        <span class="cba-line-value red">$50,000–$100,000</span>
-                    </div>
-                    <div class="cba-line">
-                        <span class="cba-line-label">Institutional knowledge loss</span>
-                        <span class="cba-line-value red">Unquantifiable</span>
-                    </div>
-                    <div class="cba-line">
-                        <span class="cba-line-label">Delayed merger integration (4 facilities)</span>
-                        <span class="cba-line-value red">$50,000–$150,000</span>
-                    </div>
-                    <div class="cba-total">
-                        <span>Conservative one-time cost</span>
-                        <span style="color:#dc2626;">$140K–$300K+</span>
-                    </div>
-                    <div class="cba-footnote">Replacing a VP-level IT leader mid-merger integration, during a 30×30 growth initiative, is a high-risk and high-cost event — one-time spend that exceeds the annual raise cost.</div>
+                    <div class="cba-card-hdr red">✗ Cost of Losing the Team</div>
+                    <div class="cba-line"><span class="cba-lbl">VP-level IT recruiter fee (20–25%)</span><span class="cba-val red">$40,000–$50,000</span></div>
+                    <div class="cba-line"><span class="cba-lbl">Onboarding &amp; ramp (6–12 months)</span><span class="cba-val red">$50,000–$100,000</span></div>
+                    <div class="cba-line"><span class="cba-lbl">Institutional knowledge loss</span><span class="cba-val red">Unquantifiable</span></div>
+                    <div class="cba-line"><span class="cba-lbl">Expansion delays (4 facilities)</span><span class="cba-val red">$50,000–$150,000</span></div>
+                    <div class="cba-total"><span>Conservative one-time cost</span><span style="color:#dc2626;">$140K–$300K+</span></div>
+                    <div class="cba-fn">Replacing a VP-level IT leader mid-expansion, during a 30×30 initiative, is a high-risk, high-cost event that exceeds the annual raise cost before year one ends.</div>
                 </div>
-
+                <div class="cba-card">
+                    <div class="cba-card-hdr purple">✗ Cost of Unstructured Scale</div>
+                    <div class="cba-line"><span class="cba-lbl">Facility onboarding w/o IT structure</span><span class="cba-val red">Delayed &amp; error-prone</span></div>
+                    <div class="cba-line"><span class="cba-lbl">Helpdesk without L0 automation</span><span class="cba-val red">Linear headcount cost</span></div>
+                    <div class="cba-line"><span class="cba-lbl">Security without NDR</span><span class="cba-val red">Undetected exposure</span></div>
+                    <div class="cba-line"><span class="cba-lbl">Software without governance</span><span class="cba-val red">Ongoing waste &amp; risk</span></div>
+                    <div class="cba-total"><span>Cumulative exposure</span><span style="color:#7c3aed;">Growing with each site</span></div>
+                    <div class="cba-fn">This restructure is the IT department's onboarding strategy. Without it, each new facility adds cost, risk, and complexity without a structured owner to absorb it.</div>
+                </div>
             </div>
 
-            <div class="verdict-bar">
-                <div class="verdict-icon">📊</div>
+            <div class="verdict">
+                <div class="verdict-icon">💡</div>
                 <div class="verdict-text">
-                    <strong>The raises cost $176K/year.</strong> Replacing Anthony alone would cost $140–300K — one time — and would reset the 30×30 initiative, the merger integration, and NorthPoint by 6–12 months.
-                    The raises pay for themselves in retained institutional knowledge and uninterrupted execution.
+                    The restructure costs approximately <strong>$25,750/year net</strong> after Jon's consolidation savings — less than the cost of one month of a VP-level IT search retainer. The alternative is asking the same undertitled, undercompensated team to absorb four more facilities, build out a helpdesk, implement an AI routing layer, and close a security visibility gap — without formal recognition, defined ownership, or a scalable field support model. That is not a cost-saving strategy. That is how you lose the team that built this.
                 </div>
             </div>
 
-            <div class="section-gap"></div>
+            <div class="sec-divider"></div>
 
-            <!-- ── Section: Value Delivered ── -->
-            <div class="section-label">What This Team Manages</div>
-            <div class="value-grid" style="margin-bottom:48px;">
-                <div class="value-card">
-                    <div class="value-number">$2.3M</div>
-                    <div class="value-label">Annual IT budget managed across all categories</div>
-                </div>
-                <div class="value-card">
-                    <div class="value-number">12</div>
-                    <div class="value-label">Active facilities supported — growing to 16</div>
-                </div>
-                <div class="value-card">
-                    <div class="value-number">104</div>
-                    <div class="value-label">Software platforms tracked and governed</div>
-                </div>
-                <div class="value-card">
-                    <div class="value-number">6</div>
-                    <div class="value-label">IT staff managing 2.0 facilities per person — above healthcare benchmark</div>
-                </div>
-                <div class="value-card">
-                    <div class="value-number">~$85K</div>
-                    <div class="value-label">Estimated per-facility onboarding cost — vs. $200K+ with outside consultants</div>
-                </div>
-                <div class="value-card">
-                    <div class="value-number">30×30</div>
-                    <div class="value-label">Strategic initiative: 30 facilities by 2030 — IT is the critical path</div>
-                </div>
-            </div>
+            <!-- ── Section 7: The Ask ── -->
+            <div class="sec-num">Section 07</div>
+            <div class="sec-title">The Ask</div>
+            <div class="sec-desc">Three paths forward are presented below. Each addresses the retention risk and title corrections, but differs in scope, cost structure, and organizational commitment. Click a card to select it.</div>
+            <div class="options-intro">Select an option to indicate preference before the next planning session.</div>
 
-            <!-- ── Section: Options ── -->
-            <div class="section-label">Options for Consideration</div>
-            <div class="options-grid" style="margin-bottom:48px;">
+            <div class="options-grid">
 
-                <div class="option-card">
-                    <div class="option-letter">Option A</div>
-                    <div class="option-title">Departmental Budget Authority</div>
-                    <div class="option-desc">Anthony manages the IT personnel budget line directly and makes comp decisions within it — tied to growth and performance milestones.</div>
-                    <ul class="option-bullets">
+                <!-- Option A — Decoy -->
+                <div class="opt-card" id="optA" onclick="selectOption('optA')">
+                    <div class="opt-pin selected-marker">Selected</div>
+                    <div class="opt-letter">Option A</div>
+                    <div class="opt-title">Retention Fix</div>
+                    <div class="opt-desc">Anthony and Francis receive immediate market corrections. No structural changes. No Jon consolidation. Marc retains full comp oversight.</div>
+                    <ul class="opt-bullets">
+                        <li>Anthony: $93K → $200K · VP title</li>
+                        <li>Francis: $66K → $100K · Service Delivery title</li>
+                        <li>No consolidations · no MSP coverage model</li>
+                        <li>Software governance, helpdesk structure, and NDR roadmap remain unaddressed</li>
+                        <li>Field coverage model deferred — no scalable plan for 4 incoming sites</li>
+                    </ul>
+                    <div class="opt-bottom">
+                        <span class="opt-cost-lbl">Annual cost increase</span>
+                        <span class="opt-cost-val">+$176,250/yr</span>
+                    </div>
+                </div>
+
+                <!-- Option B — Target (recommended) -->
+                <div class="opt-card selected-b" id="optB" onclick="selectOption('optB')">
+                    <div class="opt-pin recommended">Recommended</div>
+                    <div class="opt-letter">Option B</div>
+                    <div class="opt-title">Full Restructure</div>
+                    <div class="opt-desc">Jon consolidation funds the raises. Title corrections, specialization, MSP coverage model, and Phase 1 formalization — all at near net-neutral cost.</div>
+                    <ul class="opt-bullets">
+                        <li>Anthony: $93K → $200K · VP, Business Systems &amp; Technology</li>
+                        <li>Francis: $66K → $100K · IT Service Delivery Manager</li>
+                        <li>Jon position consolidated · savings fund the corrections</li>
+                        <li>Regional MSP engaged for 16-facility field coverage</li>
+                        <li>Geremia and Rogi addressed in Phase 2 (Q4 FY2026)</li>
+                    </ul>
+                    <div class="opt-bottom">
+                        <span class="opt-cost-lbl">Net annual impact</span>
+                        <span class="opt-cost-val">~+$26K/yr</span>
+                    </div>
+                </div>
+
+                <!-- Option C — Premium -->
+                <div class="opt-card" id="optC" onclick="selectOption('optC')">
+                    <div class="opt-pin selected-marker">Selected</div>
+                    <div class="opt-letter">Option C</div>
+                    <div class="opt-title">Strategic Partnership</div>
+                    <div class="opt-desc">Everything in Option B, plus Anthony receives authority over the IT personnel budget — with compensation and bonuses tied to facility onboarding milestones.</div>
+                    <ul class="opt-bullets">
+                        <li>All Option B components included</li>
+                        <li>Anthony manages IT personnel budget line directly</li>
+                        <li>Comp increases and bonuses tied to facility growth and KPIs</li>
                         <li>Removes Marc's burden of managing individual IT salaries</li>
-                        <li>Comp increases tied to facility onboarding — IT earns more as the company grows</li>
-                        <li>Single point of accountability: Anthony owns outcomes and costs</li>
-                        <li>Enables a bonus structure aligned to NACS performance</li>
+                        <li>IT department incentives fully aligned to NACS growth</li>
                     </ul>
-                    <div class="option-bottom">
-                        <span class="option-cost-label">Annual personnel budget</span>
-                        <span class="option-cost-value">~$742K → ~$918K</span>
+                    <div class="opt-bottom">
+                        <span class="opt-cost-lbl">Net + performance bonus pool</span>
+                        <span class="opt-cost-val">~+$26K + TBD bonus</span>
                     </div>
                 </div>
 
-                <div class="option-card option-preferred">
-                    <div class="option-preferred-badge">Alternative</div>
-                    <div class="option-letter">Option B</div>
-                    <div class="option-title">Targeted Retention Raises</div>
-                    <div class="option-desc">Marc retains comp oversight. Anthony and Francis receive immediate market corrections. Remaining team addressed in a future phase.</div>
-                    <ul class="option-bullets">
-                        <li>Anthony: $93K → $200K, title VP, Business Systems & Technology</li>
-                        <li>Francis: $66K → $100K, title IT Service Delivery Manager</li>
-                        <li>Marc retains full budget authority</li>
-                        <li>Remaining team (Geremia, Rogi) addressed in Phase 2</li>
-                    </ul>
-                    <div class="option-bottom">
-                        <span class="option-cost-label">Annual increase (all-in)</span>
-                        <span class="option-cost-value">+$176,250</span>
-                    </div>
-                </div>
+            </div>
+            <div class="opt-hint">Options are for discussion · click to select · Recommended reflects the lowest risk / highest return path</div>
 
+            <div class="sec-divider"></div>
+
+            <!-- ── Section 8: What This Team Manages ── -->
+            <div class="sec-num">Section 08</div>
+            <div class="sec-title">What This Team Manages</div>
+            <div class="sec-desc">For context: the scope that this six-person team currently owns and operates.</div>
+
+            <div class="val-grid">
+                <div class="val-card">
+                    <div class="val-num">$2.3M</div>
+                    <div class="val-lbl">Annual IT budget managed across all categories</div>
+                </div>
+                <div class="val-card">
+                    <div class="val-num">12→16</div>
+                    <div class="val-lbl">Active facilities supported — 4 onboarding in FY2026</div>
+                </div>
+                <div class="val-card">
+                    <div class="val-num">7</div>
+                    <div class="val-lbl">Enterprise software categories under IT stewardship</div>
+                </div>
+                <div class="val-card">
+                    <div class="val-num">300+</div>
+                    <div class="val-lbl">Managed devices across facilities and service center</div>
+                </div>
+                <div class="val-card">
+                    <div class="val-num">~$85K</div>
+                    <div class="val-lbl">Estimated per-facility IT onboarding cost — vs. $200K+ with outside consultants</div>
+                </div>
+                <div class="val-card">
+                    <div class="val-num">30×30</div>
+                    <div class="val-lbl">30 facilities by 2030 — IT structure is the critical path to this goal</div>
+                </div>
             </div>
 
             <!-- ── Footer ── -->
@@ -876,13 +735,97 @@
         </div><!-- /content -->
     </div>
 </div>
+
 <script src="/nav.js"></script>
 <script>
 npInit(null).then(session => {
     if (!session) return;
     npPopulateTopbar();
     renderNav('budget');
+    renderWaterfall();
 });
+
+// ── Option selection ─────────────────────────────────────────────────────
+function selectOption(id) {
+    ['optA','optB','optC'].forEach(o => {
+        const el = document.getElementById(o);
+        el.classList.remove('selected', 'selected-b');
+    });
+    const target = document.getElementById(id);
+    target.classList.add(id === 'optB' ? 'selected-b' : 'selected');
+}
+
+// ── Waterfall ────────────────────────────────────────────────────────────
+const BURDEN = b => Math.round(b * 1.25 + 500);
+
+const CURRENT = {
+    anthony: 93000,
+    francis: 66000,
+    jon:     120000,
+};
+
+function renderWaterfall() {
+    const anthonyBase  = +document.getElementById('sliderAnthony').value;
+    const francisBase  = +document.getElementById('sliderFrancis').value;
+    const jonOn        = document.getElementById('jonToggle').checked;
+
+    const anthonyDelta = BURDEN(anthonyBase) - BURDEN(CURRENT.anthony);
+    const francisDelta = BURDEN(francisBase) - BURDEN(CURRENT.francis);
+    const jonSavings   = jonOn ? BURDEN(CURRENT.jon) : 0;
+    const net          = anthonyDelta + francisDelta - jonSavings;
+
+    // Update slider labels
+    const fmtK = v => '$' + (v / 1000).toFixed(0) + 'K';
+    const fmtFull = v => '$' + v.toLocaleString();
+    document.getElementById('valAnthony').textContent = fmtFull(anthonyBase);
+    document.getElementById('deltaAnthony').textContent = `All-in: ${fmtFull(BURDEN(anthonyBase))} · Δ +${fmtFull(anthonyDelta)}`;
+    document.getElementById('valFrancis').textContent = fmtFull(francisBase);
+    document.getElementById('deltaFrancis').textContent = `All-in: ${fmtFull(BURDEN(francisBase))} · Δ +${fmtFull(francisDelta)}`;
+
+    // Max bar ref (for scaling bar widths)
+    const MAX_REF = 180000;
+    const barW = v => Math.max(2, Math.round(Math.abs(v) / MAX_REF * 100)) + '%';
+
+    const rows = document.getElementById('wfRows');
+    rows.innerHTML = `
+        <div class="wf-row">
+            <div class="wf-row-label bold">FY2025 Personnel (all-in)</div>
+            <div class="wf-bar-track"><div class="wf-bar-fill baseline" style="width:${barW(705500)};"></div></div>
+            <div class="wf-row-val neutral">$705,500</div>
+        </div>
+        ${jonOn ? `<div class="wf-row">
+            <div class="wf-row-label" style="color:#059669;">Jon consolidation</div>
+            <div class="wf-bar-track"><div class="wf-bar-fill savings" style="width:${barW(jonSavings)};"></div></div>
+            <div class="wf-row-val savings">–${fmtFull(jonSavings)}</div>
+        </div>` : ''}
+        <div class="wf-row">
+            <div class="wf-row-label" style="color:#dc2626;">Anthony correction</div>
+            <div class="wf-bar-track"><div class="wf-bar-fill cost" style="width:${barW(anthonyDelta)};"></div></div>
+            <div class="wf-row-val cost">+${fmtFull(anthonyDelta)}</div>
+        </div>
+        <div class="wf-row">
+            <div class="wf-row-label" style="color:#dc2626;">Francis correction</div>
+            <div class="wf-bar-track"><div class="wf-bar-fill cost" style="width:${barW(francisDelta)};"></div></div>
+            <div class="wf-row-val cost">+${fmtFull(francisDelta)}</div>
+        </div>
+        <div class="wf-sep"></div>
+        <div class="wf-row">
+            <div class="wf-row-label bold">FY2026 Proposed (all-in)</div>
+            <div class="wf-bar-track"><div class="wf-bar-fill result" style="width:${barW(705500 - jonSavings + anthonyDelta + francisDelta)};"></div></div>
+            <div class="wf-row-val neutral">${fmtFull(705500 - jonSavings + anthonyDelta + francisDelta)}</div>
+        </div>
+    `;
+
+    const netEl = document.getElementById('wfNet');
+    const isPositive = net > 0;
+    netEl.innerHTML = `
+        <div class="wf-net-label">Net annual personnel cost change</div>
+        <div class="wf-net-right">
+            <div class="wf-net-value ${isPositive ? 'positive' : 'negative'}">${isPositive ? '+' : '–'}${fmtFull(Math.abs(net))}/yr</div>
+            <div class="wf-net-sub">${isPositive ? 'Increase' : 'Decrease'} vs. FY2025 baseline · ${jonOn ? 'Jon consolidation applied' : 'No consolidation'}</div>
+        </div>
+    `;
+}
 </script>
 </body>
 </html>
