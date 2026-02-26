@@ -40,14 +40,19 @@
             background: #fff; border: 1px solid #dce1e9; border-radius: 10px; padding: 16px 18px;
         }
         .sum-card.dark { background: #0f1f3a; border-color: #0f1f3a; }
+        .sum-card.warn { background: #fff7ed; border-color: #fed7aa; }
         .sum-label { font-size: 10px; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; color: #8a95a8; margin-bottom: 5px; }
         .dark .sum-label { color: #4d6899; }
+        .warn .sum-label { color: #9a6024; }
         .sum-value { font-size: 20px; font-weight: 800; color: #0a1628; line-height: 1; }
         .dark .sum-value { color: #fff; }
+        .warn .sum-value { color: #c2410c; }
         .sum-sub  { font-size: 11px; color: #8a95a8; margin-top: 4px; }
         .dark .sum-sub { color: #4d6899; }
+        .warn .sum-sub { color: #9a6024; }
         .sum-delta-pos { font-size: 11px; color: #10b981; font-weight: 700; margin-top: 3px; }
         .sum-delta-neg { font-size: 11px; color: #ef4444; font-weight: 700; margin-top: 3px; }
+        .sum-bench-label { font-size: 11px; color: #d97706; font-weight: 600; margin-top: 3px; }
 
         /* ── Section label ── */
         .section-lbl {
@@ -135,8 +140,14 @@
         .li-sub    { font-size: 11px; color: #8a95a8; margin-top: 2px; }
         .li-excl   { font-size: 10px; background: #fef3c7; color: #92400e; padding: 1px 6px; border-radius: 4px; font-weight: 600; margin-left: 6px; vertical-align: middle; }
         .li-owned  { font-size: 10px; background: #f0fdf4; color: #065f46; padding: 1px 6px; border-radius: 4px; font-weight: 600; margin-left: 6px; vertical-align: middle; }
+        .li-dept   { font-size: 10px; background: #eff6ff; color: #1e40af; padding: 1px 6px; border-radius: 4px; font-weight: 600; margin-left: 6px; vertical-align: middle; }
         .li-cost   { font-weight: 600; color: #0a1628; }
         .li-conf   { font-size: 11px; color: #8a95a8; }
+        .li-tbd    { font-size: 11px; color: #bec6d3; font-style: italic; }
+
+        /* Dept-owned rows — dimmed */
+        .li-row-dept td { opacity: 0.6; }
+        .li-row-dept:hover td { background: #fafbfc; }
 
         /* Market range bar in table */
         .mkt-cell { min-width: 120px; }
@@ -157,8 +168,8 @@
         .person-t-arrow { font-size: 11px; color: #bec6d3; }
         .person-t-new   { font-size: 11px; color: #10b981; font-weight: 600; }
 
-        .comp-slider-wrap { display: flex; flex-direction: column; gap: 4px; min-width: 200px; }
-        .comp-slider-vals { display: flex; justify-content: space-between; font-size: 11px; }
+        .comp-slider-wrap { display: flex; flex-direction: column; gap: 4px; }
+        .comp-slider-vals { display: flex; justify-content: space-between; font-size: 11px; white-space: nowrap; }
         .comp-slider-curr { color: #8a95a8; }
         .comp-slider-prop { font-weight: 700; color: #0a1628; }
         .comp-slider { -webkit-appearance: none; width: 100%; height: 4px; border-radius: 99px; outline: none; cursor: pointer; }
@@ -169,8 +180,20 @@
         }
         .comp-delta-pos { font-size: 12px; font-weight: 700; color: #10b981; white-space: nowrap; }
         .comp-delta-neg { font-size: 12px; font-weight: 700; color: #ef4444; white-space: nowrap; }
-        .comp-delta-nil { font-size: 12px; color: #bec6d3; }
+        .comp-delta-nil { font-size: 12px; color: #bec6d3; white-space: nowrap; }
         .burden-note { font-size: 10px; color: #bec6d3; }
+
+        /* Person row dissolved */
+        .person-row-dissolved td { opacity: 0.35; }
+        .dissolve-btn {
+            display: inline-block; margin-top: 5px; padding: 2px 9px;
+            border-radius: 5px; font-size: 10px; font-weight: 700;
+            cursor: pointer; font-family: inherit; transition: all 0.15s; border: 1px solid;
+        }
+        .dissolve-btn-active { background: #f4f6f8; color: #5d6779; border-color: #dce1e9; }
+        .dissolve-btn-active:hover { background: #fee2e2; color: #991b1b; border-color: #fca5a5; }
+        .dissolve-btn-dissolved { background: #fee2e2; color: #991b1b; border-color: #fca5a5; }
+        .dissolve-btn-dissolved:hover { background: #f0fdf4; color: #065f46; border-color: #a7f3d0; }
 
         /* Market source note */
         .mkt-sources {
@@ -197,7 +220,7 @@
         .bench-name  { font-size: 12px; font-weight: 600; color: #3e4554; width: 180px; flex-shrink: 0; }
         .bench-bar-wrap { flex: 1; position: relative; height: 18px; }
         .bench-track { height: 7px; background: #f0f2f5; border-radius: 99px; width: 100%; position: absolute; top: 5px; }
-        .bench-fill  { height: 7px; border-radius: 99px; position: absolute; top: 5px; }
+        .bench-fill  { height: 7px; border-radius: 99px; position: absolute; top: 5px; transition: width 0.4s ease; }
         .bench-val   { font-size: 12px; font-weight: 700; color: #0a1628; width: 60px; text-align: right; flex-shrink: 0; }
     </style>
 </head>
@@ -215,7 +238,7 @@
             </div>
             <div class="topbar-right">
                 <span class="topbar-date" id="currentDate"></span>
-                <div class="topbar-avatar" id="topbarAvatar">AT</div>
+                <span class="topbar-role" id="topbarRole"></span>
             </div>
         </header>
 
@@ -224,16 +247,17 @@
 
             <div class="pg-eyebrow">Budget & Finance · Planning Tool</div>
             <h1 class="pg-title">IT Budget Planner</h1>
-            <p class="pg-desc">Full IT spend baseline — FY2025 actuals across all categories. Adjust proposed allocations against market benchmarks to model FY2026.</p>
+            <p class="pg-desc">FY2025 actuals across all categories with market benchmarks. Adjust personnel comp and model FY2026 allocations using live sliders.</p>
 
-            <!-- View toggle -->
+            <!-- View / filter toggles -->
             <div class="toggle-bar">
                 <span class="tbar-label">View:</span>
                 <button class="tbar-btn active" onclick="setView('current')">FY2025 Actual</button>
                 <button class="tbar-btn" onclick="setView('proposed')">FY2026 Proposed</button>
                 <div class="tbar-sep"></div>
                 <span class="tbar-label" style="margin-left:4px;">Include:</span>
-                <button class="tbar-btn active" id="toggle-pcc" onclick="togglePCC()">PointClickCare <span id="pcc-state">off</span></button>
+                <button class="tbar-btn" id="toggle-pcc" onclick="togglePCC()">PointClickCare <span id="pcc-state">off</span></button>
+                <button class="tbar-btn" id="toggle-shared" onclick="toggleShared()">Dept-Owned <span id="shared-state">off</span></button>
             </div>
 
             <!-- Summary strip -->
@@ -258,10 +282,11 @@
                     <div class="sum-value" id="sum-delta">$0</div>
                     <div class="sum-delta-pos" id="sum-delta-label">No changes yet</div>
                 </div>
-                <div class="sum-card">
-                    <div class="sum-label">vs Healthcare Benchmark</div>
-                    <div class="sum-value">3–5%</div>
-                    <div class="sum-sub">Industry IT/revenue ratio</div>
+                <div class="sum-card warn">
+                    <div class="sum-label">IT / Revenue</div>
+                    <div class="sum-value" id="sum-rev-pct">~1%</div>
+                    <div class="sum-sub">of ~$170M est. revenue</div>
+                    <div class="sum-bench-label">Benchmark: 3–5%</div>
                 </div>
             </div>
 
@@ -299,7 +324,7 @@
             <!-- Market benchmark -->
             <div class="section-lbl">Healthcare IT Benchmark Comparison</div>
             <div class="bench-card">
-                <div class="bench-title">Spend as % of Operating Budget — Industry Norms</div>
+                <div class="bench-title">IT Spend as % of Revenue — Industry Norms</div>
                 <div class="bench-rows">
                     <div class="bench-row">
                         <div class="bench-name">NACS Current</div>
@@ -335,7 +360,7 @@
                     </div>
                 </div>
                 <div style="font-size:11px;color:#8a95a8;margin-top:14px;">
-                    Source: Gartner Healthcare IT Spending Survey 2024 · HIMSS Analytics · operating budget estimate based on 12-facility SNF portfolio
+                    Source: Gartner Healthcare IT Spending Survey 2024 · HIMSS Analytics · revenue estimate based on 12-facility SNF portfolio (~$170M)
                 </div>
             </div>
 
@@ -347,6 +372,8 @@
 <script src="/nav.js"></script>
 <script>
 // ── Data ─────────────────────────────────────────────────────────────────
+
+const EST_REVENUE = 170000000; // ~$170M estimated NACS annual revenue
 
 // Market ranges: [low, high, sweetSpot] — annual base salary for Personnel, annual spend for others
 const MARKET = {
@@ -422,9 +449,10 @@ const CATS = [
         icon: '💿',
         color: '#8b5cf6',
         items: [
-            { name: 'Stage Marketing',              sub: 'Enterprise marketing platform (shared)', cost: 252655.73, source: 'DocLink 2025', owned: 'IT Steward' },
-            { name: 'Google Workspace',             sub: 'Email, Drive, Meet (shared)',           cost: 17699.61,  source: 'DocLink 2025', owned: 'IT Steward' },
-            { name: 'Adobe Creative Cloud',         sub: 'Creative suite (shared)',               cost: 16362.72,  source: 'CC 2025',     owned: 'IT Steward' },
+            // IT-managed line items (included in budget)
+            { name: 'Stage Marketing',              sub: 'Enterprise marketing platform',         cost: 252655.73, source: 'DocLink 2025', owned: 'IT Steward' },
+            { name: 'Google Workspace',             sub: 'Email, Drive, Meet',                   cost: 17699.61,  source: 'DocLink 2025', owned: 'IT Steward' },
+            { name: 'Adobe Creative Cloud',         sub: 'Creative suite',                       cost: 16362.72,  source: 'CC 2025',     owned: 'IT Steward' },
             { name: 'Stage Marketing (secondary)',  sub: 'Additional license pool',               cost: 1088.00,   source: 'DocLink 2025', owned: 'IT Steward' },
             { name: 'AWS',                          sub: 'Cloud infrastructure',                  cost: 7549.85,   source: 'CC 2025' },
             { name: 'LogMeIn Rescue',               sub: 'Remote support tool',                   cost: 1341.00,   source: 'CC 2025' },
@@ -432,6 +460,13 @@ const CATS = [
             { name: 'ActivTrak',                    sub: 'Workforce analytics',                   cost: 720.00,    source: 'CC 2025' },
             { name: 'Airtable',                     sub: 'Database / ops tool',                   cost: 240.00,    source: 'CC 2025' },
             { name: 'Microsoft',                    sub: 'Supplemental licensing',                cost: 30.00,     source: 'CC 2025' },
+            // Dept-owned / IT stewardship visibility (toggled via "Dept-Owned" button)
+            { name: 'NetHealth Therapy',            sub: 'Therapy management',                   cost: null, source: 'TBD', dept: 'Rehab' },
+            { name: 'Waystar',                      sub: 'Revenue cycle / billing',               cost: null, source: 'TBD', dept: 'AR / Billing' },
+            { name: 'NetSuite',                     sub: 'ERP / financial management',            cost: null, source: 'TBD', dept: 'Finance' },
+            { name: 'UKG / ADP',                    sub: 'HR & payroll platform',                 cost: null, source: 'TBD', dept: 'HR' },
+            { name: 'Fullcast',                     sub: 'Revenue intelligence',                  cost: null, source: 'TBD', dept: 'Marketing' },
+            { name: 'Ampleo',                       sub: 'Operations platform',                   cost: null, source: 'TBD', dept: 'Marketing' },
         ]
     },
     {
@@ -446,7 +481,6 @@ const CATS = [
             { name: 'Iron Mountain',                sub: 'Records management & shredding',        cost: 33199.04,  source: 'DocLink 2025' },
             { name: 'Field Tech Travel',            sub: 'Travel for site visits',               cost: 16200.00,  source: 'Policy' },
             { name: 'Oracle',                       sub: 'Database licensing',                    cost: 2673.76,   source: 'DocLink 2025' },
-            { name: 'Synergy CT Surgery',           sub: 'Specialty system',                     cost: 2531.00,   source: 'DocLink 2025' },
         ]
     },
 ];
@@ -454,7 +488,9 @@ const CATS = [
 // ── State ──────────────────────────────────────────────────────────────────
 let _view = 'current';
 let _pccOn = false;
-let _proposed = {};     // keyed by person id or item name, value = adjusted amount
+let _sharedOn = false;
+let _jonDissolved = false;
+let _proposed = {};     // keyed by person id, value = adjusted base salary
 let _activeCategory = null;
 
 // Init proposed with current values
@@ -471,6 +507,7 @@ npInit('budget').then(session => {
 // ── Helpers ────────────────────────────────────────────────────────────────
 function personTotal(view) {
     return PEOPLE.reduce((s, p) => {
+        if (p.id === 'jon' && _jonDissolved) return s;
         const base = view === 'proposed' ? (_proposed[p.id] || p.base) : p.base;
         return s + burden(base);
     }, 0);
@@ -478,7 +515,11 @@ function personTotal(view) {
 
 function catTotal(cat, view) {
     if (cat.personnel) return personTotal(view);
-    return cat.items.reduce((s, i) => s + i.cost, 0);
+    return cat.items.reduce((s, i) => {
+        if (i.cost === null) return s;           // TBD costs excluded from totals
+        if (i.dept && !_sharedOn) return s;      // dept-owned hidden unless toggled
+        return s + i.cost;
+    }, 0);
 }
 
 function grandTotal(view) {
@@ -511,7 +552,6 @@ function renderAll() {
 
 function renderSummary() {
     const total   = grandTotal(_view);
-    const persCur = personTotal('current');
     const persNow = personTotal(_view);
     const nonPers = total - persNow;
     const delta   = grandTotal('proposed') - grandTotal('current');
@@ -522,7 +562,7 @@ function renderSummary() {
     document.getElementById('sum-nonpersonnel').textContent  = fmt(nonPers);
     document.getElementById('sum-nonpersonnel-pct').textContent = `${Math.round(nonPers/total*100)}% of total`;
 
-    const deltaEl = document.getElementById('sum-delta');
+    const deltaEl  = document.getElementById('sum-delta');
     const deltaLbl = document.getElementById('sum-delta-label');
     deltaEl.textContent = delta === 0 ? '$0' : (delta > 0 ? '+' : '') + fmt(delta);
     if (delta > 0) {
@@ -535,6 +575,18 @@ function renderSummary() {
         deltaLbl.className = 'sum-delta-pos';
         deltaLbl.textContent = 'No changes yet';
     }
+
+    // Revenue % card
+    const revPct = total / EST_REVENUE * 100;
+    const revPctEl = document.getElementById('sum-rev-pct');
+    if (revPctEl) revPctEl.textContent = `~${revPct.toFixed(1)}%`;
+
+    // Update benchmark bar
+    const nacsPct = revPct;
+    const nacsBarEl = document.getElementById('bench-nacs');
+    const nacsValEl = document.getElementById('bench-nacs-val');
+    if (nacsBarEl) nacsBarEl.style.width = `${Math.min(100, nacsPct / 5 * 100)}%`;
+    if (nacsValEl) nacsValEl.textContent = `~${nacsPct.toFixed(1)}%`;
 }
 
 function renderCatGrid() {
@@ -546,7 +598,6 @@ function renderCatGrid() {
         const pct = Math.round(ct / total * 100);
         const ms  = marketStatus(cat.id, ct);
         const m   = MARKET[cat.id];
-        // Bar fill: position current spend relative to market range
         let barPct = 50;
         if (m) {
             const span = m.high - m.low;
@@ -597,7 +648,16 @@ function renderDetail(catId) {
     const ct = catTotal(cat, _view);
     document.getElementById('d-icon').textContent  = cat.icon;
     document.getElementById('d-name').textContent  = cat.name;
-    document.getElementById('d-sub').textContent   = cat.personnel ? '6 team members · Base + 25% burden' : `${cat.items.length} line items · FY2025 actual`;
+
+    if (cat.personnel) {
+        const activeCount = _jonDissolved ? 5 : 6;
+        document.getElementById('d-sub').textContent = `${activeCount} active · Base + 25% burden${_jonDissolved ? ' · 1 position dissolving' : ''}`;
+    } else {
+        const itItems = cat.items.filter(i => !i.dept);
+        const deptItems = cat.items.filter(i => i.dept);
+        document.getElementById('d-sub').textContent = `${itItems.length} line items · FY2025 actual${deptItems.length ? ` · ${deptItems.length} dept-owned` : ''}`;
+    }
+
     document.getElementById('d-total').textContent = fmtFull(ct);
 
     if (cat.personnel) {
@@ -608,34 +668,49 @@ function renderDetail(catId) {
 }
 
 function renderLineItems(cat) {
-    const total = cat.items.reduce((s, i) => s + i.cost, 0);
+    const itItems   = cat.items.filter(i => !i.dept);
+    const deptItems = cat.items.filter(i => i.dept);
+    const total     = itItems.reduce((s, i) => s + (i.cost || 0), 0);
     const m = MARKET[cat.id];
 
-    const rows = cat.items.map(item => {
-        const pct = Math.round(item.cost / total * 100);
-        return `<tr>
+    const buildRow = (item, isDept) => {
+        const pct = total > 0 && !isDept ? Math.round((item.cost || 0) / total * 100) : null;
+        return `<tr class="${isDept ? 'li-row-dept' : ''}">
             <td>
-                <div class="li-name">${item.name}${item.owned ? `<span class="li-owned">${item.owned}</span>` : ''}</div>
+                <div class="li-name">${item.name}${item.owned ? `<span class="li-owned">${item.owned}</span>` : ''}${item.dept ? `<span class="li-dept">Dept: ${item.dept}</span>` : ''}</div>
                 <div class="li-sub">${item.sub}</div>
             </td>
-            <td class="li-cost">${fmtFull(item.cost)}</td>
-            <td class="li-conf">${item.source}</td>
+            <td class="li-cost">${item.cost !== null ? fmtFull(item.cost) : '<span class="li-tbd">TBD</span>'}</td>
+            <td class="${isDept ? 'li-tbd' : 'li-conf'}">${item.source}</td>
             <td style="width:120px;text-align:right;">
-                <div style="display:flex;align-items:center;justify-content:flex-end;gap:6px;">
+                ${pct !== null ? `<div style="display:flex;align-items:center;justify-content:flex-end;gap:6px;">
                     <div class="mkt-bar">
                         <div class="mkt-fill" style="width:100%;"></div>
                         <div class="mkt-dot mkt-dot-curr" style="left:${pct}%;"></div>
                     </div>
                     <span style="font-size:11px;color:#8a95a8;">${pct}%</span>
-                </div>
+                </div>` : ''}
             </td>
         </tr>`;
-    }).join('');
+    };
+
+    let rows = itItems.map(item => buildRow(item, false)).join('');
+
+    // Dept-owned section (only when _sharedOn)
+    let deptSection = '';
+    if (_sharedOn && deptItems.length > 0) {
+        deptSection = `<tbody>
+            <tr><td colspan="4" style="padding:6px 22px;background:#f8f9ff;font-size:10px;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;color:#6366f1;">
+                Dept-Owned · IT Stewardship Visibility
+            </td></tr>
+            ${deptItems.map(item => buildRow(item, true)).join('')}
+        </tbody>`;
+    }
 
     const marketNote = m ? `
         <div class="mkt-sources">
             Market range for ${cat.name}: ${fmt(m.low)} – ${fmt(m.high)} · Sweet spot: ${fmt(m.sweet)} ·
-            Current: ${fmt(total)} ${total < m.low ? '— <strong style="color:#d97706;">below market</strong>' : total > m.high ? '— <strong style="color:#ef4444;">above market</strong>' : '— within range'}
+            Current IT-owned: ${fmt(total)} ${total < m.low ? '— <strong style="color:#d97706;">below market</strong>' : total > m.high ? '— <strong style="color:#ef4444;">above market</strong>' : '— within range'}
             <br>Source: Gartner Healthcare IT Spending Survey · HIMSS Analytics · CompTIA State of the Industry 2024
         </div>` : '';
 
@@ -648,8 +723,9 @@ function renderLineItems(cat) {
                 <th style="text-align:right;">% of Category</th>
             </tr></thead>
             <tbody>${rows}</tbody>
+            ${deptSection}
             <tbody><tr class="li-total">
-                <td colspan="1">Category Total</td>
+                <td colspan="1">IT-Owned Total</td>
                 <td style="text-align:right;">${fmtFull(total)}</td>
                 <td colspan="2"></td>
             </tr></tbody>
@@ -660,25 +736,48 @@ function renderLineItems(cat) {
 function renderPersonnelDetail() {
     const m = MARKET['personnel'];
     const currentTotal = personTotal('current');
-    let html = `<table class="li-table">
+
+    let html = `<table class="li-table" style="table-layout:fixed;">
+        <colgroup>
+            <col>
+            <col style="width:110px;">
+            <col style="width:260px;">
+            <col style="width:130px;">
+            <col style="width:110px;">
+        </colgroup>
         <thead><tr>
             <th>Team Member</th>
             <th style="text-align:right;">Current Base</th>
-            <th style="text-align:center;min-width:220px;">Proposed Base</th>
+            <th style="text-align:center;">Proposed Base</th>
             <th style="text-align:right;">All-In Cost</th>
             <th style="text-align:right;">Δ</th>
         </tr></thead>
         <tbody>`;
 
     PEOPLE.forEach(p => {
-        const pm      = PERSON_MKT[p.id];
+        const pm       = PERSON_MKT[p.id];
         const currBase = p.base;
         const propBase = _proposed[p.id] || p.base;
         const allIn    = burden(propBase);
         const delta    = propBase - currBase;
-        const sliderBg = buildSliderGradient(pm.low, pm.high, pm.sweet, propBase);
+        const dissolved = p.id === 'jon' && _jonDissolved;
+        const sliderBg = buildSliderGradient(pm, currBase, propBase);
 
-        html += `<tr class="person-row">
+        const sliderMin = Math.min(Math.floor(pm.low * 0.85 / 1000) * 1000, Math.floor(currBase / 1000) * 1000);
+        const sliderMax = Math.ceil(pm.high * 1.1 / 1000) * 1000;
+
+        // Left label: show actual slider floor, clearly below market if applicable
+        const leftLabel = currBase < pm.low
+            ? `${fmtFull(currBase)} current`
+            : `${fmtFull(pm.low)} mkt low`;
+
+        const dissolveBtnClass = dissolved ? 'dissolve-btn dissolve-btn-dissolved' : 'dissolve-btn dissolve-btn-active';
+        const dissolveBtnText  = dissolved ? '↩ Restore' : '✕ Dissolve';
+        const dissolveBtn      = p.id === 'jon'
+            ? `<button class="${dissolveBtnClass}" onclick="toggleJonDissolved()">${dissolveBtnText}</button>`
+            : '';
+
+        html += `<tr class="person-row${dissolved ? ' person-row-dissolved' : ''}">
             <td>
                 <div class="person-name">${p.name}</div>
                 <div class="person-titles">
@@ -686,40 +785,50 @@ function renderPersonnelDetail() {
                     <span class="person-t-arrow">→</span>
                     <span class="person-t-new">${p.titleFuture}</span>
                 </div>
+                ${dissolveBtn}
             </td>
             <td style="text-align:right;font-weight:600;color:#8a95a8;">${fmtFull(currBase)}</td>
             <td>
                 <div class="comp-slider-wrap">
                     <div class="comp-slider-vals">
-                        <span class="comp-slider-curr">${fmtFull(pm.low)} min</span>
+                        <span class="comp-slider-curr">${leftLabel}</span>
                         <span class="comp-slider-prop" id="prop-val-${p.id}">${fmtFull(propBase)}</span>
-                        <span class="comp-slider-curr">${fmtFull(pm.high)} max</span>
+                        <span class="comp-slider-curr">${fmtFull(pm.high)} mkt high</span>
                     </div>
                     <input type="range" class="comp-slider" id="slider-${p.id}"
-                        min="${Math.min(pm.low * 0.8, currBase)}"
-                        max="${pm.high * 1.1}"
+                        min="${sliderMin}"
+                        max="${sliderMax}"
                         step="1000"
                         value="${propBase}"
                         style="background:${sliderBg};"
+                        ${dissolved ? 'disabled' : ''}
                         oninput="updatePerson('${p.id}', this.value, ${pm.low}, ${pm.high}, ${pm.sweet})" />
                     <div style="font-size:10px;color:#bec6d3;">Market sweet spot: ${fmtFull(pm.sweet)}</div>
                 </div>
             </td>
-            <td style="text-align:right;"><span class="li-cost">${fmtFull(allIn)}</span><br><span class="burden-note">incl. 25% burden</span></td>
-            <td style="text-align:right;" id="delta-${p.id}">
-                ${delta === 0 ? '<span class="comp-delta-nil">—</span>' : `<span class="${delta > 0 ? 'comp-delta-pos' : 'comp-delta-neg'}">${delta > 0 ? '+' : ''}${fmtFull(delta)}</span>`}
+            <td style="text-align:right;" id="allin-${p.id}">
+                ${dissolved
+                    ? '<span style="color:#bec6d3;font-size:12px;">—</span>'
+                    : `<span class="li-cost">${fmtFull(allIn)}</span><br><span class="burden-note">incl. 25% burden</span>`}
+            </td>
+            <td style="text-align:right;white-space:nowrap;" id="delta-${p.id}">
+                ${dissolved
+                    ? `<span class="comp-delta-pos">−${fmtFull(burden(currBase))}</span>`
+                    : delta === 0
+                        ? '<span class="comp-delta-nil">—</span>'
+                        : `<span class="${delta > 0 ? 'comp-delta-pos' : 'comp-delta-neg'}">${delta > 0 ? '+' : ''}${fmtFull(delta)}</span>`}
             </td>
         </tr>`;
     });
 
-    const propTotal  = personTotal('proposed');
-    const propDelta  = propTotal - currentTotal;
+    const propTotal = personTotal('proposed');
+    const propDelta = propTotal - currentTotal;
     html += `</tbody>
         <tbody><tr class="li-total">
             <td colspan="2">Personnel Total</td>
             <td></td>
             <td style="text-align:right;" id="pers-total-allin">${fmtFull(propTotal)}</td>
-            <td style="text-align:right;" id="pers-total-delta">
+            <td style="text-align:right;white-space:nowrap;" id="pers-total-delta">
                 ${propDelta === 0 ? '—' : `<span class="${propDelta > 0 ? 'comp-delta-pos' : 'comp-delta-neg'}">${propDelta > 0 ? '+' : ''}${fmtFull(propDelta)}</span>`}
             </td>
         </tr></tbody>
@@ -736,49 +845,54 @@ function updatePerson(id, val, low, high, sweet) {
     val = parseInt(val);
     _proposed[id] = val;
     const p = PEOPLE.find(p => p.id === id);
+    const pm = PERSON_MKT[id];
     const delta = val - p.base;
 
-    document.getElementById(`prop-val-${id}`).textContent  = fmtFull(val);
-    document.getElementById(`delta-${id}`).innerHTML =
+    document.getElementById(`prop-val-${id}`).textContent = fmtFull(val);
+
+    const deltaEl = document.getElementById(`delta-${id}`);
+    if (deltaEl) deltaEl.innerHTML =
         delta === 0 ? '<span class="comp-delta-nil">—</span>'
             : `<span class="${delta > 0 ? 'comp-delta-pos' : 'comp-delta-neg'}">${delta > 0 ? '+' : ''}${fmtFull(delta)}</span>`;
 
     // Update slider background gradient
     const slider = document.getElementById(`slider-${id}`);
-    slider.style.background = buildSliderGradient(low, high, sweet, val);
+    if (slider) slider.style.background = buildSliderGradient(pm, p.base, val);
 
-    // Update allin cell
-    const allIn = burden(val);
+    // Update all-in cost cell
+    const allInEl = document.getElementById(`allin-${id}`);
+    if (allInEl) allInEl.innerHTML = `<span class="li-cost">${fmtFull(burden(val))}</span><br><span class="burden-note">incl. 25% burden</span>`;
 
-    // Refresh totals
+    // Refresh totals row
     const propTotal = personTotal('proposed');
     const propDelta = propTotal - personTotal('current');
     const totalEl = document.getElementById('pers-total-allin');
-    const deltaEl = document.getElementById('pers-total-delta');
+    const dTotalEl = document.getElementById('pers-total-delta');
     if (totalEl) totalEl.textContent = fmtFull(propTotal);
-    if (deltaEl) deltaEl.innerHTML = propDelta === 0 ? '—'
+    if (dTotalEl) dTotalEl.innerHTML = propDelta === 0 ? '—'
         : `<span class="${propDelta > 0 ? 'comp-delta-pos' : 'comp-delta-neg'}">${propDelta > 0 ? '+' : ''}${fmtFull(propDelta)}</span>`;
 
     renderSummary();
     renderCatGrid();
 }
 
-function buildSliderGradient(low, high, sweet, val) {
-    const min   = Math.min(low * 0.8, val);
-    const max   = high * 1.1;
-    const span  = max - min;
-    const lowPct   = Math.round((low  - min) / span * 100);
-    const highPct  = Math.round((high - min) / span * 100);
-    const sweetPct = Math.round((sweet - min) / span * 100);
+function buildSliderGradient(pm, currBase, val) {
+    const sliderMin = Math.min(Math.floor(pm.low * 0.85 / 1000) * 1000, Math.floor(currBase / 1000) * 1000);
+    const sliderMax = Math.ceil(pm.high * 1.1 / 1000) * 1000;
+    const span      = sliderMax - sliderMin;
+    const lowPct    = Math.round((pm.low  - sliderMin) / span * 100);
+    const highPct   = Math.round((pm.high - sliderMin) / span * 100);
+    const sweetPct  = Math.round((pm.sweet - sliderMin) / span * 100);
     return `linear-gradient(to right, #e8ecf1 ${lowPct}%, #a7f3d0 ${lowPct}%, #10b981 ${sweetPct}%, #a7f3d0 ${highPct}%, #e8ecf1 ${highPct}%)`;
 }
 
-// ── View toggle ───────────────────────────────────────────────────────────
+// ── Toggle functions ───────────────────────────────────────────────────────
 function setView(v) {
     _view = v;
     document.querySelectorAll('.tbar-btn').forEach(btn => {
-        if (btn.textContent.trim().startsWith('FY2025') || btn.textContent.trim().startsWith('FY2026')) {
-            btn.classList.toggle('active', (v === 'current' && btn.textContent.includes('2025')) || (v === 'proposed' && btn.textContent.includes('2026')));
+        const t = btn.textContent.trim();
+        if (t.startsWith('FY2025') || t.startsWith('FY2026')) {
+            btn.classList.toggle('active', (v === 'current' && t.includes('2025')) || (v === 'proposed' && t.includes('2026')));
         }
     });
     renderAll();
@@ -787,7 +901,22 @@ function setView(v) {
 function togglePCC() {
     _pccOn = !_pccOn;
     document.getElementById('pcc-state').textContent = _pccOn ? 'on' : 'off';
+    document.getElementById('toggle-pcc').classList.toggle('active', _pccOn);
     renderAll();
+}
+
+function toggleShared() {
+    _sharedOn = !_sharedOn;
+    document.getElementById('shared-state').textContent = _sharedOn ? 'on' : 'off';
+    document.getElementById('toggle-shared').classList.toggle('active', _sharedOn);
+    renderAll();
+}
+
+function toggleJonDissolved() {
+    _jonDissolved = !_jonDissolved;
+    renderPersonnelDetail();
+    renderSummary();
+    renderCatGrid();
 }
 </script>
 </body>
