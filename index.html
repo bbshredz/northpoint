@@ -347,13 +347,21 @@ npInit(null).then(session => {
   npPopulateTopbar();
   renderNav('hub');
 
-  // Frost module cards the current user doesn't have access to
+  // Frost inaccessible cards, then sort available ones to the front
   document.querySelectorAll('[data-mod]').forEach(card => {
     const mod = card.dataset.mod;
     if (GATED_MODULES.includes(mod) && !npHasModule(mod)) {
       card.classList.add('tile-locked');
     }
   });
+
+  const grid = document.querySelector('.modules-grid');
+  if (grid) {
+    const cards = [...grid.querySelectorAll('.module-card')];
+    const available = cards.filter(c => !c.classList.contains('tile-locked'));
+    const locked    = cards.filter(c =>  c.classList.contains('tile-locked'));
+    [...available, ...locked].forEach(c => grid.appendChild(c));
+  }
 });
 </script>
 </body>
