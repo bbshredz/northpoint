@@ -543,12 +543,13 @@ async function init() {
 }
 
 async function showApp() {
-  // Module check — allow 'team', 'responsibility-planner', or 'admin'
+  // Module check — allow 'team', 'responsibility-planner', role-level grants (e.g. exec), or 'admin'
   const { data: roleData } = await db.from('user_roles').select('role, modules').eq('user_id', currentUser.id).single();
   if (roleData) {
     const r = roleData.role;
     const m = roleData.modules || [];
-    if (r !== 'admin' && !m.includes('team') && !m.includes('responsibility-planner')) {
+    const roleGrants = (typeof ROLE_MODULES !== 'undefined' && ROLE_MODULES[r]) || [];
+    if (r !== 'admin' && !roleGrants.includes('responsibility-planner') && !m.includes('team') && !m.includes('responsibility-planner')) {
       window.location.href = '/index.html';
       return;
     }
