@@ -204,6 +204,19 @@
         .ctx-badge-eoy     { background: #fef3c7; color: #92400e; }
         .ctx-badge-hold    { background: #f4f6f8; color: #5d6779; }
         .ctx-footer { padding-top: 12px; margin-top: 4px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 8px; }
+        .ctx-coverage { border-top: 1px solid #bae6fd; margin-top: 14px; padding-top: 14px; }
+        .ctx-coverage-title { font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.08em; color: #0369a1; margin-bottom: 10px; }
+        .ctx-coverage-grid { display: grid; grid-template-columns: 1fr 28px 1fr; gap: 0; align-items: start; }
+        .ctx-coverage-col-label { font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.06em; color: #64748b; margin-bottom: 6px; }
+        .ctx-cov-row { display: flex; align-items: center; gap: 6px; margin-bottom: 5px; font-size: 11px; color: #374151; }
+        .ctx-cov-badge { font-size: 9px; font-weight: 700; padding: 1px 6px; border-radius: 99px; white-space: nowrap; flex-shrink: 0; }
+        .cov-south { background: #fef3c7; color: #92400e; }
+        .cov-north { background: #ede9fe; color: #4c1d95; }
+        .cov-msp   { background: #dcfce7; color: #065f46; }
+        .cov-new   { background: #fee2e2; color: #991b1b; }
+        .ctx-coverage-divider { display: flex; align-items: center; justify-content: center; font-size: 18px; color: #bae6fd; padding-top: 18px; }
+        .ctx-coverage-note-sm { font-size: 10px; color: #94a3b8; margin-top: 4px; line-height: 1.4; }
+        .ctx-coverage-footer { margin-top: 10px; padding: 7px 10px; background: #e0f2fe; border-radius: 6px; font-size: 11px; color: #0369a1; }
         .bench-callout { margin-top: 14px; padding: 12px 16px; background: #fff7ed; border-radius: 8px; border: 1px solid #fed7aa; font-size: 12px; color: #92400e; line-height: 1.6; }
         .bench-source { font-size: 11px; color: #8a95a8; margin-top: 12px; }
     </style>
@@ -444,6 +457,7 @@ const CATS = [
             { name: 'PC Connection',             sub: 'Hardware procurement & devices',   cost: 72860.20,  source: 'DocLink 2025' },
             { name: 'NTH Generation Computing', sub: 'Infrastructure / server support',  cost: 47031.97,  source: 'DocLink 2025' },
             { name: 'Iron Mountain',             sub: 'Records management & shredding',   cost: 33199.04,  source: 'DocLink 2025' },
+            { name: 'Regional MSP Partner',      sub: 'On-site field tech · all facilities', cost: null,     source: 'TBD — RFQ' },
             { name: 'Field Tech Travel',         sub: 'Travel for site visits',           cost: 16200.00,  source: 'Policy' },
             { name: 'Oracle',                    sub: 'Database licensing',               cost: 2673.76,   source: 'DocLink 2025' },
         ]
@@ -623,34 +637,34 @@ function renderContextModule() {
 function renderPersonnelContext() {
     const dissolved = _jonDissolved;
     const people = [
-        { name: 'Anthony Trujillo', badge: 'Title Correction',   cls: 'ctx-badge-title',
+        { name: 'Anthony Trujillo', badge: 'Title Correction', cls: 'ctx-badge-title',
           change: 'IT Director, South → VP, Business Systems & Technology',
-          note: 'Compensation inversion · VP-level scope without VP title or pay',
-          why: 'Anthony manages the full enterprise software portfolio — Stage/Fullcast, Adobe, Google Workspace, AWS, NinjaOne, and more — on top of leading the south region. His current $93k base sits below some reports. Proactive initiatives (vendor consolidations, MDM standardization, NinjaOne migration) have measurably reduced spend and improved the company\'s security posture. Market rate for this scope in SNF IT leadership: $110–130k+.' },
-        { name: 'Francis Ferma',    badge: 'Scope Expansion',    cls: 'ctx-badge-expand',
+          note: 'Established software governance practice · compensation inversion · C-suite representation',
+          why: 'Anthony established the organization\'s first formal software portfolio governance function — a structural gap that had previously produced unchecked shelfware, redundant licensing spend, security exposure, and unowned vendor relationships. He designed and deployed NACS\'s first Mobile Device Management infrastructure from the ground up, enabling the onboarding of 300 devices across facilities during COVID-19 — a zero-to-one initiative executed under significant operational pressure with no prior framework in place. He subsequently migrated the organization\'s fax infrastructure to eFax, improving HIPAA compliance posture, reducing reliance on aging legacy systems, and increasing documentation visibility across the enterprise. He currently sits on the NetSuite Integration project board, participating in four dedicated cross-functional meetings per week — ensuring data integrity across departments throughout the migration — in addition to carrying his full existing workload. Anthony represents the IT organization at the leadership table with the full confidence of the department. His restructure carries the direct endorsement of Geremia Doan. At a current base of $93,000, his compensation reflects a material inversion relative to both the strategic scope of the role and market benchmarks for comparable leadership positions ($180–220k). Anthony has communicated a clear and sustained commitment to the company\'s growth trajectory and has demonstrated initiative at every turn. Continued misalignment between contribution and recognition presents an escalating retention risk.' },
+        { name: 'Francis Ferma', badge: 'Scope Expansion', cls: 'ctx-badge-expand',
           change: 'Network Administrator → IT Service Delivery Manager',
-          note: 'Manages 36-facility help desk · owns phones, MDM, email security, and NorthPoint',
-          why: 'After the VP of IT and DBA both departed in 2022, Francis held down the Service Center largely on his own — stepping into roles well beyond Network Administrator. He now owns Acronis backups, the intranet, Adobe Admin, TPX phone systems, mobile services across three carriers, Coronet (email security), SentinelOne, asset management, and onboarding/offboarding. He also supported the Dynamics 2018 implementation voluntarily. Going forward he will lead the helpdesk buildout and own this platform (NorthPoint). At $66k, replacing him would require an IT Manager ($130k+) plus a Help Desk Associate.' },
-        { name: 'Jon Andrews',      badge: dissolved ? 'Dissolving ✓' : 'Proposed Dissolution', cls: 'ctx-badge-dissolve',
+          note: 'Service Center operations · procurement & deployment · helpdesk leadership · peer award recipient',
+          why: 'Francis serves as the operational core of the IT Service Center, supporting 12 facilities with a consistency and responsiveness that has earned him peer recognition through a formal internal service excellence award. His functional scope has expanded well beyond the Network Administrator classification — encompassing hardware procurement coordination, equipment distribution, helpdesk triage, and support-level engagement across systems spanning MDM, email security, mobile carrier management, and telephony. Going forward, Francis will formalize and lead the company\'s helpdesk function, building structured service tiers, escalation workflows, and response standards as the organization scales. Anthony will serve in an administrative oversight capacity on the platform infrastructure supporting that buildout. Francis\'s current base compensation of $66,000 is substantially misaligned with the scope of responsibility he carries and does not reflect the value of the institutional knowledge and operational continuity he provides. Continued compensation disparity relative to peers at lower functional output represents a measurable engagement and retention risk that the proposed adjustment is designed to resolve.' },
+        { name: 'Jon Andrews', badge: dissolved ? 'Dissolving ✓' : 'Proposed Consolidation', cls: 'ctx-badge-dissolve',
           change: 'Database Administrator → —',
-          note: 'Responsibilities redistributed to team · savings fund FY2026 restructure',
-          why: 'DB and application support responsibilities are absorbed by team members with complementary skill sets. Eliminating the position frees $120k/yr — the primary funding source for title corrections and scope-based increases across the rest of the department.' },
-        { name: 'Rogi Poblete',     badge: 'Scope Expansion',    cls: 'ctx-badge-expand',
+          note: 'Role consolidated in FY2026 · $120k/yr savings fund the restructure',
+          why: 'Following a comprehensive evaluation of departmental structure, performance alignment, and the distribution of technical responsibilities across the team, the Database Administrator position will be consolidated in FY2026. Responsibilities currently held by this role will be redistributed among team members whose demonstrated initiative, technical ownership, and operational alignment more closely reflect the direction of the department. The resulting budget savings — approximately $120,000 annually — serve as the primary funding mechanism for the title corrections and scope-based compensation adjustments proposed across the rest of the team, ensuring that the restructure is executed at net-neutral or improved cost to the organization.' },
+        { name: 'Rogi Poblete', badge: 'Scope Expansion', cls: 'ctx-badge-expand',
           change: 'Clinical Project Specialist → Clinical Systems Specialist',
-          note: 'Absorbs clinical data responsibilities vacated by Jon Andrews',
-          why: 'Rogi transitions from a project-based role to full systems ownership, taking on clinical application support and data responsibilities previously under the DBA scope. This reflects an ongoing shift from implementation work toward sustained platform stewardship.' },
-        { name: 'Geremia Doan',     badge: 'Hold — EOY Review',  cls: 'ctx-badge-eoy',
+          note: 'Transitions to full systems ownership · positioned to lead a team as the portfolio grows',
+          why: 'Rogi transitions from a project-oriented implementation role to sustained platform ownership — absorbing clinical application support and data responsibilities vacated by the DBA consolidation and serving as the primary IT point of contact for clinical systems integrity. As NACS continues to expand its facility portfolio, this role is positioned to evolve into a managing specialist function, with Rogi providing leadership over a clinical systems sub-team. A performance-based incentive structure is recommended to proactively recognize contributions, ensure market alignment, and incentivize team members across KPI and milestone targets ahead of that expanded organizational scope.' },
+        { name: 'Geremia Doan', badge: 'Hold — EOY Review', cls: 'ctx-badge-eoy',
           change: 'IT Director, North → Director, IT Infrastructure & Security',
-          note: 'Infrastructure & security focus · title and comp review deferred to Q4',
-          why: 'Geremia\'s responsibilities have shifted significantly toward infrastructure management and cybersecurity oversight. The proposed title better reflects that scope. The update is deferred to Q4 FY2026 to allow the full scope of the role to be defined before compensation is adjusted.' },
-        { name: 'Tom Jarrell',      badge: 'No Change',          cls: 'ctx-badge-hold',
+          note: 'Security & Infrastructure leadership · title formalization · comp review deferred to Q4',
+          why: 'Geremia functions as the organization\'s primary authority on IT infrastructure and enterprise security — overseeing network architecture, endpoint protection, compliance posture, and infrastructure continuity across the portfolio. His scope has evolved substantially beyond the traditional IT Director function, now encompassing security operations with direct implications for the organization\'s regulatory standing and risk exposure. The proposed title reflects the work already being performed, not a future aspiration. Geremia has expressed a personal preference to defer any compensation adjustment to Q4 FY2026, which naturally aligns with the annual review cycle and allows the evolving scope of the role to be fully documented prior to adjustment. Role clarity and sustained engagement remain near-term priorities.' },
+        { name: 'Tom Jarrell', badge: 'No Change', cls: 'ctx-badge-hold',
           change: 'Network Administrator → Systems Administrator',
-          note: 'Scope and compensation align with current market expectations',
-          why: 'No structural changes proposed at this time. Tom\'s role is stable and appropriately compensated for the current scope. May be revisited in FY2027 as the team\'s structure and environment continue to evolve.' },
+          note: 'Core infrastructure · AD & Group Policy · strategic value increases with M365 migration',
+          why: 'Tom provides essential infrastructure support across four facilities while owning Active Directory, Group Policy administration, and Service Center network systems — foundational functions that underpin daily operations for the entire organization. His expertise in hardware, networking, and telephony represents deep institutional knowledge that will become increasingly strategic as NACS evaluates a migration to Microsoft 365 for the Service Center environment. Tom operates within the Infrastructure & Security practice area under Geremia\'s leadership. While no formal compensation concern has been raised, the IT department has not received a collective salary adjustment in over seven years. This will be addressed within the broader FY2026–2027 planning cycle as budget capacity allows.' },
     ];
 
     const expandCount  = people.filter(p => p.cls === 'ctx-badge-expand').length;
-    const dissolveNote = dissolved ? ' · 1 dissolved' : ' · 1 dissolving';
+    const dissolveNote = dissolved ? ' · 1 consolidated' : ' · 1 consolidating';
 
     return `<div class="ctx-card-personnel">
         <div class="ctx-title" style="color:#0369a1;">FY2026 Restructuring — Personnel Changes</div>
@@ -659,13 +673,41 @@ function renderPersonnelContext() {
                 <div class="ctx-person-name">${p.name}</div>
                 <div class="ctx-person-change">${p.change}</div>
                 <div class="ctx-person-note">${p.note}</div>
-                ${p.why ? `<details style="margin-top:4px;"><summary style="font-size:11px;color:#94a3b8;cursor:pointer;list-style:none;display:inline-flex;align-items:center;gap:4px;"><span style="font-size:9px;">&#9654;</span> Why this change?</summary><div style="font-size:11px;color:#64748b;padding:5px 0 2px;line-height:1.5;">${p.why}</div></details>` : ''}
+                ${p.why ? `<details style="margin-top:4px;"><summary style="font-size:11px;color:#94a3b8;cursor:pointer;list-style:none;display:inline-flex;align-items:center;gap:4px;"><span style="font-size:9px;">&#9654;</span> Rationale</summary><div style="font-size:11px;color:#64748b;padding:5px 0 2px;line-height:1.6;">${p.why}</div></details>` : ''}
             </div>
             <span class="ctx-badge ${p.cls}">${p.badge}</span>
         </div>`).join('')}
+        ${renderCoverageModel()}
         <div class="ctx-footer" style="border-top:1px solid #bae6fd;margin-top:4px;">
             <span style="font-size:11px;color:#0369a1;">1 title correction · ${expandCount} scope expansions${dissolveNote} · 2 holds</span>
             <a href="/budget/restructure/index.html" style="font-size:11px;font-weight:700;color:#0369a1;text-decoration:none;">View full restructuring case →</a>
+        </div>
+    </div>`;
+}
+
+function renderCoverageModel() {
+    return `<div class="ctx-coverage">
+        <div class="ctx-coverage-title">Field Service Coverage Model</div>
+        <div class="ctx-coverage-grid">
+            <div>
+                <div class="ctx-coverage-col-label">Current (12 facilities)</div>
+                <div class="ctx-cov-row"><span class="ctx-cov-badge cov-south">South</span> Anthony · 4 facilities</div>
+                <div class="ctx-cov-row"><span class="ctx-cov-badge cov-north">North</span> Tom · 4 facilities</div>
+                <div class="ctx-cov-row" style="color:#94a3b8;font-size:11px;">4 unassigned · shared coverage</div>
+                <div class="ctx-coverage-note-sm">Senior staff driving to sites on escalation</div>
+            </div>
+            <div class="ctx-coverage-divider">→</div>
+            <div>
+                <div class="ctx-coverage-col-label">Proposed (16 facilities + MSP)</div>
+                <div class="ctx-cov-row"><span class="ctx-cov-badge cov-south">South</span> Anthony → strategy</div>
+                <div class="ctx-cov-row"><span class="ctx-cov-badge cov-north">North</span> Geremia / Tom → strategy</div>
+                <div class="ctx-cov-row"><span class="ctx-cov-badge cov-new">+4 New</span> 3 north · 1 south</div>
+                <div class="ctx-cov-row"><span class="ctx-cov-badge cov-msp">MSP</span> On-site break/fix · all sites</div>
+                <div class="ctx-coverage-note-sm">Regional MSP partner handles facility-level field tech — no incremental headcount required as portfolio grows</div>
+            </div>
+        </div>
+        <div class="ctx-coverage-footer">
+            <strong>Why MSP?</strong> As the team specializes into strategic roles, facility-level on-site work is better served by a regional partner embedded near each site. Scalable per-facility pricing means coverage grows with the portfolio — not with headcount. <strong>Estimated contract cost: TBD</strong> (RFQ in progress).
         </div>
     </div>`;
 }
