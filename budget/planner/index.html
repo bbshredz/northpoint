@@ -17,10 +17,7 @@
         .pg-desc    { font-size: 13px; color: #5d6779; margin-bottom: 32px; }
 
         /* ── Toggle bar ── */
-        .toggle-bar {
-            display: flex; align-items: center; gap: 8px; margin-bottom: 24px;
-            flex-wrap: wrap;
-        }
+        .toggle-bar { display: flex; align-items: center; gap: 8px; margin-bottom: 24px; flex-wrap: wrap; }
         .tbar-label { font-size: 12px; font-weight: 600; color: #5d6779; }
         .tbar-btn {
             padding: 5px 14px; border-radius: 99px; font-size: 12px; font-weight: 600;
@@ -31,14 +28,9 @@
         .tbar-sep { width: 1px; height: 20px; background: #dce1e9; margin: 0 4px; }
 
         /* ── Summary strip ── */
-        .summary-strip {
-            display: grid; grid-template-columns: repeat(5, 1fr); gap: 12px; margin-bottom: 28px;
-        }
+        .summary-strip { display: grid; grid-template-columns: repeat(5, 1fr); gap: 12px; margin-bottom: 28px; }
         @media (max-width: 700px) { .summary-strip { grid-template-columns: 1fr 1fr; } }
-
-        .sum-card {
-            background: #fff; border: 1px solid #dce1e9; border-radius: 10px; padding: 16px 18px;
-        }
+        .sum-card { background: #fff; border: 1px solid #dce1e9; border-radius: 10px; padding: 16px 18px; }
         .sum-card.dark { background: #0f1f3a; border-color: #0f1f3a; }
         .sum-card.warn { background: #fff7ed; border-color: #fed7aa; }
         .sum-label { font-size: 10px; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; color: #8a95a8; margin-bottom: 5px; }
@@ -61,12 +53,9 @@
         }
         .section-lbl::after { content: ''; flex: 1; height: 1px; background: #dce1e9; }
 
-        /* ── Category cards grid ── */
-        .cat-grid {
-            display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; margin-bottom: 24px;
-        }
+        /* ── Category cards ── */
+        .cat-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; margin-bottom: 24px; }
         @media (max-width: 700px) { .cat-grid { grid-template-columns: 1fr 1fr; } }
-
         .cat-card {
             background: #fff; border: 1px solid #dce1e9; border-radius: 10px;
             padding: 18px; cursor: pointer; transition: border-color 0.15s, box-shadow 0.15s;
@@ -74,154 +63,132 @@
         }
         .cat-card:hover { border-color: #bec6d3; box-shadow: 0 2px 8px rgba(10,22,40,0.06); }
         .cat-card.active { border-color: #10b981; box-shadow: 0 0 0 3px rgba(16,185,129,0.12); }
-
         .cat-accent { position: absolute; top: 0; left: 0; right: 0; height: 3px; border-radius: 10px 10px 0 0; }
-
         .cat-top { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 10px; }
         .cat-icon { font-size: 20px; }
-        .cat-pct-badge {
-            font-size: 10px; font-weight: 700; padding: 2px 7px; border-radius: 99px;
-            background: #f4f6f8; color: #5d6779;
-        }
+        .cat-pct-badge { font-size: 10px; font-weight: 700; padding: 2px 7px; border-radius: 99px; background: #f4f6f8; color: #5d6779; }
         .cat-name { font-size: 13px; font-weight: 700; color: #0a1628; margin-bottom: 4px; }
         .cat-total { font-size: 20px; font-weight: 800; color: #0a1628; line-height: 1; margin-bottom: 8px; }
         .cat-bar { height: 5px; background: #f0f2f5; border-radius: 99px; margin-bottom: 6px; overflow: hidden; }
         .cat-bar-fill { height: 100%; border-radius: 99px; }
-        .cat-market-label { font-size: 10px; }
-        .cat-market-ok   { color: #10b981; font-weight: 600; }
-        .cat-market-low  { color: #d97706; font-weight: 600; }
-        .cat-market-high { color: #ef4444; font-weight: 600; }
+        .cat-market-ok  { font-size: 10px; color: #10b981; font-weight: 600; }
+        .cat-market-low { font-size: 10px; color: #d97706; font-weight: 600; }
+        .cat-market-high { font-size: 10px; color: #ef4444; font-weight: 600; }
 
         /* ── Detail panel ── */
-        .detail-panel {
-            background: #fff; border: 1px solid #dce1e9; border-radius: 12px;
-            overflow: hidden; margin-bottom: 24px; display: none;
-        }
+        .detail-panel { background: #fff; border: 1px solid #dce1e9; border-radius: 12px; overflow: hidden; margin-bottom: 24px; display: none; }
         .detail-panel.open { display: block; }
-
-        .detail-header {
-            display: flex; justify-content: space-between; align-items: center;
-            padding: 16px 22px; border-bottom: 1px solid #e8ecf1; gap: 12px;
-        }
+        .detail-header { display: flex; justify-content: space-between; align-items: center; padding: 16px 22px; border-bottom: 1px solid #e8ecf1; gap: 12px; }
         .detail-header-left { display: flex; align-items: center; gap: 12px; }
         .detail-h-icon { font-size: 22px; }
         .detail-h-name { font-size: 15px; font-weight: 800; color: #0a1628; }
         .detail-h-sub  { font-size: 11px; color: #8a95a8; margin-top: 1px; }
         .detail-h-total { font-size: 20px; font-weight: 800; color: #0a1628; }
-        .detail-close {
-            width: 28px; height: 28px; border: 1px solid #dce1e9; background: #fafbfc;
-            border-radius: 7px; font-size: 16px; cursor: pointer; display: flex;
-            align-items: center; justify-content: center; color: #8a95a8; flex-shrink: 0;
-            font-family: inherit;
-        }
+        .detail-close { width: 28px; height: 28px; border: 1px solid #dce1e9; background: #fafbfc; border-radius: 7px; font-size: 16px; cursor: pointer; display: flex; align-items: center; justify-content: center; color: #8a95a8; flex-shrink: 0; font-family: inherit; }
         .detail-close:hover { background: #f0f2f5; color: #0a1628; }
 
-        /* Line items table */
+        /* ── Line items table ── */
         .li-table { width: 100%; border-collapse: collapse; }
-        .li-table th {
-            font-size: 10px; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase;
-            color: #8a95a8; text-align: left; padding: 10px 22px; border-bottom: 1px solid #e8ecf1;
-            background: #fafbfc;
-        }
+        .li-table th { font-size: 10px; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; color: #8a95a8; text-align: left; padding: 10px 22px; border-bottom: 1px solid #e8ecf1; background: #fafbfc; }
         .li-table th:not(:first-child) { text-align: right; }
-        .li-table td {
-            padding: 13px 22px; border-bottom: 1px solid #f4f6f8; font-size: 13px;
-            vertical-align: middle;
-        }
+        .li-table td { padding: 13px 22px; border-bottom: 1px solid #f4f6f8; font-size: 13px; vertical-align: middle; }
         .li-table tr:last-child td { border-bottom: none; }
         .li-table tr:hover td { background: #fafbfc; }
         .li-table td:not(:first-child) { text-align: right; }
-        .li-table tr.li-total td {
-            border-top: 2px solid #dce1e9; border-bottom: none; font-weight: 700;
-            background: #fafbfc; font-size: 13px;
-        }
-
-        .li-name   { font-weight: 600; color: #0a1628; }
-        .li-sub    { font-size: 11px; color: #8a95a8; margin-top: 2px; }
-        .li-excl   { font-size: 10px; background: #fef3c7; color: #92400e; padding: 1px 6px; border-radius: 4px; font-weight: 600; margin-left: 6px; vertical-align: middle; }
-        .li-owned  { font-size: 10px; background: #f0fdf4; color: #065f46; padding: 1px 6px; border-radius: 4px; font-weight: 600; margin-left: 6px; vertical-align: middle; }
-        .li-dept   { font-size: 10px; background: #eff6ff; color: #1e40af; padding: 1px 6px; border-radius: 4px; font-weight: 600; margin-left: 6px; vertical-align: middle; }
-        .li-cost   { font-weight: 600; color: #0a1628; }
-        .li-conf   { font-size: 11px; color: #8a95a8; }
-        .li-tbd    { font-size: 11px; color: #bec6d3; font-style: italic; }
-
-        /* Dept-owned rows — dimmed */
-        .li-row-dept td { opacity: 0.6; }
+        .li-table tr.li-total td { border-top: 2px solid #dce1e9; border-bottom: none; font-weight: 700; background: #fafbfc; font-size: 13px; }
+        .li-name  { font-weight: 600; color: #0a1628; }
+        .li-sub   { font-size: 11px; color: #8a95a8; margin-top: 2px; }
+        .li-owned { font-size: 10px; background: #f0fdf4; color: #065f46; padding: 1px 6px; border-radius: 4px; font-weight: 600; margin-left: 6px; vertical-align: middle; }
+        .li-dept  { font-size: 10px; background: #eff6ff; color: #1e40af; padding: 1px 6px; border-radius: 4px; font-weight: 600; margin-left: 6px; vertical-align: middle; }
+        .li-dept-incl { font-size: 10px; background: #f0fdf4; color: #065f46; padding: 1px 6px; border-radius: 4px; font-weight: 600; margin-left: 6px; vertical-align: middle; }
+        .li-cost  { font-weight: 600; color: #0a1628; }
+        .li-conf  { font-size: 11px; color: #8a95a8; }
+        .li-tbd   { font-size: 11px; color: #bec6d3; font-style: italic; }
+        .li-row-dept td { opacity: 0.55; }
         .li-row-dept:hover td { background: #fafbfc; }
+        .li-row-dept-incl td { opacity: 1; }
+        .li-sep-row td { padding: 6px 22px; background: #f4f6f8; font-size: 10px; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; color: #6366f1; border-top: 1px solid #e8ecf1; }
 
-        /* Market range bar in table */
-        .mkt-cell { min-width: 120px; }
-        .mkt-bar { width: 100px; height: 5px; background: #e8ecf1; border-radius: 99px; position: relative; display: inline-block; vertical-align: middle; margin-right: 6px; }
-        .mkt-fill { position: absolute; top: 0; height: 100%; border-radius: 99px; background: #dce1e9; }
-        .mkt-dot  { position: absolute; top: 50%; transform: translateY(-50%); width: 7px; height: 7px; border-radius: 50%; border: 2px solid #fff; }
-        .mkt-dot-curr { background: #3d5580; box-shadow: 0 0 0 1px #8a95a8; }
-        .mkt-dot-prop { background: #10b981; box-shadow: 0 0 0 1px #10b981; }
-        .mkt-label-ok  { font-size: 10px; color: #10b981; font-weight: 600; }
-        .mkt-label-low { font-size: 10px; color: #d97706; font-weight: 600; }
+        /* ── Editable cost input (FY2026 view) ── */
+        .cost-input {
+            border: none; background: transparent; font-family: inherit; font-weight: 600;
+            color: #0a1628; text-align: right; width: 110px; cursor: text;
+            border-radius: 4px; padding: 2px 4px; font-size: 13px; display: block; margin-left: auto;
+        }
+        .cost-input:hover { background: #f0f2f5; }
+        .cost-input:focus { background: #fffbeb; border: 1px solid #f59e0b; outline: none; color: #92400e; }
+        .cost-input.cost-tbd { color: #bec6d3; font-style: italic; font-weight: 400; }
 
-        /* Personnel special rows */
+        /* ── Dept toggle inline button ── */
+        .dept-toggle-btn {
+            display: inline-block; margin-top: 5px; padding: 2px 8px; border-radius: 4px;
+            font-size: 10px; font-weight: 700; cursor: pointer; font-family: inherit;
+            transition: all 0.15s; border: 1px solid; line-height: 1.5;
+        }
+        .dept-toggle-excl { background: #eff6ff; color: #1e40af; border-color: #bfdbfe; }
+        .dept-toggle-excl:hover { background: #dbeafe; border-color: #93c5fd; }
+        .dept-toggle-incl { background: #f0fdf4; color: #065f46; border-color: #a7f3d0; }
+        .dept-toggle-incl:hover { background: #dcfce7; }
+
+        /* ── Personnel rows ── */
         .person-row td { padding: 16px 22px; border-bottom: 1px solid #f4f6f8; }
         .person-row:hover td { background: #fafbfc; }
-        .person-name    { font-weight: 700; color: #0a1628; font-size: 14px; }
-        .person-titles  { display: flex; gap: 6px; margin-top: 4px; flex-wrap: wrap; }
+        .person-name  { font-weight: 700; color: #0a1628; font-size: 14px; }
+        .person-titles { display: flex; gap: 6px; margin-top: 4px; flex-wrap: wrap; }
         .person-t-curr  { font-size: 11px; color: #8a95a8; }
         .person-t-arrow { font-size: 11px; color: #bec6d3; }
         .person-t-new   { font-size: 11px; color: #10b981; font-weight: 600; }
-
         .comp-slider-wrap { display: flex; flex-direction: column; gap: 4px; }
         .comp-slider-vals { display: flex; justify-content: space-between; font-size: 11px; white-space: nowrap; }
         .comp-slider-curr { color: #8a95a8; }
         .comp-slider-prop { font-weight: 700; color: #0a1628; }
         .comp-slider { -webkit-appearance: none; width: 100%; height: 4px; border-radius: 99px; outline: none; cursor: pointer; }
-        .comp-slider::-webkit-slider-thumb {
-            -webkit-appearance: none; width: 14px; height: 14px; border-radius: 50%;
-            background: #10b981; cursor: pointer; border: 2px solid #fff;
-            box-shadow: 0 0 0 2px rgba(16,185,129,0.3);
-        }
+        .comp-slider::-webkit-slider-thumb { -webkit-appearance: none; width: 14px; height: 14px; border-radius: 50%; background: #10b981; cursor: pointer; border: 2px solid #fff; box-shadow: 0 0 0 2px rgba(16,185,129,0.3); }
+        .comp-slider:disabled { opacity: 0.4; cursor: not-allowed; }
         .comp-delta-pos { font-size: 12px; font-weight: 700; color: #10b981; white-space: nowrap; }
         .comp-delta-neg { font-size: 12px; font-weight: 700; color: #ef4444; white-space: nowrap; }
         .comp-delta-nil { font-size: 12px; color: #bec6d3; white-space: nowrap; }
         .burden-note { font-size: 10px; color: #bec6d3; }
-
-        /* Person row dissolved */
         .person-row-dissolved td { opacity: 0.35; }
-        .dissolve-btn {
-            display: inline-block; margin-top: 5px; padding: 2px 9px;
-            border-radius: 5px; font-size: 10px; font-weight: 700;
-            cursor: pointer; font-family: inherit; transition: all 0.15s; border: 1px solid;
-        }
-        .dissolve-btn-active { background: #f4f6f8; color: #5d6779; border-color: #dce1e9; }
+        .dissolve-btn { display: inline-block; margin-top: 5px; padding: 2px 9px; border-radius: 5px; font-size: 10px; font-weight: 700; cursor: pointer; font-family: inherit; transition: all 0.15s; border: 1px solid; }
+        .dissolve-btn-active   { background: #f4f6f8; color: #5d6779; border-color: #dce1e9; }
         .dissolve-btn-active:hover { background: #fee2e2; color: #991b1b; border-color: #fca5a5; }
         .dissolve-btn-dissolved { background: #fee2e2; color: #991b1b; border-color: #fca5a5; }
         .dissolve-btn-dissolved:hover { background: #f0fdf4; color: #065f46; border-color: #a7f3d0; }
 
-        /* Market source note */
-        .mkt-sources {
-            font-size: 11px; color: #8a95a8; padding: 14px 22px;
-            border-top: 1px solid #f4f6f8; background: #fafbfc; line-height: 1.6;
-        }
+        /* ── Market source note ── */
+        .mkt-sources { font-size: 11px; color: #8a95a8; padding: 14px 22px; border-top: 1px solid #f4f6f8; background: #fafbfc; line-height: 1.6; }
 
-        /* ── Excluded section ── */
-        .excl-card {
-            background: #fffbeb; border: 1px solid #fde68a; border-radius: 10px;
-            padding: 16px 20px; margin-bottom: 24px;
-        }
-        .excl-title { font-size: 11px; font-weight: 700; color: #92400e; text-transform: uppercase; letter-spacing: 0.1em; margin-bottom: 8px; }
-        .excl-body  { font-size: 13px; color: #78350f; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 8px; }
-        .excl-cost  { font-weight: 700; font-size: 16px; }
+        /* ── Dept-owned budget module ── */
+        .excl-card { background: #fffbeb; border: 1px solid #fde68a; border-radius: 10px; padding: 16px 20px; margin-bottom: 24px; }
+        .excl-title { font-size: 11px; font-weight: 700; color: #92400e; text-transform: uppercase; letter-spacing: 0.1em; margin-bottom: 10px; }
+        .excl-dept-group { margin-bottom: 10px; }
+        .excl-dept-name { font-size: 10px; font-weight: 700; color: #b45309; text-transform: uppercase; letter-spacing: 0.08em; margin-bottom: 4px; }
+        .excl-body { font-size: 13px; color: #78350f; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 8px; padding: 3px 0; }
+        .excl-cost { font-weight: 700; font-size: 13px; white-space: nowrap; }
+        .excl-footer { border-top: 1px solid #fde68a; padding-top: 10px; margin-top: 6px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 8px; }
+        .excl-footer-label { font-size: 11px; color: #92400e; }
+        .excl-footer-total { font-weight: 800; font-size: 16px; color: #92400e; }
 
-        /* ── Benchmark section ── */
-        .bench-card {
-            background: #fff; border: 1px solid #dce1e9; border-radius: 10px; padding: 20px 22px;
-        }
-        .bench-title { font-size: 12px; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; color: #3e4554; margin-bottom: 16px; }
-        .bench-rows  { display: flex; flex-direction: column; gap: 12px; }
-        .bench-row   { display: flex; align-items: center; gap: 14px; }
-        .bench-name  { font-size: 12px; font-weight: 600; color: #3e4554; width: 180px; flex-shrink: 0; }
-        .bench-bar-wrap { flex: 1; position: relative; height: 18px; }
+        /* ── Benchmark ── */
+        .bench-card { background: #fff; border: 1px solid #dce1e9; border-radius: 10px; padding: 20px 22px; }
+        .bench-title { font-size: 12px; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; color: #3e4554; margin-bottom: 6px; }
+        .bench-ref { font-size: 11px; color: #8a95a8; margin-bottom: 16px; line-height: 1.5; }
+        .bench-rows { display: flex; flex-direction: column; gap: 12px; }
+        .bench-row { display: grid; grid-template-columns: 165px 1fr 48px 72px 115px; align-items: center; gap: 10px; }
+        .bench-name { font-size: 12px; font-weight: 600; color: #3e4554; }
+        .bench-name.nacs { color: #0a1628; font-weight: 700; }
+        .bench-bar-wrap { position: relative; height: 18px; }
         .bench-track { height: 7px; background: #f0f2f5; border-radius: 99px; width: 100%; position: absolute; top: 5px; }
-        .bench-fill  { height: 7px; border-radius: 99px; position: absolute; top: 5px; transition: width 0.4s ease; }
-        .bench-val   { font-size: 12px; font-weight: 700; color: #0a1628; width: 60px; text-align: right; flex-shrink: 0; }
+        .bench-fill { height: 7px; border-radius: 99px; position: absolute; top: 5px; transition: width 0.4s ease; }
+        .bench-val { font-size: 12px; font-weight: 700; color: #0a1628; text-align: right; white-space: nowrap; }
+        .bench-dollar { font-size: 12px; color: #5d6779; text-align: right; white-space: nowrap; }
+        .bench-dollar.nacs-amt { font-weight: 700; color: #0a1628; }
+        .bench-gap { font-size: 11px; text-align: right; white-space: nowrap; font-weight: 600; }
+        .bench-gap-neg { color: #ef4444; }
+        .bench-gap-ok  { color: #10b981; }
+        .bench-callout { margin-top: 14px; padding: 12px 16px; background: #fff7ed; border-radius: 8px; border: 1px solid #fed7aa; font-size: 12px; color: #92400e; line-height: 1.6; }
+        .bench-source { font-size: 11px; color: #8a95a8; margin-top: 12px; }
     </style>
 </head>
 <body class="mod-budget">
@@ -247,35 +214,31 @@
 
             <div class="pg-eyebrow">Budget & Finance · Planning Tool</div>
             <h1 class="pg-title">IT Budget Planner</h1>
-            <p class="pg-desc">FY2025 actuals across all categories with market benchmarks. Adjust personnel comp and model FY2026 allocations using live sliders.</p>
+            <p class="pg-desc">FY2025 actuals across all categories with market benchmarks. Switch to FY2026 to adjust allocations — non-personnel costs and personnel comp are both editable.</p>
 
-            <!-- View / filter toggles -->
+            <!-- View toggle -->
             <div class="toggle-bar">
                 <span class="tbar-label">View:</span>
-                <button class="tbar-btn active" onclick="setView('current')">FY2025 Actual</button>
-                <button class="tbar-btn" onclick="setView('proposed')">FY2026 Proposed</button>
-                <div class="tbar-sep"></div>
-                <span class="tbar-label" style="margin-left:4px;">Include:</span>
-                <button class="tbar-btn" id="toggle-pcc" onclick="togglePCC()">PointClickCare <span id="pcc-state">off</span></button>
-                <button class="tbar-btn" id="toggle-shared" onclick="toggleShared()">Dept-Owned <span id="shared-state">off</span></button>
+                <button class="tbar-btn active" id="btn-2025" onclick="setView('current')">FY2025 Actual</button>
+                <button class="tbar-btn" id="btn-2026" onclick="setView('proposed')">FY2026 Proposed</button>
             </div>
 
             <!-- Summary strip -->
             <div class="summary-strip">
                 <div class="sum-card dark">
-                    <div class="sum-label">Total IT Budget</div>
-                    <div class="sum-value" id="sum-total">$2.46M</div>
-                    <div class="sum-sub">IT-owned spend</div>
+                    <div class="sum-label" id="sum-total-lbl">Total IT Budget</div>
+                    <div class="sum-value" id="sum-total">—</div>
+                    <div class="sum-sub" id="sum-view-lbl">IT-owned spend</div>
                 </div>
                 <div class="sum-card">
                     <div class="sum-label">Personnel</div>
-                    <div class="sum-value" id="sum-personnel">$705.5K</div>
-                    <div class="sum-sub" id="sum-personnel-pct">28.7% of total</div>
+                    <div class="sum-value" id="sum-personnel">—</div>
+                    <div class="sum-sub" id="sum-personnel-pct">—</div>
                 </div>
                 <div class="sum-card">
                     <div class="sum-label">Non-Personnel</div>
-                    <div class="sum-value" id="sum-nonpersonnel">$1.76M</div>
-                    <div class="sum-sub" id="sum-nonpersonnel-pct">71.3% of total</div>
+                    <div class="sum-value" id="sum-nonpersonnel">—</div>
+                    <div class="sum-sub" id="sum-nonpersonnel-pct">—</div>
                 </div>
                 <div class="sum-card">
                     <div class="sum-label">Proposed Delta</div>
@@ -301,7 +264,7 @@
                         <div class="detail-h-icon" id="d-icon"></div>
                         <div>
                             <div class="detail-h-name" id="d-name"></div>
-                            <div class="detail-h-sub" id="d-sub"></div>
+                            <div class="detail-h-sub"  id="d-sub"></div>
                         </div>
                     </div>
                     <div style="display:flex;align-items:center;gap:14px;">
@@ -312,55 +275,61 @@
                 <div id="d-body"></div>
             </div>
 
-            <!-- Excluded -->
-            <div class="excl-card">
-                <div class="excl-title">⚠ Excluded from IT Budget</div>
-                <div class="excl-body">
-                    <span><strong>PointClickCare</strong> — Clinical software owned and managed by the clinical department. IT provides stewardship but does not own the cost.</span>
-                    <span class="excl-cost">$258,419/yr</span>
-                </div>
+            <!-- Dept-owned module (dynamic) -->
+            <div class="excl-card" id="dept-module" style="display:none;">
+                <div id="dept-module-body"></div>
             </div>
 
-            <!-- Market benchmark -->
+            <!-- Benchmark section -->
             <div class="section-lbl">Healthcare IT Benchmark Comparison</div>
             <div class="bench-card">
                 <div class="bench-title">IT Spend as % of Revenue — Industry Norms</div>
+                <div class="bench-ref" id="bench-ref">Based on <strong id="bench-spend-lbl">—</strong> IT budget (FY2025) vs <strong>$170M</strong> estimated revenue</div>
                 <div class="bench-rows">
                     <div class="bench-row">
-                        <div class="bench-name">NACS Current</div>
+                        <div class="bench-name nacs">NACS Current</div>
                         <div class="bench-bar-wrap">
                             <div class="bench-track"></div>
-                            <div class="bench-fill" id="bench-nacs" style="background:#3d5580;width:20%;"></div>
+                            <div class="bench-fill" id="bench-nacs-bar" style="background:#3d5580;width:0%;"></div>
                         </div>
-                        <div class="bench-val" id="bench-nacs-val">~1%</div>
+                        <div class="bench-val" id="bench-nacs-pct" style="color:#0a1628;">—</div>
+                        <div class="bench-dollar nacs-amt" id="bench-nacs-amt">—</div>
+                        <div class="bench-gap" id="bench-nacs-gap">—</div>
                     </div>
                     <div class="bench-row">
-                        <div class="bench-name">Healthcare Low (3%)</div>
+                        <div class="bench-name">Low Benchmark (3%)</div>
                         <div class="bench-bar-wrap">
                             <div class="bench-track"></div>
                             <div class="bench-fill" style="background:#fde68a;width:60%;"></div>
                         </div>
                         <div class="bench-val">3%</div>
+                        <div class="bench-dollar">$5.1M</div>
+                        <div class="bench-gap" id="bench-gap-3">—</div>
                     </div>
                     <div class="bench-row">
-                        <div class="bench-name">Healthcare Mid (4%)</div>
+                        <div class="bench-name">Mid Benchmark (4%)</div>
                         <div class="bench-bar-wrap">
                             <div class="bench-track"></div>
                             <div class="bench-fill" style="background:#10b981;width:80%;"></div>
                         </div>
                         <div class="bench-val">4%</div>
+                        <div class="bench-dollar">$6.8M</div>
+                        <div class="bench-gap" id="bench-gap-4">—</div>
                     </div>
                     <div class="bench-row">
-                        <div class="bench-name">Healthcare High (5%)</div>
+                        <div class="bench-name">High Benchmark (5%)</div>
                         <div class="bench-bar-wrap">
                             <div class="bench-track"></div>
                             <div class="bench-fill" style="background:#dce1e9;width:100%;"></div>
                         </div>
                         <div class="bench-val">5%</div>
+                        <div class="bench-dollar">$8.5M</div>
+                        <div class="bench-gap" id="bench-gap-5">—</div>
                     </div>
                 </div>
-                <div style="font-size:11px;color:#8a95a8;margin-top:14px;">
-                    Source: Gartner Healthcare IT Spending Survey 2024 · HIMSS Analytics · revenue estimate based on 12-facility SNF portfolio (~$170M)
+                <div class="bench-callout" id="bench-callout"></div>
+                <div class="bench-source">
+                    Source: Gartner Healthcare IT Spending Survey 2024 · HIMSS Analytics · revenue estimate ~$170M based on 12-facility SNF portfolio
                 </div>
             </div>
 
@@ -371,129 +340,113 @@
 
 <script src="/nav.js"></script>
 <script>
-// ── Data ─────────────────────────────────────────────────────────────────
+// ── Constants ────────────────────────────────────────────────────────────
+const EST_REVENUE = 170000000;
 
-const EST_REVENUE = 170000000; // ~$170M estimated NACS annual revenue
-
-// Market ranges: [low, high, sweetSpot] — annual base salary for Personnel, annual spend for others
+// Category-level market ranges
 const MARKET = {
-    connectivity:  { low: 720000,  high: 980000,  sweet: 860000  },
-    personnel:     { low: 880000,  high: 1100000, sweet: 980000  },
-    security:      { low: 180000,  high: 320000,  sweet: 260000  },
-    software:      { low: 420000,  high: 580000,  sweet: 500000  },
-    hardware:      { low: 280000,  high: 380000,  sweet: 320000  },
+    connectivity: { low: 720000,  high: 980000,  sweet: 860000  },
+    personnel:    { low: 880000,  high: 1100000, sweet: 980000  },
+    security:     { low: 180000,  high: 320000,  sweet: 260000  },
+    software:     { low: 420000,  high: 580000,  sweet: 500000  },
+    hardware:     { low: 280000,  high: 380000,  sweet: 320000  },
 };
 
-// Personnel market ranges (base salary)
+// Per-person market salary ranges (base)
 const PERSON_MKT = {
-    anthony:  { low: 180000, high: 220000, sweet: 200000 },
-    geremia:  { low: 150000, high: 175000, sweet: 162000 },
-    jon:      { low: 105000, high: 130000, sweet: 118000 },
-    francis:  { low: 85000,  high: 120000, sweet: 100000 },
-    tom:      { low: 70000,  high: 85000,  sweet: 77000  },
-    rogi:     { low: 75000,  high: 95000,  sweet: 83000  },
+    anthony: { low: 180000, high: 220000, sweet: 200000 },
+    geremia: { low: 150000, high: 175000, sweet: 162000 },
+    jon:     { low: 105000, high: 130000, sweet: 118000 },
+    francis: { low: 85000,  high: 120000, sweet: 100000 },
+    tom:     { low: 70000,  high: 85000,  sweet: 77000  },
+    rogi:    { low: 75000,  high: 95000,  sweet: 83000  },
 };
 
 const PEOPLE = [
-    { id: 'anthony', name: 'Anthony Trujillo', base: 93000,  titleCurr: 'IT Director, South',     titleFuture: 'VP, Business Systems & Technology' },
-    { id: 'geremia', name: 'Geremia Doan',     base: 133000, titleCurr: 'IT Director, North',     titleFuture: 'Director, IT Infrastructure & Security' },
-    { id: 'jon',     name: 'Jon Andrews',      base: 120000, titleCurr: 'Database Administrator', titleFuture: 'Database Administrator' },
-    { id: 'francis', name: 'Francis Ferma',    base: 66000,  titleCurr: 'Network Administrator',  titleFuture: 'IT Service Delivery Manager' },
-    { id: 'tom',     name: 'Tom Jarrell',      base: 75000,  titleCurr: 'Network Administrator',  titleFuture: 'Systems Administrator' },
+    { id: 'anthony', name: 'Anthony Trujillo', base: 93000,  titleCurr: 'IT Director, South',          titleFuture: 'VP, Business Systems & Technology' },
+    { id: 'geremia', name: 'Geremia Doan',     base: 133000, titleCurr: 'IT Director, North',          titleFuture: 'Director, IT Infrastructure & Security' },
+    { id: 'jon',     name: 'Jon Andrews',      base: 120000, titleCurr: 'Database Administrator',      titleFuture: 'Database Administrator' },
+    { id: 'francis', name: 'Francis Ferma',    base: 66000,  titleCurr: 'Network Administrator',       titleFuture: 'IT Service Delivery Manager' },
+    { id: 'tom',     name: 'Tom Jarrell',      base: 75000,  titleCurr: 'Network Administrator',       titleFuture: 'Systems Administrator' },
     { id: 'rogi',    name: 'Rogi Poblete',     base: 75000,  titleCurr: 'Clinical Project Specialist', titleFuture: 'Clinical Systems Specialist' },
 ];
 
-// Burden multiplier: 25% benefits/taxes + $500 bonus
 const burden = b => Math.round(b * 1.25 + 500);
 
-// Line items by category — annual_cost_expected from v4 CSV (Include_Toggle=True)
 const CATS = [
     {
-        id: 'connectivity',
-        name: 'Connectivity & Networking',
-        icon: '🌐',
-        color: '#3b82f6',
+        id: 'connectivity', name: 'Connectivity & Networking', icon: '🌐', color: '#3b82f6',
         items: [
-            { name: 'TPX Communications',           sub: 'Primary WAN · multi-site MPLS',         cost: 598777.54, source: 'DocLink 2025' },
-            { name: 'Fusion Connect',               sub: 'Secondary WAN · failover circuits',     cost: 221641.96, source: 'DocLink 2025' },
-            { name: 'Verizon Wireless',             sub: 'Cellular / LTE backup · fleet devices', cost: 72940.92,  source: 'DocLink 2025' },
-            { name: 'AT&T / FirstNet',              sub: 'Emergency responder network',           cost: 18757.40,  source: 'DocLink 2025' },
-            { name: 'Frontier Communications',      sub: 'Facility broadband (select sites)',     cost: 17879.55,  source: 'DocLink 2025' },
-            { name: 'Spectrum',                     sub: 'Broadband (select sites)',              cost: 9534.46,   source: 'DocLink 2025' },
-            { name: 'FirstNet (device plans)',      sub: 'Mobile data plans',                     cost: 8621.04,   source: 'DocLink 2025' },
+            { name: 'TPX Communications',       sub: 'Primary WAN · multi-site MPLS',         cost: 598777.54, source: 'DocLink 2025' },
+            { name: 'Fusion Connect',           sub: 'Secondary WAN · failover circuits',     cost: 221641.96, source: 'DocLink 2025' },
+            { name: 'Verizon Wireless',         sub: 'Cellular / LTE backup · fleet devices', cost: 72940.92,  source: 'DocLink 2025' },
+            { name: 'AT&T / FirstNet',          sub: 'Emergency responder network',           cost: 18757.40,  source: 'DocLink 2025' },
+            { name: 'Frontier Communications', sub: 'Facility broadband (select sites)',      cost: 17879.55,  source: 'DocLink 2025' },
+            { name: 'Spectrum',                 sub: 'Broadband (select sites)',              cost: 9534.46,   source: 'DocLink 2025' },
+            { name: 'FirstNet (device plans)',  sub: 'Mobile data plans',                     cost: 8621.04,   source: 'DocLink 2025' },
         ]
     },
     {
-        id: 'personnel',
-        name: 'Personnel',
-        icon: '👥',
-        color: '#10b981',
+        id: 'personnel', name: 'Personnel', icon: '👥', color: '#10b981',
         personnel: true,
     },
     {
-        id: 'security',
-        name: 'Security & Compliance',
-        icon: '🔐',
-        color: '#ef4444',
+        id: 'security', name: 'Security & Compliance', icon: '🔐', color: '#ef4444',
         items: [
-            { name: 'DRU.ID Security',              sub: 'Managed security services',             cost: 82382.47,  source: 'DocLink 2025' },
-            { name: 'Coronet Cyber Security',       sub: 'Cloud security / SASE platform',        cost: 71599.77,  source: 'CC 2025' },
-            { name: 'NinjaOne RMM',                 sub: 'Remote monitoring & management',        cost: 42368.00,  source: 'DocLink 2025' },
-            { name: 'Coronet URL Filter',           sub: 'Web filtering / DNS security',          cost: 15911.06,  source: 'CC 2025' },
-            { name: 'JAMF MDM',                     sub: 'Apple device management',               cost: 5876.00,   source: 'CC 2025' },
+            { name: 'DRU.ID Security',      sub: 'Managed security services',      cost: 82382.47,  source: 'DocLink 2025' },
+            { name: 'Coronet Cyber',        sub: 'Cloud security / SASE platform', cost: 71599.77,  source: 'CC 2025' },
+            { name: 'NinjaOne RMM',         sub: 'Remote monitoring & management', cost: 42368.00,  source: 'DocLink 2025' },
+            { name: 'Coronet URL Filter',   sub: 'Web filtering / DNS security',   cost: 15911.06,  source: 'CC 2025' },
+            { name: 'JAMF MDM',             sub: 'Apple device management',        cost: 5876.00,   source: 'CC 2025' },
         ]
     },
     {
-        id: 'software',
-        name: 'Software & Licensing',
-        icon: '💿',
-        color: '#8b5cf6',
+        id: 'software', name: 'Software & Licensing', icon: '💿', color: '#8b5cf6',
         items: [
-            // IT-managed line items (included in budget)
-            { name: 'Stage / Fullcast / Ampleo',    sub: 'Marketing platform suite (Stage Marketing)', cost: 253743.73, source: 'DocLink 2025', owned: 'IT Steward' },
-            { name: 'Google Workspace',             sub: 'Email, Drive, Meet',                   cost: 17699.61,  source: 'DocLink 2025', owned: 'IT Steward' },
-            { name: 'Adobe Creative Cloud',         sub: 'Creative suite',                       cost: 16362.72,  source: 'CC 2025',     owned: 'IT Steward' },
-            { name: 'AWS',                          sub: 'Cloud infrastructure',                  cost: 7549.85,   source: 'CC 2025' },
-            { name: 'LogMeIn Rescue',               sub: 'Remote support tool',                   cost: 1341.00,   source: 'CC 2025' },
-            { name: 'GoDaddy',                      sub: 'Domain & hosting',                      cost: 1028.19,   source: 'CC 2025' },
-            { name: 'ActivTrak',                    sub: 'Workforce analytics',                   cost: 720.00,    source: 'CC 2025' },
-            { name: 'Airtable',                     sub: 'Database / ops tool',                   cost: 240.00,    source: 'CC 2025' },
-            { name: 'Microsoft',                    sub: 'Supplemental licensing',                cost: 30.00,     source: 'CC 2025' },
-            // Dept-owned / IT stewardship visibility (toggled via "Dept-Owned" button)
-            { name: 'NetHealth Therapy',            sub: 'Therapy management',                   cost: null, source: 'TBD', dept: 'Rehab' },
-            { name: 'Waystar',                      sub: 'Revenue cycle / billing',               cost: null, source: 'TBD', dept: 'AR / Billing' },
-            { name: 'NetSuite',                     sub: 'ERP / financial management',            cost: null, source: 'TBD', dept: 'Finance' },
-            { name: 'UKG / ADP',                    sub: 'HR & payroll platform',                 cost: null, source: 'TBD', dept: 'HR' },
+            // IT-owned / stewardship
+            { name: 'Stage / Fullcast / Ampleo', sub: 'Marketing platform suite',         cost: 253743.73, source: 'DocLink 2025', owned: 'IT Steward' },
+            { name: 'Google Workspace',          sub: 'Email, Drive, Meet',               cost: 17699.61,  source: 'DocLink 2025', owned: 'IT Steward' },
+            { name: 'Adobe Creative Cloud',      sub: 'Creative suite',                   cost: 16362.72,  source: 'CC 2025',     owned: 'IT Steward' },
+            { name: 'AWS',                       sub: 'Cloud infrastructure',             cost: 7549.85,   source: 'CC 2025' },
+            { name: 'LogMeIn Rescue',            sub: 'Remote support tool',              cost: 1341.00,   source: 'CC 2025' },
+            { name: 'GoDaddy',                   sub: 'Domain & hosting',                 cost: 1028.19,   source: 'CC 2025' },
+            { name: 'ActivTrak',                 sub: 'Workforce analytics',              cost: 720.00,    source: 'CC 2025' },
+            { name: 'Airtable',                  sub: 'Database / ops tool',              cost: 240.00,    source: 'CC 2025' },
+            { name: 'Microsoft',                 sub: 'Supplemental licensing',           cost: 30.00,     source: 'CC 2025' },
+            // Dept-owned (IT stewardship visibility)
+            { name: 'PointClickCare',            sub: 'Clinical EMR',                     cost: 258419.19, source: 'DocLink 2025', dept: 'Clinical' },
+            { name: 'NetHealth Therapy',         sub: 'Therapy management',               cost: null,      source: 'TBD',         dept: 'Rehab' },
+            { name: 'Waystar',                   sub: 'Revenue cycle / billing',          cost: null,      source: 'TBD',         dept: 'AR / Billing' },
+            { name: 'NetSuite',                  sub: 'ERP / financial management',       cost: null,      source: 'TBD',         dept: 'Finance' },
+            { name: 'UKG / ADP',                 sub: 'HR & payroll platform',            cost: null,      source: 'TBD',         dept: 'HR' },
+            { name: 'Relias',                    sub: 'Learning management / training',   cost: null,      source: 'TBD',         dept: 'HR' },
         ]
     },
     {
-        id: 'hardware',
-        name: 'Hardware & Operations',
-        icon: '🖥️',
-        color: '#f59e0b',
+        id: 'hardware', name: 'Hardware & Operations', icon: '🖥️', color: '#f59e0b',
         items: [
-            { name: 'Image 2000 (Copiers)',         sub: 'Managed print · all facilities',        cost: 116187.56, source: 'DocLink 2025' },
-            { name: 'PC Connection',                sub: 'Hardware procurement & devices',        cost: 72860.20,  source: 'DocLink 2025' },
-            { name: 'NTH Generation Computing',     sub: 'Infrastructure / server support',       cost: 47031.97,  source: 'DocLink 2025' },
-            { name: 'Iron Mountain',                sub: 'Records management & shredding',        cost: 33199.04,  source: 'DocLink 2025' },
-            { name: 'Field Tech Travel',            sub: 'Travel for site visits',               cost: 16200.00,  source: 'Policy' },
-            { name: 'Oracle',                       sub: 'Database licensing',                    cost: 2673.76,   source: 'DocLink 2025' },
+            { name: 'Image 2000 (Copiers)',      sub: 'Managed print · all facilities',   cost: 116187.56, source: 'DocLink 2025' },
+            { name: 'PC Connection',             sub: 'Hardware procurement & devices',   cost: 72860.20,  source: 'DocLink 2025' },
+            { name: 'NTH Generation Computing', sub: 'Infrastructure / server support',  cost: 47031.97,  source: 'DocLink 2025' },
+            { name: 'Iron Mountain',             sub: 'Records management & shredding',   cost: 33199.04,  source: 'DocLink 2025' },
+            { name: 'Field Tech Travel',         sub: 'Travel for site visits',           cost: 16200.00,  source: 'Policy' },
+            { name: 'Oracle',                    sub: 'Database licensing',               cost: 2673.76,   source: 'DocLink 2025' },
         ]
     },
 ];
 
-// ── State ──────────────────────────────────────────────────────────────────
-let _view = 'current';
-let _pccOn = false;
-let _sharedOn = false;
+// ── State ─────────────────────────────────────────────────────────────────
+let _view         = 'current';
 let _jonDissolved = false;
-let _proposed = {};     // keyed by person id, value = adjusted base salary
+let _proposed     = {};   // personnel: keyed by person id → proposed base salary
+let _proposed2026 = {};   // non-personnel: keyed by "catId::itemIdx" → proposed cost
+let _deptInIT     = {};   // keyed by item.name, true = item counts toward IT budget
 let _activeCategory = null;
 
-// Init proposed with current values
+// Init proposed pay with current bases
 PEOPLE.forEach(p => { _proposed[p.id] = p.base; });
 
-// ── Auth + render ──────────────────────────────────────────────────────────
+// ── Auth ──────────────────────────────────────────────────────────────────
 npInit('budget').then(session => {
     if (!session) return;
     npPopulateTopbar();
@@ -501,7 +454,7 @@ npInit('budget').then(session => {
     renderAll();
 });
 
-// ── Helpers ────────────────────────────────────────────────────────────────
+// ── Helpers ───────────────────────────────────────────────────────────────
 function personTotal(view) {
     return PEOPLE.reduce((s, p) => {
         if (p.id === 'jon' && _jonDissolved) return s;
@@ -512,17 +465,18 @@ function personTotal(view) {
 
 function catTotal(cat, view) {
     if (cat.personnel) return personTotal(view);
-    return cat.items.reduce((s, i) => {
-        if (i.cost === null) return s;           // TBD costs excluded from totals
-        if (i.dept && !_sharedOn) return s;      // dept-owned hidden unless toggled
-        return s + i.cost;
+    return cat.items.reduce((s, item, idx) => {
+        if (item.dept && !_deptInIT[item.name]) return s;  // dept-owned excluded unless toggled in
+        if (item.cost === null && _proposed2026[`${cat.id}::${idx}`] === undefined) return s;
+        const cost = (view === 'proposed' && _proposed2026[`${cat.id}::${idx}`] !== undefined)
+            ? _proposed2026[`${cat.id}::${idx}`]
+            : (item.cost || 0);
+        return s + cost;
     }, 0);
 }
 
 function grandTotal(view) {
-    let t = CATS.reduce((s, c) => s + catTotal(c, view), 0);
-    if (_pccOn) t += 258419.19;
-    return t;
+    return CATS.reduce((s, c) => s + catTotal(c, view), 0);
 }
 
 function marketStatus(id, total) {
@@ -540,10 +494,11 @@ function fmt(n) {
 }
 function fmtFull(n) { return '$' + Math.round(n).toLocaleString(); }
 
-// ── Render all ─────────────────────────────────────────────────────────────
+// ── Render all ────────────────────────────────────────────────────────────
 function renderAll() {
     renderSummary();
     renderCatGrid();
+    renderDeptModule();
     if (_activeCategory) renderDetail(_activeCategory);
 }
 
@@ -553,54 +508,130 @@ function renderSummary() {
     const nonPers = total - persNow;
     const delta   = grandTotal('proposed') - grandTotal('current');
 
-    document.getElementById('sum-total').textContent         = fmt(total);
-    document.getElementById('sum-personnel').textContent     = fmt(persNow);
-    document.getElementById('sum-personnel-pct').textContent = `${Math.round(persNow/total*100)}% of total`;
-    document.getElementById('sum-nonpersonnel').textContent  = fmt(nonPers);
-    document.getElementById('sum-nonpersonnel-pct').textContent = `${Math.round(nonPers/total*100)}% of total`;
+    document.getElementById('sum-total').textContent          = fmt(total);
+    document.getElementById('sum-total-lbl').textContent      = _view === 'proposed' ? 'FY2026 Proposed' : 'Total IT Budget';
+    document.getElementById('sum-view-lbl').textContent       = _view === 'proposed' ? 'Based on proposed changes' : 'IT-owned spend';
+    document.getElementById('sum-personnel').textContent      = fmt(persNow);
+    document.getElementById('sum-personnel-pct').textContent  = `${Math.round(persNow / total * 100)}% of total`;
+    document.getElementById('sum-nonpersonnel').textContent   = fmt(nonPers);
+    document.getElementById('sum-nonpersonnel-pct').textContent = `${Math.round(nonPers / total * 100)}% of total`;
 
     const deltaEl  = document.getElementById('sum-delta');
     const deltaLbl = document.getElementById('sum-delta-label');
     deltaEl.textContent = delta === 0 ? '$0' : (delta > 0 ? '+' : '') + fmt(delta);
     if (delta > 0) {
-        deltaLbl.className = 'sum-delta-neg';
-        deltaLbl.textContent = 'Increase from baseline';
+        deltaLbl.className = 'sum-delta-neg'; deltaLbl.textContent = 'Increase from FY2025';
     } else if (delta < 0) {
-        deltaLbl.className = 'sum-delta-pos';
-        deltaLbl.textContent = 'Reduction from baseline';
+        deltaLbl.className = 'sum-delta-pos'; deltaLbl.textContent = 'Reduction from FY2025';
     } else {
-        deltaLbl.className = 'sum-delta-pos';
-        deltaLbl.textContent = 'No changes yet';
+        deltaLbl.className = 'sum-delta-pos'; deltaLbl.textContent = 'No changes yet';
     }
 
-    // Revenue % card
-    const revPct = total / EST_REVENUE * 100;
-    const revPctEl = document.getElementById('sum-rev-pct');
-    if (revPctEl) revPctEl.textContent = `~${revPct.toFixed(1)}%`;
-
-    // Update benchmark bar
-    const nacsPct = revPct;
-    const nacsBarEl = document.getElementById('bench-nacs');
-    const nacsValEl = document.getElementById('bench-nacs-val');
-    if (nacsBarEl) nacsBarEl.style.width = `${Math.min(100, nacsPct / 5 * 100)}%`;
-    if (nacsValEl) nacsValEl.textContent = `~${nacsPct.toFixed(1)}%`;
+    renderBenchmark(total);
 }
 
+function renderBenchmark(total) {
+    if (total === undefined) total = grandTotal(_view);
+    const revPct = total / EST_REVENUE * 100;
+    const t3 = EST_REVENUE * 0.03;
+    const t4 = EST_REVENUE * 0.04;
+    const t5 = EST_REVENUE * 0.05;
+    const gap3 = t3 - total;
+    const gap4 = t4 - total;
+    const gap5 = t5 - total;
+
+    // Summary card
+    const revPctEl = document.getElementById('sum-rev-pct');
+    if (revPctEl) revPctEl.textContent = `${revPct.toFixed(1)}%`;
+
+    // Ref line
+    const refLblEl = document.getElementById('bench-spend-lbl');
+    const refEl    = document.getElementById('bench-ref');
+    if (refLblEl) refLblEl.textContent = fmt(total);
+    if (refEl)    refEl.innerHTML = `Based on <strong id="bench-spend-lbl">${fmt(total)}</strong> IT budget (${_view === 'proposed' ? 'FY2026 proposed' : 'FY2025 actuals'}) vs <strong>$170M</strong> estimated revenue`;
+
+    // NACS bar
+    const barEl  = document.getElementById('bench-nacs-bar');
+    const pctEl  = document.getElementById('bench-nacs-pct');
+    const amtEl  = document.getElementById('bench-nacs-amt');
+    const gapEl  = document.getElementById('bench-nacs-gap');
+    if (barEl) barEl.style.width = `${Math.min(100, revPct / 5 * 100)}%`;
+    if (pctEl) pctEl.textContent = `${revPct.toFixed(1)}%`;
+    if (amtEl) amtEl.textContent = fmt(total);
+    if (gapEl) gapEl.innerHTML = revPct >= 3
+        ? `<span class="bench-gap-ok">✓ At benchmark</span>`
+        : `<span class="bench-gap-neg">↓ below min</span>`;
+
+    // Gap rows
+    const g3El = document.getElementById('bench-gap-3');
+    const g4El = document.getElementById('bench-gap-4');
+    const g5El = document.getElementById('bench-gap-5');
+    const gapHtml = (gap) => gap > 0
+        ? `<span class="bench-gap-neg">+${fmt(gap)} needed</span>`
+        : `<span class="bench-gap-ok">✓ Met</span>`;
+    if (g3El) g3El.innerHTML = gapHtml(gap3);
+    if (g4El) g4El.innerHTML = gapHtml(gap4);
+    if (g5El) g5El.innerHTML = gapHtml(gap5);
+
+    // Callout
+    const calloutEl = document.getElementById('bench-callout');
+    if (calloutEl) {
+        if (revPct < 3) {
+            const mult = (t3 / total).toFixed(1);
+            calloutEl.innerHTML = `At current spending, NACS IT is <strong>${fmt(gap3)}</strong> below the healthcare minimum (3% of revenue = ${fmt(t3)}). Reaching benchmark requires a <strong>${mult}×</strong> budget increase.`;
+            calloutEl.style.display = 'block';
+        } else if (revPct < 4) {
+            calloutEl.innerHTML = `NACS IT meets the healthcare minimum. <strong>${fmt(gap4)}</strong> additional spend would reach the industry midpoint (4% = ${fmt(t4)}).`;
+            calloutEl.style.display = 'block';
+        } else {
+            calloutEl.style.display = 'none';
+        }
+    }
+}
+
+// ── Dept-owned module ─────────────────────────────────────────────────────
+function renderDeptModule() {
+    const softCat  = CATS.find(c => c.id === 'software');
+    const excluded = softCat.items.filter(i => i.dept && !_deptInIT[i.name]);
+    const module   = document.getElementById('dept-module');
+    if (!module) return;
+
+    if (excluded.length === 0) { module.style.display = 'none'; return; }
+    module.style.display = 'block';
+
+    const byDept = {};
+    excluded.forEach(i => { if (!byDept[i.dept]) byDept[i.dept] = []; byDept[i.dept].push(i); });
+
+    const totalKnown = excluded.reduce((s, i) => s + (i.cost || 0), 0);
+    const tbdCount   = excluded.filter(i => i.cost === null).length;
+
+    let html = `<div class="excl-title">Software in Other Departments' Budgets</div>`;
+    Object.entries(byDept).forEach(([dept, items]) => {
+        html += `<div class="excl-dept-group">
+            <div class="excl-dept-name">${dept}</div>
+            ${items.map(i => `<div class="excl-body">
+                <span><strong>${i.name}</strong> — ${i.sub}</span>
+                <span class="excl-cost">${i.cost !== null ? fmtFull(i.cost) + '/yr' : 'TBD'}</span>
+            </div>`).join('')}
+        </div>`;
+    });
+    html += `<div class="excl-footer">
+        <span class="excl-footer-label">${excluded.length} items tracked · IT provides stewardship${tbdCount > 0 ? ` · ${tbdCount} costs TBD` : ''}</span>
+        <span class="excl-footer-total">${totalKnown > 0 ? fmtFull(totalKnown) + '/yr confirmed' : 'Costs TBD'}</span>
+    </div>`;
+
+    document.getElementById('dept-module-body').innerHTML = html;
+}
+
+// ── Category grid ─────────────────────────────────────────────────────────
 function renderCatGrid() {
     const total = grandTotal(_view);
     const grid  = document.getElementById('cat-grid');
-
     grid.innerHTML = CATS.map(cat => {
         const ct  = catTotal(cat, _view);
         const pct = Math.round(ct / total * 100);
         const ms  = marketStatus(cat.id, ct);
         const m   = MARKET[cat.id];
-        let barPct = 50;
-        if (m) {
-            const span = m.high - m.low;
-            barPct = Math.min(100, Math.max(5, ((ct - m.low) / span) * 100));
-        }
-
         return `<div class="cat-card${_activeCategory === cat.id ? ' active' : ''}" onclick="toggleDetail('${cat.id}')">
             <div class="cat-accent" style="background:${cat.color};"></div>
             <div class="cat-top">
@@ -612,12 +643,12 @@ function renderCatGrid() {
             <div class="cat-bar">
                 <div class="cat-bar-fill" style="width:${Math.min(100, ct / (m ? m.high * 1.1 : ct) * 100)}%;background:${cat.color};"></div>
             </div>
-            ${ms.label ? `<div class="cat-market-label ${ms.cls}">${ms.label}</div>` : ''}
+            ${ms.label ? `<div class="${ms.cls}">${ms.label}</div>` : ''}
         </div>`;
     }).join('');
 }
 
-// ── Detail panel ───────────────────────────────────────────────────────────
+// ── Detail panel ──────────────────────────────────────────────────────────
 function toggleDetail(catId) {
     if (_activeCategory === catId) {
         closeDetail();
@@ -641,137 +672,238 @@ function closeDetail() {
 function renderDetail(catId) {
     const cat = CATS.find(c => c.id === catId);
     if (!cat) return;
-
     const ct = catTotal(cat, _view);
     document.getElementById('d-icon').textContent  = cat.icon;
     document.getElementById('d-name').textContent  = cat.name;
-
-    if (cat.personnel) {
-        const activeCount = _jonDissolved ? 5 : 6;
-        document.getElementById('d-sub').textContent = `${activeCount} active · Base + 25% burden${_jonDissolved ? ' · 1 position dissolving' : ''}`;
-    } else {
-        const itItems = cat.items.filter(i => !i.dept);
-        const deptItems = cat.items.filter(i => i.dept);
-        document.getElementById('d-sub').textContent = `${itItems.length} line items · FY2025 actual${deptItems.length ? ` · ${deptItems.length} dept-owned` : ''}`;
-    }
-
     document.getElementById('d-total').textContent = fmtFull(ct);
 
     if (cat.personnel) {
+        const activeCount = PEOPLE.length - (_jonDissolved ? 1 : 0);
+        document.getElementById('d-sub').textContent = _view === 'current'
+            ? `${PEOPLE.length} team members · FY2025 actuals`
+            : `${activeCount} active · Adjust proposed compensation below`;
         renderPersonnelDetail();
     } else {
+        const itItems   = cat.items.filter(i => !i.dept);
+        const deptItems = cat.items.filter(i => i.dept);
+        document.getElementById('d-sub').textContent =
+            `${itItems.length} IT line items${deptItems.length ? ` · ${deptItems.length} dept-owned` : ''} · ${_view === 'current' ? 'FY2025 actuals' : 'FY2026 — click cost to edit'}`;
         renderLineItems(cat);
     }
 }
 
+// ── Line items table ──────────────────────────────────────────────────────
 function renderLineItems(cat) {
     const itItems   = cat.items.filter(i => !i.dept);
     const deptItems = cat.items.filter(i => i.dept);
-    const total     = itItems.reduce((s, i) => s + (i.cost || 0), 0);
+    const itTotal   = itItems.reduce((s, i) => s + (i.cost || 0), 0);
     const m = MARKET[cat.id];
+    const editable = _view === 'proposed';
 
-    const buildRow = (item, isDept) => {
-        const pct = total > 0 && !isDept ? Math.round((item.cost || 0) / total * 100) : null;
-        return `<tr class="${isDept ? 'li-row-dept' : ''}">
+    const buildCostCell = (item, idx) => {
+        const key  = `${cat.id}::${idx}`;
+        const base = item.cost !== null ? item.cost : null;
+        const val  = _proposed2026[key] !== undefined ? _proposed2026[key] : base;
+
+        if (!editable) {
+            return base !== null
+                ? `<span class="li-cost">${fmtFull(base)}</span>`
+                : `<span class="li-tbd">TBD</span>`;
+        }
+        // Editable in FY2026
+        const displayVal = val !== null ? fmtFull(val) : '';
+        const changed = _proposed2026[key] !== undefined && _proposed2026[key] !== base;
+        return `<input class="cost-input${val === null ? ' cost-tbd' : ''}"
+            data-catid="${cat.id}" data-idx="${idx}" data-raw="${val !== null ? val : ''}"
+            value="${displayVal || 'TBD'}"
+            title="Click to edit FY2026 proposed cost"
+            ${changed ? 'style="color:#d97706;font-weight:700;"' : ''}>`;
+    };
+
+    const buildRow = (item, idx, isDept) => {
+        const isInIT     = _deptInIT[item.name];
+        const rowClass   = isDept ? (isInIT ? 'li-row-dept-incl' : 'li-row-dept') : '';
+        const badge      = item.owned
+            ? `<span class="li-owned">${item.owned}</span>`
+            : item.dept
+                ? `<span class="${isInIT ? 'li-dept-incl' : 'li-dept'}">${isInIT ? 'IT Budget' : 'Dept: ' + item.dept}</span>`
+                : '';
+        const toggleBtn  = isDept
+            ? `<button class="dept-toggle-btn ${isInIT ? 'dept-toggle-incl' : 'dept-toggle-excl'}"
+                onclick="toggleDeptItem('${item.name.replace(/'/g, "\\'")}')">${isInIT ? '↙ Move to Dept Budget' : '↗ Add to IT Budget'}</button>`
+            : '';
+        const pct = itTotal > 0 && !isDept && item.cost !== null
+            ? `<span style="font-size:11px;color:#8a95a8;">${Math.round(item.cost / itTotal * 100)}%</span>`
+            : '';
+        const sourceCell = isDept
+            ? `<span class="li-tbd">${item.source}</span>`
+            : `<span class="li-conf">${item.source}</span>`;
+
+        return `<tr class="${rowClass}">
             <td>
-                <div class="li-name">${item.name}${item.owned ? `<span class="li-owned">${item.owned}</span>` : ''}${item.dept ? `<span class="li-dept">Dept: ${item.dept}</span>` : ''}</div>
+                <div class="li-name">${item.name}${badge}</div>
                 <div class="li-sub">${item.sub}</div>
+                ${toggleBtn}
             </td>
-            <td class="li-cost">${item.cost !== null ? fmtFull(item.cost) : '<span class="li-tbd">TBD</span>'}</td>
-            <td class="${isDept ? 'li-tbd' : 'li-conf'}">${item.source}</td>
-            <td style="width:120px;text-align:right;">
-                ${pct !== null ? `<div style="display:flex;align-items:center;justify-content:flex-end;gap:6px;">
-                    <div class="mkt-bar">
-                        <div class="mkt-fill" style="width:100%;"></div>
-                        <div class="mkt-dot mkt-dot-curr" style="left:${pct}%;"></div>
-                    </div>
-                    <span style="font-size:11px;color:#8a95a8;">${pct}%</span>
-                </div>` : ''}
-            </td>
+            <td>${buildCostCell(item, idx)}</td>
+            <td>${sourceCell}</td>
+            <td>${pct}</td>
         </tr>`;
     };
 
-    let rows = itItems.map(item => buildRow(item, false)).join('');
+    // IT-owned rows
+    const itRows = itItems.map((item) => {
+        const globalIdx = cat.items.indexOf(item);
+        return buildRow(item, globalIdx, false);
+    }).join('');
 
-    // Dept-owned section (only when _sharedOn)
-    let deptSection = '';
-    if (_sharedOn && deptItems.length > 0) {
-        deptSection = `<tbody>
-            <tr><td colspan="4" style="padding:6px 22px;background:#f8f9ff;font-size:10px;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;color:#6366f1;">
-                Dept-Owned · IT Stewardship Visibility
-            </td></tr>
-            ${deptItems.map(item => buildRow(item, true)).join('')}
-        </tbody>`;
-    }
+    // Dept-owned separator + rows
+    const deptRows = deptItems.map((item) => {
+        const globalIdx = cat.items.indexOf(item);
+        return buildRow(item, globalIdx, true);
+    }).join('');
 
-    const marketNote = m ? `
-        <div class="mkt-sources">
-            Market range for ${cat.name}: ${fmt(m.low)} – ${fmt(m.high)} · Sweet spot: ${fmt(m.sweet)} ·
-            Current IT-owned: ${fmt(total)} ${total < m.low ? '— <strong style="color:#d97706;">below market</strong>' : total > m.high ? '— <strong style="color:#ef4444;">above market</strong>' : '— within range'}
-            <br>Source: Gartner Healthcare IT Spending Survey · HIMSS Analytics · CompTIA State of the Industry 2024
+    const deptSepRow = deptItems.length > 0
+        ? `<tr class="li-sep-row"><td colspan="4">Dept-Owned · IT Stewardship Visibility${editable ? ' · Click cost to enter known amount' : ''}</td></tr>`
+        : '';
+
+    // IT total row
+    const itTotalDisplay = editable
+        ? itItems.reduce((s, item) => {
+            const idx = cat.items.indexOf(item);
+            const key = `${cat.id}::${idx}`;
+            return s + (_proposed2026[key] !== undefined ? _proposed2026[key] : (item.cost || 0));
+          }, 0)
+        : itTotal;
+
+    const marketNote = m ? `<div class="mkt-sources">
+        Market range for ${cat.name}: ${fmt(m.low)} – ${fmt(m.high)} · Current IT-owned: ${fmt(itTotalDisplay)}
+        ${itTotalDisplay < m.low ? '— <strong style="color:#d97706;">below market</strong>' : itTotalDisplay > m.high ? '— <strong style="color:#ef4444;">above market</strong>' : '— within range'}
+        · Source: Gartner Healthcare IT Spending · HIMSS Analytics · CompTIA 2024
         </div>` : '';
 
     document.getElementById('d-body').innerHTML = `
         <table class="li-table">
             <thead><tr>
                 <th>Vendor / Service</th>
-                <th style="text-align:right;">Annual Cost</th>
+                <th style="text-align:right;">${editable ? 'FY2026 Cost' : 'Annual Cost'}</th>
                 <th style="text-align:right;">Source</th>
-                <th style="text-align:right;">% of Category</th>
+                <th style="text-align:right;">% of IT</th>
             </tr></thead>
-            <tbody>${rows}</tbody>
-            ${deptSection}
+            <tbody>${itRows}</tbody>
+            ${deptSepRow ? `<tbody>${deptSepRow}${deptRows}</tbody>` : ''}
             <tbody><tr class="li-total">
-                <td colspan="1">IT-Owned Total</td>
-                <td style="text-align:right;">${fmtFull(total)}</td>
+                <td>IT-Owned Total</td>
+                <td style="text-align:right;">${fmtFull(itTotalDisplay)}</td>
                 <td colspan="2"></td>
             </tr></tbody>
         </table>
         ${marketNote}`;
+
+    // Attach editable input listeners
+    document.querySelectorAll('.cost-input[data-catid]').forEach(input => {
+        input.addEventListener('focus', () => {
+            const raw = input.dataset.raw;
+            input.value = raw !== '' ? raw : '';
+            input.select();
+        });
+        input.addEventListener('blur', () => {
+            const num = parseInt(input.value.replace(/[^0-9]/g, ''));
+            const catId = input.dataset.catid;
+            const idx   = parseInt(input.dataset.idx);
+            const key   = `${catId}::${idx}`;
+            const origItem = CATS.find(c => c.id === catId)?.items[idx];
+            if (!isNaN(num) && num >= 0) {
+                _proposed2026[key] = num;
+                input.dataset.raw  = num;
+                input.style.color  = num !== (origItem?.cost || 0) ? '#d97706' : '';
+                input.style.fontWeight = num !== (origItem?.cost || 0) ? '700' : '';
+            }
+            const finalVal = _proposed2026[key] !== undefined ? _proposed2026[key] : (origItem?.cost ?? null);
+            input.value = finalVal !== null ? fmtFull(finalVal) : 'TBD';
+            renderSummary();
+            renderCatGrid();
+            const updCat = CATS.find(c => c.id === catId);
+            if (updCat) document.getElementById('d-total').textContent = fmtFull(catTotal(updCat, _view));
+        });
+        input.addEventListener('keydown', e => { if (e.key === 'Enter') input.blur(); });
+    });
 }
 
+// ── Personnel detail ──────────────────────────────────────────────────────
 function renderPersonnelDetail() {
-    const m = MARKET['personnel'];
     const currentTotal = personTotal('current');
 
+    // ── FY2025 static view ──────────────────────────────────────────────
+    if (_view === 'current') {
+        let html = `<table class="li-table" style="table-layout:fixed;">
+            <colgroup><col><col style="width:120px;"><col style="width:140px;"></colgroup>
+            <thead><tr>
+                <th>Team Member</th>
+                <th style="text-align:right;">Current Base</th>
+                <th style="text-align:right;">All-In Cost</th>
+            </tr></thead>
+            <tbody>`;
+        PEOPLE.forEach(p => {
+            html += `<tr class="person-row">
+                <td>
+                    <div class="person-name">${p.name}</div>
+                    <div class="person-titles"><span class="person-t-curr">${p.titleCurr}</span></div>
+                </td>
+                <td style="text-align:right;font-weight:600;">${fmtFull(p.base)}</td>
+                <td style="text-align:right;">
+                    <span class="li-cost">${fmtFull(burden(p.base))}</span>
+                    <br><span class="burden-note">incl. 25% burden</span>
+                </td>
+            </tr>`;
+        });
+        html += `</tbody>
+            <tbody><tr class="li-total">
+                <td colspan="2">Personnel Total (FY2025)</td>
+                <td style="text-align:right;">${fmtFull(currentTotal)}</td>
+            </tr></tbody>
+        </table>
+        <div class="mkt-sources">
+            FY2025 actuals · Switch to FY2026 view to model proposed compensation adjustments
+        </div>`;
+        document.getElementById('d-body').innerHTML = html;
+        return;
+    }
+
+    // ── FY2026 interactive view ─────────────────────────────────────────
     let html = `<table class="li-table" style="table-layout:fixed;">
         <colgroup>
             <col>
             <col style="width:110px;">
-            <col style="width:260px;">
+            <col style="width:265px;">
             <col style="width:130px;">
             <col style="width:110px;">
         </colgroup>
         <thead><tr>
             <th>Team Member</th>
             <th style="text-align:right;">Current Base</th>
-            <th style="text-align:center;">Proposed Base</th>
+            <th style="text-align:center;">FY2026 Proposed</th>
             <th style="text-align:right;">All-In Cost</th>
             <th style="text-align:right;">Δ</th>
         </tr></thead>
         <tbody>`;
 
     PEOPLE.forEach(p => {
-        const pm       = PERSON_MKT[p.id];
-        const currBase = p.base;
-        const propBase = _proposed[p.id] || p.base;
-        const allIn    = burden(propBase);
-        const delta    = propBase - currBase;
+        const pm        = PERSON_MKT[p.id];
+        const currBase  = p.base;
+        const propBase  = _proposed[p.id] || p.base;
+        const allIn     = burden(propBase);
+        const delta     = propBase - currBase;
         const dissolved = p.id === 'jon' && _jonDissolved;
-        const sliderBg = buildSliderGradient(pm, currBase, propBase);
-
+        const sliderBg  = buildSliderGradient(pm, currBase, propBase);
         const sliderMin = Math.min(Math.floor(pm.low * 0.85 / 1000) * 1000, Math.floor(currBase / 1000) * 1000);
         const sliderMax = Math.ceil(pm.high * 1.1 / 1000) * 1000;
+        const leftLabel = currBase < pm.low ? `${fmtFull(currBase)} current` : `${fmtFull(pm.low)} mkt low`;
 
-        // Left label: show actual slider floor, clearly below market if applicable
-        const leftLabel = currBase < pm.low
-            ? `${fmtFull(currBase)} current`
-            : `${fmtFull(pm.low)} mkt low`;
-
-        const dissolveBtnClass = dissolved ? 'dissolve-btn dissolve-btn-dissolved' : 'dissolve-btn dissolve-btn-active';
-        const dissolveBtnText  = dissolved ? '↩ Restore' : '✕ Dissolve';
-        const dissolveBtn      = p.id === 'jon'
-            ? `<button class="${dissolveBtnClass}" onclick="toggleJonDissolved()">${dissolveBtnText}</button>`
+        const dissolveClass = dissolved ? 'dissolve-btn dissolve-btn-dissolved' : 'dissolve-btn dissolve-btn-active';
+        const dissolveLabel = dissolved ? '↩ Restore Position' : '✕ Dissolve Position';
+        const dissolveBtn   = p.id === 'jon'
+            ? `<button class="${dissolveClass}" onclick="toggleJonDissolved()">${dissolveLabel}</button>`
             : '';
 
         html += `<tr class="person-row${dissolved ? ' person-row-dissolved' : ''}">
@@ -793,19 +925,16 @@ function renderPersonnelDetail() {
                         <span class="comp-slider-curr">${fmtFull(pm.high)} mkt high</span>
                     </div>
                     <input type="range" class="comp-slider" id="slider-${p.id}"
-                        min="${sliderMin}"
-                        max="${sliderMax}"
-                        step="1000"
-                        value="${propBase}"
+                        min="${sliderMin}" max="${sliderMax}" step="1000" value="${propBase}"
                         style="background:${sliderBg};"
                         ${dissolved ? 'disabled' : ''}
-                        oninput="updatePerson('${p.id}', this.value, ${pm.low}, ${pm.high}, ${pm.sweet})" />
+                        oninput="updatePerson('${p.id}', this.value)">
                     <div style="font-size:10px;color:#bec6d3;">Market sweet spot: ${fmtFull(pm.sweet)}</div>
                 </div>
             </td>
             <td style="text-align:right;" id="allin-${p.id}">
                 ${dissolved
-                    ? '<span style="color:#bec6d3;font-size:12px;">—</span>'
+                    ? '<span style="color:#bec6d3;">—</span>'
                     : `<span class="li-cost">${fmtFull(allIn)}</span><br><span class="burden-note">incl. 25% burden</span>`}
             </td>
             <td style="text-align:right;white-space:nowrap;" id="delta-${p.id}">
@@ -831,42 +960,38 @@ function renderPersonnelDetail() {
         </tr></tbody>
     </table>
     <div class="mkt-sources">
-        Market salary ranges sourced from: Salary.com · CompTIA State of the Industry · HIMSS Compensation Survey · Robert Half Technology 2025 Guide · BLS Occupational Employment Statistics
-        &nbsp;· All-in cost = Base × 1.25 (taxes, benefits) + $500 bonus
+        Market ranges: Salary.com · CompTIA State of the Industry · HIMSS Compensation Survey · Robert Half Technology 2025 · BLS OES
+        &nbsp;· All-in = base × 1.25 + $500 bonus
     </div>`;
 
     document.getElementById('d-body').innerHTML = html;
 }
 
-function updatePerson(id, val, low, high, sweet) {
+function updatePerson(id, val) {
     val = parseInt(val);
     _proposed[id] = val;
-    const p = PEOPLE.find(p => p.id === id);
+    const p  = PEOPLE.find(p => p.id === id);
     const pm = PERSON_MKT[id];
     const delta = val - p.base;
 
-    document.getElementById(`prop-val-${id}`).textContent = fmtFull(val);
+    const propValEl = document.getElementById(`prop-val-${id}`);
+    const deltaEl   = document.getElementById(`delta-${id}`);
+    const allInEl   = document.getElementById(`allin-${id}`);
+    const sliderEl  = document.getElementById(`slider-${id}`);
 
-    const deltaEl = document.getElementById(`delta-${id}`);
-    if (deltaEl) deltaEl.innerHTML =
-        delta === 0 ? '<span class="comp-delta-nil">—</span>'
-            : `<span class="${delta > 0 ? 'comp-delta-pos' : 'comp-delta-neg'}">${delta > 0 ? '+' : ''}${fmtFull(delta)}</span>`;
+    if (propValEl) propValEl.textContent = fmtFull(val);
+    if (deltaEl)   deltaEl.innerHTML = delta === 0
+        ? '<span class="comp-delta-nil">—</span>'
+        : `<span class="${delta > 0 ? 'comp-delta-pos' : 'comp-delta-neg'}">${delta > 0 ? '+' : ''}${fmtFull(delta)}</span>`;
+    if (allInEl)   allInEl.innerHTML = `<span class="li-cost">${fmtFull(burden(val))}</span><br><span class="burden-note">incl. 25% burden</span>`;
+    if (sliderEl)  sliderEl.style.background = buildSliderGradient(pm, p.base, val);
 
-    // Update slider background gradient
-    const slider = document.getElementById(`slider-${id}`);
-    if (slider) slider.style.background = buildSliderGradient(pm, p.base, val);
-
-    // Update all-in cost cell
-    const allInEl = document.getElementById(`allin-${id}`);
-    if (allInEl) allInEl.innerHTML = `<span class="li-cost">${fmtFull(burden(val))}</span><br><span class="burden-note">incl. 25% burden</span>`;
-
-    // Refresh totals row
     const propTotal = personTotal('proposed');
     const propDelta = propTotal - personTotal('current');
-    const totalEl = document.getElementById('pers-total-allin');
-    const dTotalEl = document.getElementById('pers-total-delta');
-    if (totalEl) totalEl.textContent = fmtFull(propTotal);
-    if (dTotalEl) dTotalEl.innerHTML = propDelta === 0 ? '—'
+    const totEl   = document.getElementById('pers-total-allin');
+    const totDEl  = document.getElementById('pers-total-delta');
+    if (totEl)  totEl.textContent = fmtFull(propTotal);
+    if (totDEl) totDEl.innerHTML  = propDelta === 0 ? '—'
         : `<span class="${propDelta > 0 ? 'comp-delta-pos' : 'comp-delta-neg'}">${propDelta > 0 ? '+' : ''}${fmtFull(propDelta)}</span>`;
 
     renderSummary();
@@ -877,35 +1002,22 @@ function buildSliderGradient(pm, currBase, val) {
     const sliderMin = Math.min(Math.floor(pm.low * 0.85 / 1000) * 1000, Math.floor(currBase / 1000) * 1000);
     const sliderMax = Math.ceil(pm.high * 1.1 / 1000) * 1000;
     const span      = sliderMax - sliderMin;
-    const lowPct    = Math.round((pm.low  - sliderMin) / span * 100);
-    const highPct   = Math.round((pm.high - sliderMin) / span * 100);
+    const lowPct    = Math.round((pm.low   - sliderMin) / span * 100);
     const sweetPct  = Math.round((pm.sweet - sliderMin) / span * 100);
+    const highPct   = Math.round((pm.high  - sliderMin) / span * 100);
     return `linear-gradient(to right, #e8ecf1 ${lowPct}%, #a7f3d0 ${lowPct}%, #10b981 ${sweetPct}%, #a7f3d0 ${highPct}%, #e8ecf1 ${highPct}%)`;
 }
 
-// ── Toggle functions ───────────────────────────────────────────────────────
+// ── Toggle functions ──────────────────────────────────────────────────────
 function setView(v) {
     _view = v;
-    document.querySelectorAll('.tbar-btn').forEach(btn => {
-        const t = btn.textContent.trim();
-        if (t.startsWith('FY2025') || t.startsWith('FY2026')) {
-            btn.classList.toggle('active', (v === 'current' && t.includes('2025')) || (v === 'proposed' && t.includes('2026')));
-        }
-    });
+    document.getElementById('btn-2025').classList.toggle('active', v === 'current');
+    document.getElementById('btn-2026').classList.toggle('active', v === 'proposed');
     renderAll();
 }
 
-function togglePCC() {
-    _pccOn = !_pccOn;
-    document.getElementById('pcc-state').textContent = _pccOn ? 'on' : 'off';
-    document.getElementById('toggle-pcc').classList.toggle('active', _pccOn);
-    renderAll();
-}
-
-function toggleShared() {
-    _sharedOn = !_sharedOn;
-    document.getElementById('shared-state').textContent = _sharedOn ? 'on' : 'off';
-    document.getElementById('toggle-shared').classList.toggle('active', _sharedOn);
+function toggleDeptItem(name) {
+    _deptInIT[name] = !_deptInIT[name];
     renderAll();
 }
 
