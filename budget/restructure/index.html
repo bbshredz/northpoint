@@ -1,0 +1,888 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>IT Restructuring Case — NorthPoint</title>
+    <link rel="stylesheet" href="/northpoint.css">
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="/auth.js"></script>
+    <style>
+        /* ── Import Manrope for document feel ── */
+        @import url('https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&display=swap');
+
+        /* ── Page-level overrides: light, clinical, authoritative ── */
+        .content {
+            background: #f4f6f8;
+            font-family: 'Manrope', 'DM Sans', sans-serif;
+        }
+
+        /* ── Document container ── */
+        .doc {
+            max-width: 860px;
+            margin: 0 auto;
+            padding: 40px 32px 80px;
+        }
+
+        /* ── Doc header ── */
+        .doc-eyebrow {
+            font-size: 10px;
+            font-weight: 700;
+            letter-spacing: 0.14em;
+            text-transform: uppercase;
+            color: #10b981;
+            margin-bottom: 10px;
+        }
+        .doc-title {
+            font-family: 'Manrope', sans-serif;
+            font-size: 32px;
+            font-weight: 800;
+            color: #0a1628;
+            line-height: 1.15;
+            margin-bottom: 10px;
+        }
+        .doc-meta {
+            font-size: 13px;
+            color: #5d6779;
+            margin-bottom: 36px;
+            display: flex;
+            gap: 20px;
+            flex-wrap: wrap;
+        }
+        .doc-meta span { display: flex; align-items: center; gap: 5px; }
+        .doc-divider {
+            height: 1px;
+            background: #dce1e9;
+            margin-bottom: 40px;
+        }
+
+        /* ── Section headers ── */
+        .section-label {
+            font-size: 10px;
+            font-weight: 700;
+            letter-spacing: 0.14em;
+            text-transform: uppercase;
+            color: #8a95a8;
+            margin-bottom: 16px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .section-label::after {
+            content: '';
+            flex: 1;
+            height: 1px;
+            background: #dce1e9;
+        }
+
+        .section-gap { margin-bottom: 48px; }
+
+        /* ── The Ask card ── */
+        .ask-card {
+            background: #0f1f3a;
+            border-radius: 12px;
+            padding: 28px 32px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 48px;
+            gap: 24px;
+            flex-wrap: wrap;
+        }
+        .ask-left {}
+        .ask-tag {
+            font-size: 10px;
+            font-weight: 700;
+            letter-spacing: 0.12em;
+            text-transform: uppercase;
+            color: #10b981;
+            margin-bottom: 8px;
+        }
+        .ask-name {
+            font-size: 22px;
+            font-weight: 800;
+            color: #ffffff;
+            margin-bottom: 4px;
+        }
+        .ask-title {
+            font-size: 14px;
+            color: #7088b3;
+        }
+        .ask-right { text-align: right; }
+        .ask-comp-label {
+            font-size: 11px;
+            color: #4d6899;
+            margin-bottom: 4px;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+        }
+        .ask-comp-value {
+            font-size: 36px;
+            font-weight: 800;
+            color: #ffffff;
+            line-height: 1;
+            margin-bottom: 6px;
+        }
+        .ask-comp-delta {
+            font-size: 12px;
+            color: #10b981;
+            font-weight: 600;
+        }
+        .ask-comp-current {
+            font-size: 11px;
+            color: #4d6899;
+            margin-top: 3px;
+        }
+
+        /* ── Inversion alert ── */
+        .inversion-alert {
+            background: #fffbeb;
+            border: 1px solid #fcd34d;
+            border-left: 4px solid #d97706;
+            border-radius: 8px;
+            padding: 16px 20px;
+            margin-bottom: 24px;
+        }
+        .inversion-alert-title {
+            font-size: 12px;
+            font-weight: 700;
+            color: #92400e;
+            margin-bottom: 6px;
+            text-transform: uppercase;
+            letter-spacing: 0.08em;
+        }
+        .inversion-alert-body {
+            font-size: 13px;
+            color: #78350f;
+            line-height: 1.5;
+        }
+        .inversion-chain {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            margin-top: 12px;
+            flex-wrap: wrap;
+        }
+        .ic-person {
+            background: #fff;
+            border: 1px solid #fcd34d;
+            border-radius: 6px;
+            padding: 6px 12px;
+            font-size: 12px;
+            font-weight: 600;
+            color: #92400e;
+        }
+        .ic-person.ic-highlight {
+            background: #0f1f3a;
+            border-color: #0f1f3a;
+            color: #fff;
+        }
+        .ic-arrow {
+            font-size: 13px;
+            color: #d97706;
+            font-weight: 700;
+        }
+        .ic-label {
+            font-size: 10px;
+            color: #a16207;
+            margin-left: 2px;
+        }
+
+        /* ── Compensation table ── */
+        .comp-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 13px;
+            margin-bottom: 12px;
+        }
+        .comp-table th {
+            font-size: 10px;
+            font-weight: 700;
+            letter-spacing: 0.1em;
+            text-transform: uppercase;
+            color: #8a95a8;
+            text-align: left;
+            padding: 0 12px 10px;
+            border-bottom: 1px solid #dce1e9;
+        }
+        .comp-table th:not(:first-child) { text-align: right; }
+        .comp-table td {
+            padding: 14px 12px;
+            border-bottom: 1px solid #e8ecf1;
+            vertical-align: middle;
+        }
+        .comp-table tr:last-child td { border-bottom: none; }
+        .comp-table tr:hover td { background: #f8fafc; }
+        .comp-table tr.row-highlighted td { background: #f0fdf4; }
+        .comp-table tr.row-highlighted:hover td { background: #ecfdf5; }
+        .comp-table td:not(:first-child) { text-align: right; }
+
+        .ct-name { font-weight: 700; color: #0a1628; font-size: 14px; }
+        .ct-title-current { font-size: 11px; color: #8a95a8; margin-top: 2px; }
+        .ct-title-future { font-size: 11px; color: #059669; margin-top: 2px; font-weight: 600; }
+
+        .ct-base { font-weight: 600; color: #0a1628; }
+        .ct-base-new { font-weight: 700; color: #059669; }
+
+        .market-bar-wrap {
+            display: flex;
+            flex-direction: column;
+            align-items: flex-end;
+            gap: 4px;
+            min-width: 140px;
+        }
+        .market-bar {
+            width: 140px;
+            height: 6px;
+            background: #e8ecf1;
+            border-radius: 99px;
+            position: relative;
+        }
+        .market-bar-fill {
+            position: absolute;
+            top: 0;
+            height: 100%;
+            border-radius: 99px;
+            background: #dce1e9;
+        }
+        .market-bar-sweet {
+            position: absolute;
+            top: -2px;
+            width: 3px;
+            height: 10px;
+            background: #059669;
+            border-radius: 2px;
+        }
+        .market-bar-current {
+            position: absolute;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            border: 2px solid #fff;
+            box-shadow: 0 0 0 1px #8a95a8;
+            background: #3d5580;
+        }
+        .market-bar-proposed {
+            position: absolute;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            border: 2px solid #fff;
+            box-shadow: 0 0 0 1px #059669;
+            background: #059669;
+        }
+        .market-label { font-size: 10px; color: #8a95a8; }
+        .market-label-good { font-size: 10px; color: #059669; font-weight: 600; }
+        .market-label-warn { font-size: 10px; color: #d97706; font-weight: 600; }
+
+        .ct-delta-pos { color: #059669; font-weight: 700; font-size: 13px; }
+        .ct-delta-none { color: #8a95a8; font-size: 12px; }
+
+        .badge {
+            display: inline-block;
+            font-size: 10px;
+            font-weight: 700;
+            padding: 2px 8px;
+            border-radius: 99px;
+            letter-spacing: 0.06em;
+        }
+        .badge-warn { background: #fef3c7; color: #92400e; }
+        .badge-ok   { background: #d1fae5; color: #065f46; }
+        .badge-ask  { background: #0f1f3a; color: #a3d0ff; }
+        .badge-none { background: #f4f6f8; color: #8a95a8; }
+
+        /* ── Cost-benefit ── */
+        .cba-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 16px;
+            margin-bottom: 8px;
+        }
+        @media (max-width: 640px) { .cba-grid { grid-template-columns: 1fr; } }
+
+        .cba-card {
+            background: #fff;
+            border: 1px solid #e8ecf1;
+            border-radius: 10px;
+            padding: 20px;
+        }
+        .cba-card-header {
+            font-size: 10px;
+            font-weight: 700;
+            letter-spacing: 0.1em;
+            text-transform: uppercase;
+            margin-bottom: 14px;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+        .cba-card-header.cost { color: #059669; }
+        .cba-card-header.risk { color: #dc2626; }
+
+        .cba-line {
+            display: flex;
+            justify-content: space-between;
+            align-items: baseline;
+            padding: 7px 0;
+            border-bottom: 1px solid #f4f6f8;
+            font-size: 13px;
+        }
+        .cba-line:last-child { border-bottom: none; }
+        .cba-line-label { color: #3e4554; }
+        .cba-line-value { font-weight: 700; color: #0a1628; }
+        .cba-line-value.green { color: #059669; }
+        .cba-line-value.red   { color: #dc2626; }
+        .cba-total {
+            display: flex;
+            justify-content: space-between;
+            padding: 10px 0 0;
+            margin-top: 6px;
+            border-top: 2px solid #dce1e9;
+            font-weight: 700;
+            font-size: 14px;
+        }
+        .cba-footnote {
+            font-size: 11px;
+            color: #8a95a8;
+            margin-top: 10px;
+            line-height: 1.5;
+        }
+
+        .verdict-bar {
+            background: #0f1f3a;
+            border-radius: 10px;
+            padding: 20px 24px;
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            margin-top: 16px;
+        }
+        .verdict-icon { font-size: 24px; }
+        .verdict-text { font-size: 13px; color: #b0bfcc; line-height: 1.5; }
+        .verdict-text strong { color: #fff; }
+
+        /* ── Options ── */
+        .options-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 16px;
+        }
+        @media (max-width: 640px) { .options-grid { grid-template-columns: 1fr; } }
+
+        .option-card {
+            background: #fff;
+            border: 1px solid #dce1e9;
+            border-radius: 12px;
+            padding: 24px;
+            position: relative;
+        }
+        .option-card.option-preferred {
+            border-color: #10b981;
+            box-shadow: 0 0 0 3px rgba(16,185,129,0.12);
+        }
+        .option-preferred-badge {
+            position: absolute;
+            top: -10px;
+            right: 16px;
+            background: #10b981;
+            color: #fff;
+            font-size: 10px;
+            font-weight: 700;
+            letter-spacing: 0.08em;
+            padding: 3px 10px;
+            border-radius: 99px;
+            text-transform: uppercase;
+        }
+        .option-letter {
+            font-size: 10px;
+            font-weight: 700;
+            letter-spacing: 0.12em;
+            text-transform: uppercase;
+            color: #8a95a8;
+            margin-bottom: 6px;
+        }
+        .option-title {
+            font-size: 17px;
+            font-weight: 800;
+            color: #0a1628;
+            margin-bottom: 10px;
+        }
+        .option-desc {
+            font-size: 13px;
+            color: #5d6779;
+            line-height: 1.6;
+            margin-bottom: 16px;
+        }
+        .option-bullets {
+            list-style: none;
+            display: flex;
+            flex-direction: column;
+            gap: 7px;
+            margin-bottom: 18px;
+        }
+        .option-bullets li {
+            font-size: 12px;
+            color: #3e4554;
+            display: flex;
+            gap: 7px;
+            align-items: flex-start;
+        }
+        .option-bullets li::before {
+            content: '→';
+            color: #4d6899;
+            font-weight: 700;
+            flex-shrink: 0;
+            margin-top: 1px;
+        }
+        .option-bottom {
+            border-top: 1px solid #e8ecf1;
+            padding-top: 14px;
+            display: flex;
+            justify-content: space-between;
+            font-size: 12px;
+        }
+        .option-cost-label { color: #8a95a8; }
+        .option-cost-value { font-weight: 700; color: #0a1628; }
+
+        /* ── Value delivered ── */
+        .value-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 12px;
+        }
+        @media (max-width: 600px) { .value-grid { grid-template-columns: 1fr 1fr; } }
+
+        .value-card {
+            background: #fff;
+            border: 1px solid #e8ecf1;
+            border-radius: 10px;
+            padding: 16px 18px;
+        }
+        .value-number {
+            font-size: 26px;
+            font-weight: 800;
+            color: #0f1f3a;
+            line-height: 1;
+            margin-bottom: 4px;
+        }
+        .value-label {
+            font-size: 11px;
+            color: #5d6779;
+            line-height: 1.4;
+        }
+
+        /* ── Footer note ── */
+        .doc-footer {
+            margin-top: 56px;
+            padding-top: 20px;
+            border-top: 1px solid #dce1e9;
+            font-size: 11px;
+            color: #8a95a8;
+            display: flex;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            gap: 8px;
+        }
+    </style>
+</head>
+<body class="mod-budget">
+<div class="layout">
+    <div id="rail-mount"></div>
+    <div class="main">
+        <header class="topbar">
+            <div class="topbar-left">
+                <a href="/index.html" class="topbar-name">NorthPoint</a>
+                <div class="topbar-sep"></div>
+                <a href="/budget/index.html" class="topbar-section" style="text-decoration:none;color:inherit;">Budget</a>
+                <div class="topbar-sep"></div>
+                <span class="topbar-section">Restructuring Case</span>
+            </div>
+            <div class="topbar-right">
+                <span class="topbar-date" id="currentDate"></span>
+                <div class="topbar-avatar" id="topbarAvatar">AT</div>
+            </div>
+        </header>
+
+        <div class="content">
+        <div class="doc">
+
+            <!-- ── Doc Header ── -->
+            <div class="doc-eyebrow">Executive Review · Confidential</div>
+            <h1 class="doc-title">IT Department<br>Restructuring Case</h1>
+            <div class="doc-meta">
+                <span>📅 February 2026</span>
+                <span>👤 Prepared by: Anthony Trujillo</span>
+                <span>🏢 NACS IT Department</span>
+            </div>
+            <div class="doc-divider"></div>
+
+            <!-- ── Section: The Ask ── -->
+            <div class="section-label">Primary Ask</div>
+            <div class="ask-card">
+                <div class="ask-left">
+                    <div class="ask-tag">Restructuring & Retention</div>
+                    <div class="ask-name">Anthony Trujillo</div>
+                    <div class="ask-title">IT Director, South → Vice President, Business Systems & Technology</div>
+                </div>
+                <div class="ask-right">
+                    <div class="ask-comp-label">Proposed Base</div>
+                    <div class="ask-comp-value">$200,000</div>
+                    <div class="ask-comp-delta">+$107,000 · Market midpoint</div>
+                    <div class="ask-comp-current">Current base: $93,000</div>
+                </div>
+            </div>
+
+            <!-- ── Section: The Problem ── -->
+            <div class="section-label">The Problem</div>
+            <div class="inversion-alert">
+                <div class="inversion-alert-title">⚠ Compensation Hierarchy Inversion</div>
+                <div class="inversion-alert-body">
+                    The current compensation structure is inverted relative to responsibility. The IT Director overseeing enterprise systems, vendor contracts, and the 30×30 strategy earns less than both a peer director and a Database Administrator.
+                </div>
+                <div class="inversion-chain">
+                    <div class="ic-person">Jon (DBA)<br><small>$120,000</small></div>
+                    <span class="ic-arrow">earns more than</span>
+                    <div class="ic-person ic-highlight">Anthony (IT Director)<br><small>$93,000</small></div>
+                    <span class="ic-arrow">·</span>
+                    <div class="ic-person">Geremia (IT Director)<br><small>$133,000</small></div>
+                    <span class="ic-arrow">earns more than</span>
+                    <div class="ic-person ic-highlight">Anthony (IT Director)<br><small>$93,000</small></div>
+                </div>
+            </div>
+
+            <div class="section-gap"></div>
+
+            <!-- ── Section: Compensation Breakdown ── -->
+            <div class="section-label">Team Compensation — Current vs. Proposed</div>
+
+            <div style="background:#fff;border:1px solid #e8ecf1;border-radius:10px;overflow:hidden;margin-bottom:12px;">
+            <table class="comp-table">
+                <thead>
+                    <tr>
+                        <th>Team Member</th>
+                        <th>Current Base</th>
+                        <th style="text-align:left;padding-left:16px;">Market Position</th>
+                        <th>Proposed Base</th>
+                        <th>Δ Change</th>
+                        <th>Status</th>
+                    </tr>
+                </thead>
+                <tbody>
+
+                    <!-- Anthony — primary ask -->
+                    <tr class="row-highlighted">
+                        <td>
+                            <div class="ct-name">Anthony Trujillo</div>
+                            <div class="ct-title-current">IT Director, South</div>
+                            <div class="ct-title-future">→ VP, Business Systems & Technology</div>
+                        </td>
+                        <td><span class="ct-base">$93,000</span></td>
+                        <td>
+                            <!-- Market: $180K–$220K, sweet spot ~$200K -->
+                            <!-- Current at 0% of range, proposed at 56% -->
+                            <div class="market-bar-wrap" style="align-items:flex-start;">
+                                <div class="market-bar" style="width:140px;">
+                                    <div class="market-bar-fill" style="left:0;width:100%;background:#e8ecf1;"></div>
+                                    <!-- sweet spot marker at ~56% ($200K in $180–$220K range) -->
+                                    <div class="market-bar-sweet" style="left:56%;"></div>
+                                    <!-- current: $93K is well below $180K floor — show at 0 -->
+                                    <div class="market-bar-current" style="left:0;"></div>
+                                    <!-- proposed: $200K at 56% of range width -->
+                                    <div class="market-bar-proposed" style="left:56%;"></div>
+                                </div>
+                                <div class="market-label-warn">Below market · $87K gap to floor</div>
+                                <div class="market-label" style="font-size:9px;">Range: $180K – $220K</div>
+                            </div>
+                        </td>
+                        <td><span class="ct-base-new">$200,000</span></td>
+                        <td><span class="ct-delta-pos">+$107K<br><small>+115%</small></span></td>
+                        <td><span class="badge badge-ask">Primary Ask</span></td>
+                    </tr>
+
+                    <!-- Geremia -->
+                    <tr>
+                        <td>
+                            <div class="ct-name">Geremia Doan</div>
+                            <div class="ct-title-current">IT Director, North</div>
+                            <div class="ct-title-future">→ Director, IT Infrastructure & Security</div>
+                        </td>
+                        <td><span class="ct-base">$133,000</span></td>
+                        <td>
+                            <!-- Market: $150K–$175K, current at ~0% (below floor) -->
+                            <div class="market-bar-wrap" style="align-items:flex-start;">
+                                <div class="market-bar" style="width:140px;">
+                                    <div class="market-bar-fill" style="left:0;width:100%;background:#e8ecf1;"></div>
+                                    <div class="market-bar-sweet" style="left:50%;"></div>
+                                    <div class="market-bar-current" style="left:0;"></div>
+                                </div>
+                                <div class="market-label-warn">Below market · $17K to floor</div>
+                                <div class="market-label" style="font-size:9px;">Range: $150K – $175K</div>
+                            </div>
+                        </td>
+                        <td><span class="ct-delta-none">—</span></td>
+                        <td><span class="ct-delta-none">—</span></td>
+                        <td><span class="badge badge-none">Future phase</span></td>
+                    </tr>
+
+                    <!-- Jon -->
+                    <tr>
+                        <td>
+                            <div class="ct-name">Jon Andrews</div>
+                            <div class="ct-title-current">Database Administrator</div>
+                            <div class="ct-title-future">→ Database Administrator (no change)</div>
+                        </td>
+                        <td><span class="ct-base">$120,000</span></td>
+                        <td>
+                            <!-- Market: $105K–$130K, current ~60% through range -->
+                            <div class="market-bar-wrap" style="align-items:flex-start;">
+                                <div class="market-bar" style="width:140px;">
+                                    <div class="market-bar-fill" style="left:0;width:100%;background:#e8ecf1;"></div>
+                                    <div class="market-bar-sweet" style="left:50%;"></div>
+                                    <div class="market-bar-current" style="left:60%;"></div>
+                                </div>
+                                <div class="market-label-good">At market</div>
+                                <div class="market-label" style="font-size:9px;">Range: $105K – $130K</div>
+                            </div>
+                        </td>
+                        <td><span class="ct-delta-none">—</span></td>
+                        <td><span class="ct-delta-none">—</span></td>
+                        <td><span class="badge badge-ok">At market</span></td>
+                    </tr>
+
+                    <!-- Francis — secondary ask -->
+                    <tr class="row-highlighted">
+                        <td>
+                            <div class="ct-name">Francis Ferma</div>
+                            <div class="ct-title-current">Network Administrator</div>
+                            <div class="ct-title-future">→ IT Service Delivery Manager</div>
+                        </td>
+                        <td><span class="ct-base">$66,000</span></td>
+                        <td>
+                            <!-- Market: $85K–$120K, current well below floor -->
+                            <div class="market-bar-wrap" style="align-items:flex-start;">
+                                <div class="market-bar" style="width:140px;">
+                                    <div class="market-bar-fill" style="left:0;width:100%;background:#e8ecf1;"></div>
+                                    <div class="market-bar-sweet" style="left:44%;"></div>
+                                    <div class="market-bar-current" style="left:0;"></div>
+                                    <div class="market-bar-proposed" style="left:44%;"></div>
+                                </div>
+                                <div class="market-label-warn">Below market · $19K gap to floor</div>
+                                <div class="market-label" style="font-size:9px;">Range: $85K – $120K</div>
+                            </div>
+                        </td>
+                        <td><span class="ct-base-new">$100,000</span></td>
+                        <td><span class="ct-delta-pos">+$34K<br><small>+52%</small></span></td>
+                        <td><span class="badge badge-ask">Secondary Ask</span></td>
+                    </tr>
+
+                    <!-- Tom -->
+                    <tr>
+                        <td>
+                            <div class="ct-name">Tom Jarrell</div>
+                            <div class="ct-title-current">Network Administrator</div>
+                            <div class="ct-title-future">→ Systems Administrator</div>
+                        </td>
+                        <td><span class="ct-base">$75,000</span></td>
+                        <td>
+                            <!-- Market: $70K–$85K, current at ~33% -->
+                            <div class="market-bar-wrap" style="align-items:flex-start;">
+                                <div class="market-bar" style="width:140px;">
+                                    <div class="market-bar-fill" style="left:0;width:100%;background:#e8ecf1;"></div>
+                                    <div class="market-bar-sweet" style="left:50%;"></div>
+                                    <div class="market-bar-current" style="left:33%;"></div>
+                                </div>
+                                <div class="market-label-good">At market</div>
+                                <div class="market-label" style="font-size:9px;">Range: $70K – $85K</div>
+                            </div>
+                        </td>
+                        <td><span class="ct-delta-none">—</span></td>
+                        <td><span class="ct-delta-none">—</span></td>
+                        <td><span class="badge badge-ok">At market</span></td>
+                    </tr>
+
+                    <!-- Rogi -->
+                    <tr>
+                        <td>
+                            <div class="ct-name">Rogi Poblete</div>
+                            <div class="ct-title-current">Clinical Project Specialist</div>
+                            <div class="ct-title-future">→ Clinical Systems Specialist</div>
+                        </td>
+                        <td><span class="ct-base">$75,000</span></td>
+                        <td>
+                            <!-- Market: $75K–$95K, current at floor -->
+                            <div class="market-bar-wrap" style="align-items:flex-start;">
+                                <div class="market-bar" style="width:140px;">
+                                    <div class="market-bar-fill" style="left:0;width:100%;background:#e8ecf1;"></div>
+                                    <div class="market-bar-sweet" style="left:40%;"></div>
+                                    <div class="market-bar-current" style="left:0;"></div>
+                                </div>
+                                <div class="market-label-warn">At market floor</div>
+                                <div class="market-label" style="font-size:9px;">Range: $75K – $95K</div>
+                            </div>
+                        </td>
+                        <td><span class="ct-delta-none">—</span></td>
+                        <td><span class="ct-delta-none">—</span></td>
+                        <td><span class="badge badge-none">Future phase</span></td>
+                    </tr>
+
+                </tbody>
+            </table>
+            </div>
+            <div style="font-size:11px;color:#8a95a8;margin-bottom:48px;">
+                Market ranges sourced from Salary.com, CompTIA, HIMSS, Robert Half, and BLS — healthcare IT, Southern California / remote-hybrid roles. All-in cost includes 25% burden (taxes, benefits). ● Current &nbsp; ● Proposed &nbsp; | Sweet spot marker.
+            </div>
+
+            <!-- ── Section: Cost-Benefit ── -->
+            <div class="section-label">Cost-Benefit Analysis</div>
+            <div class="cba-grid">
+
+                <div class="cba-card">
+                    <div class="cba-card-header cost">✓ Cost of the Raises</div>
+                    <div class="cba-line">
+                        <span class="cba-line-label">Anthony: $93K → $200K</span>
+                        <span class="cba-line-value">+$107,000</span>
+                    </div>
+                    <div class="cba-line">
+                        <span class="cba-line-label">Francis: $66K → $100K</span>
+                        <span class="cba-line-value">+$34,000</span>
+                    </div>
+                    <div class="cba-line">
+                        <span class="cba-line-label">Burden (25%) on delta</span>
+                        <span class="cba-line-value">+$35,250</span>
+                    </div>
+                    <div class="cba-total">
+                        <span>Annual increase</span>
+                        <span style="color:#059669;">$176,250</span>
+                    </div>
+                    <div class="cba-footnote">Spread across 12–16 facilities, this is roughly $11–15K per facility per year — less than one week of downtime cost.</div>
+                </div>
+
+                <div class="cba-card">
+                    <div class="cba-card-header risk">✗ Cost of Inaction</div>
+                    <div class="cba-line">
+                        <span class="cba-line-label">VP-level IT recruiter fee (20–25%)</span>
+                        <span class="cba-line-value red">$40,000–$50,000</span>
+                    </div>
+                    <div class="cba-line">
+                        <span class="cba-line-label">Onboarding & ramp (6–12 mo.)</span>
+                        <span class="cba-line-value red">$50,000–$100,000</span>
+                    </div>
+                    <div class="cba-line">
+                        <span class="cba-line-label">Institutional knowledge loss</span>
+                        <span class="cba-line-value red">Unquantifiable</span>
+                    </div>
+                    <div class="cba-line">
+                        <span class="cba-line-label">Delayed merger integration (4 facilities)</span>
+                        <span class="cba-line-value red">$50,000–$150,000</span>
+                    </div>
+                    <div class="cba-total">
+                        <span>Conservative one-time cost</span>
+                        <span style="color:#dc2626;">$140K–$300K+</span>
+                    </div>
+                    <div class="cba-footnote">Replacing a VP-level IT leader mid-merger integration, during a 30×30 growth initiative, is a high-risk and high-cost event — one-time spend that exceeds the annual raise cost.</div>
+                </div>
+
+            </div>
+
+            <div class="verdict-bar">
+                <div class="verdict-icon">📊</div>
+                <div class="verdict-text">
+                    <strong>The raises cost $176K/year.</strong> Replacing Anthony alone would cost $140–300K — one time — and would reset the 30×30 initiative, the merger integration, and NorthPoint by 6–12 months.
+                    The raises pay for themselves in retained institutional knowledge and uninterrupted execution.
+                </div>
+            </div>
+
+            <div class="section-gap"></div>
+
+            <!-- ── Section: Value Delivered ── -->
+            <div class="section-label">What This Team Manages</div>
+            <div class="value-grid" style="margin-bottom:48px;">
+                <div class="value-card">
+                    <div class="value-number">$2.3M</div>
+                    <div class="value-label">Annual IT budget managed across all categories</div>
+                </div>
+                <div class="value-card">
+                    <div class="value-number">12</div>
+                    <div class="value-label">Active facilities supported — growing to 16</div>
+                </div>
+                <div class="value-card">
+                    <div class="value-number">104</div>
+                    <div class="value-label">Software platforms tracked and governed</div>
+                </div>
+                <div class="value-card">
+                    <div class="value-number">6</div>
+                    <div class="value-label">IT staff managing 2.0 facilities per person — above healthcare benchmark</div>
+                </div>
+                <div class="value-card">
+                    <div class="value-number">~$85K</div>
+                    <div class="value-label">Estimated per-facility onboarding cost — vs. $200K+ with outside consultants</div>
+                </div>
+                <div class="value-card">
+                    <div class="value-number">30×30</div>
+                    <div class="value-label">Strategic initiative: 30 facilities by 2030 — IT is the critical path</div>
+                </div>
+            </div>
+
+            <!-- ── Section: Options ── -->
+            <div class="section-label">Options for Consideration</div>
+            <div class="options-grid" style="margin-bottom:48px;">
+
+                <div class="option-card">
+                    <div class="option-letter">Option A</div>
+                    <div class="option-title">Departmental Budget Authority</div>
+                    <div class="option-desc">Anthony manages the IT personnel budget line directly and makes comp decisions within it — tied to growth and performance milestones.</div>
+                    <ul class="option-bullets">
+                        <li>Removes Marc's burden of managing individual IT salaries</li>
+                        <li>Comp increases tied to facility onboarding — IT earns more as the company grows</li>
+                        <li>Single point of accountability: Anthony owns outcomes and costs</li>
+                        <li>Enables a bonus structure aligned to NACS performance</li>
+                    </ul>
+                    <div class="option-bottom">
+                        <span class="option-cost-label">Annual personnel budget</span>
+                        <span class="option-cost-value">~$742K → ~$918K</span>
+                    </div>
+                </div>
+
+                <div class="option-card option-preferred">
+                    <div class="option-preferred-badge">Alternative</div>
+                    <div class="option-letter">Option B</div>
+                    <div class="option-title">Targeted Retention Raises</div>
+                    <div class="option-desc">Marc retains comp oversight. Anthony and Francis receive immediate market corrections. Remaining team addressed in a future phase.</div>
+                    <ul class="option-bullets">
+                        <li>Anthony: $93K → $200K, title VP, Business Systems & Technology</li>
+                        <li>Francis: $66K → $100K, title IT Service Delivery Manager</li>
+                        <li>Marc retains full budget authority</li>
+                        <li>Remaining team (Geremia, Rogi) addressed in Phase 2</li>
+                    </ul>
+                    <div class="option-bottom">
+                        <span class="option-cost-label">Annual increase (all-in)</span>
+                        <span class="option-cost-value">+$176,250</span>
+                    </div>
+                </div>
+
+            </div>
+
+            <!-- ── Footer ── -->
+            <div class="doc-footer">
+                <span>NACS IT Department · Prepared February 2026 · Confidential</span>
+                <span>Market data: Salary.com · CompTIA · HIMSS · Robert Half · BLS</span>
+            </div>
+
+        </div><!-- /doc -->
+        </div><!-- /content -->
+    </div>
+</div>
+<script src="/nav.js"></script>
+<script>
+npInit(null).then(session => {
+    if (!session) return;
+    npPopulateTopbar();
+    renderNav('budget');
+});
+</script>
+</body>
+</html>
