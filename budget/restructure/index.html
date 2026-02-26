@@ -913,7 +913,7 @@
 
 <script src="/nav.js"></script>
 <script>
-npInit(null).then(session => {
+npInit(['budget', 'restructure']).then(session => {
     if (!session) return;
     npPopulateTopbar();
     renderNav('budget');

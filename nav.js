@@ -62,6 +62,28 @@ function renderNav(active) {
       module: 'field-guide',
       icon: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 19.5A2.5 2.5 0 016.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 014 19.5v-15A2.5 2.5 0 016.5 2z"/></svg>`
     },
+    // ── Direct-access pages for exec/review role ──
+    {
+      id: 'restructure',
+      href: '/budget/restructure/index.html',
+      label: 'Case for Restructure',
+      module: 'restructure',
+      icon: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 013 3L7 19l-4 1 1-4L16.5 3.5z"/></svg>`
+    },
+    {
+      id: 'budget-planner',
+      href: '/budget/planner/index.html',
+      label: 'Budget Planner',
+      module: 'budget-planner',
+      icon: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 000 7h5a3.5 3.5 0 010 7H6"/></svg>`
+    },
+    {
+      id: 'responsibility-planner',
+      href: '/team/responsibility-planner/index.html',
+      label: 'Roles & Responsibilities',
+      module: 'responsibility-planner',
+      icon: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 00-3-3.87"/><path d="M16 3.13a4 4 0 010 7.75"/></svg>`
+    },
   ];
 
   const mount = document.getElementById('rail-mount');

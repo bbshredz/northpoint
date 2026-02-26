@@ -476,7 +476,7 @@ let _activeCategory = null;
 PEOPLE.forEach(p => { _proposed[p.id] = p.base; });
 
 // ── Auth ──────────────────────────────────────────────────────────────────
-npInit('budget').then(session => {
+npInit(['budget', 'budget-planner']).then(session => {
     if (!session) return;
     npPopulateTopbar();
     renderNav('budget');

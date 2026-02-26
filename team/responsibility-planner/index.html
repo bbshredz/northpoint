@@ -543,6 +543,17 @@ async function init() {
 }
 
 async function showApp() {
+  // Module check — allow 'team', 'responsibility-planner', or 'admin'
+  const { data: roleData } = await db.from('user_roles').select('role, modules').eq('user_id', currentUser.id).single();
+  if (roleData) {
+    const r = roleData.role;
+    const m = roleData.modules || [];
+    if (r !== 'admin' && !m.includes('team') && !m.includes('responsibility-planner')) {
+      window.location.href = '/index.html';
+      return;
+    }
+  }
+
   const email = currentUser.email;
   const name = email.split('@')[0];
   const initials = name.slice(0,2).toUpperCase();

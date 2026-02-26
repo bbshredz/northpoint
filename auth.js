@@ -36,9 +36,12 @@ async function npInit(requireModule = null) {
     _npModules = ['team','facilities','software','projects','field-guide'];
   }
 
-  if (requireModule && !npHasModule(requireModule)) {
-    window.location.href = '/index.html';
-    return null;
+  if (requireModule) {
+    const mods = Array.isArray(requireModule) ? requireModule : [requireModule];
+    if (!mods.some(m => npHasModule(m))) {
+      window.location.href = '/index.html';
+      return null;
+    }
   }
 
   return { user: _npUser, role: _npRole, modules: _npModules };
