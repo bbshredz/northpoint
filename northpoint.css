@@ -1200,3 +1200,56 @@ html { background: var(--navy); }
 
 .rum-signout:hover { background: rgba(248,113,113,0.1); }
 }
+
+/* ── LOCKED / FROSTED NAV ITEMS ── */
+.rail-item--locked {
+    opacity: 0.22;
+    pointer-events: none;
+    cursor: default;
+    position: relative;
+    filter: grayscale(0.6);
+}
+
+/* Lock icon — tiny, tucked top-right of the icon area */
+.rail-lock-icon {
+    display: none;
+    position: absolute;
+    top: 6px;
+    right: 6px;
+    width: 9px;
+    height: 9px;
+    stroke: rgba(255,255,255,0.5);
+    flex-shrink: 0;
+}
+
+/* Show lock icon when rail is expanded */
+.rail.is-open .rail-item--locked .rail-lock-icon {
+    display: block;
+}
+
+/* Frosted tool card — for module index pages */
+.tool-card.tile-locked {
+    pointer-events: none;
+    position: relative;
+    overflow: hidden;
+}
+.tool-card.tile-locked::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: rgba(240,242,245,0.72);
+    backdrop-filter: blur(3px);
+    -webkit-backdrop-filter: blur(3px);
+    border-radius: inherit;
+    z-index: 5;
+}
+.tool-card.tile-locked::before {
+    content: '🔒';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%,-50%);
+    font-size: 20px;
+    z-index: 6;
+    opacity: 0.4;
+}
