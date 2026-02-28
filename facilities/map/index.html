@@ -153,6 +153,8 @@
             overflow: hidden;
         }
         #facility-panel.open { transform: translateX(0); }
+        #facility-panel.panel-refresh .panel-header,
+        #facility-panel.panel-refresh .panel-body { opacity: 0.15; transition: opacity 0.1s; }
 
         .panel-close {
             position: absolute;
@@ -388,6 +390,7 @@ npInit(null).then(session => {
 
 // ── Map ──────────────────────────────────────────────────────────────────────
 let _map = null;
+let _openFacilityId = null;
 
 async function loadMap() {
     // Init Leaflet
@@ -397,15 +400,8 @@ async function loadMap() {
         zoomControl: false,
     });
 
-    // Zoom control — top right so panel doesn't overlap
+    // Zoom control — top left so panel doesn't overlap
     L.control.zoom({ position: 'topleft' }).addTo(_map);
-
-    // Stabilize map after layout settles (debounced so it doesn't fire mid-transition)
-    let _resizeTimer;
-    new ResizeObserver(() => {
-        clearTimeout(_resizeTimer);
-        _resizeTimer = setTimeout(() => { if (_map) _map.invalidateSize({ animate: false }); }, 200);
-    }).observe(document.getElementById('map'));
 
     // CARTO dark tiles
     L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', {
@@ -451,16 +447,14 @@ function addMarker(f) {
     });
 
     const marker = L.marker([f.lat, f.lng], { icon }).addTo(_map);
-    marker.on('click', () => openPanel(f, sc));
+    marker.on('click', () => openPanel(f));
 }
 
 // ── Detail panel ─────────────────────────────────────────────────────────────
-function openPanel(f, sc) {
-    // Populate
+function populatePanel(f) {
     document.getElementById('panel-region').textContent = f.region || '';
     document.getElementById('panel-name').textContent = f.name;
 
-    // Status badge
     const badge = document.getElementById('panel-status');
     const badgeText = f.is_service_center ? 'Service Center'
         : f.is_incoming ? 'Incoming'
@@ -475,7 +469,6 @@ function openPanel(f, sc) {
     badge.className = `panel-status-badge ${badgeClass}`;
     badge.textContent = badgeText;
 
-    // Address (links to Google Maps)
     const addr = `${f.address}, ${f.city}, ${f.state} ${f.zip}`;
     const mapsUrl = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(addr)}`;
     document.getElementById('panel-address').innerHTML =
@@ -493,7 +486,6 @@ function openPanel(f, sc) {
         notesWrap.style.display = 'none';
     }
 
-    // Footer buttons
     document.getElementById('panel-maps-btn').href = mapsUrl;
     const ticketsBtn = document.getElementById('panel-tickets-btn');
     if (f.tickets_url) {
@@ -503,14 +495,39 @@ function openPanel(f, sc) {
         ticketsBtn.removeAttribute('href');
         ticketsBtn.style.display = 'none';
     }
-
-    // Open
-    document.getElementById('facility-panel').classList.add('open');
 }
 
-document.getElementById('panel-close').addEventListener('click', () => {
+function openPanel(f) {
+    const panel = document.getElementById('facility-panel');
+
+    // Same facility — toggle closed
+    if (_openFacilityId === f.id) {
+        closePanel();
+        return;
+    }
+
+    if (panel.classList.contains('open')) {
+        // Different facility while open — flash content, no slide
+        panel.classList.add('panel-refresh');
+        setTimeout(() => {
+            populatePanel(f);
+            panel.classList.remove('panel-refresh');
+        }, 150);
+    } else {
+        // First open — slide drawer in
+        populatePanel(f);
+        panel.classList.add('open');
+    }
+
+    _openFacilityId = f.id;
+}
+
+function closePanel() {
     document.getElementById('facility-panel').classList.remove('open');
-});
+    _openFacilityId = null;
+}
+
+document.getElementById('panel-close').addEventListener('click', closePanel);
 </script>
 </body>
 </html>
