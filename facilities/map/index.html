@@ -495,22 +495,12 @@ function openPanel(f, sc) {
         ticketsBtn.style.display = 'none';
     }
 
-    // Open — only pan if drawer wasn't already open
-    const panel = document.getElementById('facility-panel');
-    const wasOpen = panel.classList.contains('open');
-    panel.classList.add('open');
-
-    if (_map && !wasOpen) {
-        _map.panBy([120, 0], { animate: true, duration: 0.3 });
-    }
+    // Open
+    document.getElementById('facility-panel').classList.add('open');
 }
 
 document.getElementById('panel-close').addEventListener('click', () => {
-    const panel = document.getElementById('facility-panel');
-    panel.classList.remove('open');
-    if (_map) {
-        _map.panBy([-120, 0], { animate: true, duration: 0.3 });
-    }
+    document.getElementById('facility-panel').classList.remove('open');
 });
 </script>
 </body>
