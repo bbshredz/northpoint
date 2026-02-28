@@ -172,8 +172,9 @@ body {
     font-size: 13px;
     font-weight: 500;
     opacity: 0;
-    transition: opacity 0.15s 0.06s;
+    transition: opacity 0.08s 0.18s;
 }
+.rail.is-open .rail-item { width: 100%; }
 .rail.is-open .rail-item-label { opacity: 1; }
 
 .rail-item:hover {

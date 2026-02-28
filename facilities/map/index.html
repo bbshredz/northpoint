@@ -400,9 +400,12 @@ async function loadMap() {
     // Zoom control — top right so panel doesn't overlap
     L.control.zoom({ position: 'topleft' }).addTo(_map);
 
-    // Stabilize map on container resize (rail open/close, window resize)
-    new ResizeObserver(() => _map.invalidateSize({ animate: false }))
-        .observe(document.getElementById('map'));
+    // Stabilize map after layout settles (debounced so it doesn't fire mid-transition)
+    let _resizeTimer;
+    new ResizeObserver(() => {
+        clearTimeout(_resizeTimer);
+        _resizeTimer = setTimeout(() => { if (_map) _map.invalidateSize({ animate: false }); }, 200);
+    }).observe(document.getElementById('map'));
 
     // CARTO dark tiles
     L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', {
