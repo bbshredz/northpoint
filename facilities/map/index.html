@@ -407,6 +407,9 @@ async function loadMap() {
     // Zoom control — top left so panel doesn't overlap
     L.control.zoom({ position: 'topleft' }).addTo(_map);
 
+    // Re-center once after layout fully settles (prevents init drift)
+    setTimeout(() => _map.setView([36.8, -119.4], 7, { animate: false }), 400);
+
     // CARTO dark tiles
     L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', {
         attribution: '&copy; <a href="https://carto.com/">CARTO</a>',
