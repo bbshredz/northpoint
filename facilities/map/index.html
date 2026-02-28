@@ -398,6 +398,10 @@ async function loadMap() {
         center: [36.8, -119.4],
         zoom: 7,
         zoomControl: false,
+        scrollWheelZoom: true,
+        wheelPxPerZoomLevel: 120,   // default 60 — higher = less zoom per scroll tick
+        zoomSnap: 0.25,             // quarter-step zoom levels for smooth feel
+        zoomDelta: 0.5,             // zoom by 0.5 levels per scroll, not 1
     });
 
     // Zoom control — top left so panel doesn't overlap
