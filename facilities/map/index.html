@@ -134,33 +134,34 @@
         .legend-dot.s-service { background: #3b82f6; }
         .legend-dot.s-incoming { background: transparent; border: 1.5px dashed #64748b; }
 
-        /* ── Detail panel ── */
+        /* ── Detail panel — top slide ── */
         #facility-panel {
             position: absolute;
             top: 16px;
+            left: 16px;
             right: 16px;
-            bottom: 16px;
-            width: 300px;
+            height: 190px;
             background: rgba(10, 15, 30, 0.94);
             backdrop-filter: blur(12px);
             border: 1px solid #1e293b;
             border-radius: 12px;
             z-index: 500;
-            opacity: 0;
-            pointer-events: none;
-            transition: opacity 0.22s ease;
+            transform: translateY(calc(-100% - 32px));
+            transition: transform 0.32s cubic-bezier(0.4, 0, 0.2, 1);
             display: flex;
-            flex-direction: column;
+            flex-direction: row;
             overflow: hidden;
+            pointer-events: none;
         }
-        #facility-panel.open { opacity: 1; pointer-events: auto; }
-        #facility-panel.panel-refresh .panel-header,
-        #facility-panel.panel-refresh .panel-body { opacity: 0.15; transition: opacity 0.1s; }
+        #facility-panel.open { transform: translateY(0); pointer-events: auto; }
+        #facility-panel.panel-refresh .panel-photo-col,
+        #facility-panel.panel-refresh .panel-detail-col,
+        #facility-panel.panel-refresh .panel-stats-col { opacity: 0.15; transition: opacity 0.1s; }
 
         .panel-close {
             position: absolute;
-            top: 12px;
-            right: 12px;
+            top: 10px;
+            right: 10px;
             width: 26px;
             height: 26px;
             border: none;
@@ -177,9 +178,49 @@
         }
         .panel-close:hover { background: #334155; color: #e2e8f0; }
 
-        .panel-header {
-            padding: 20px 20px 16px;
-            border-bottom: 1px solid #1e293b;
+        /* ── Photo column ── */
+        .panel-photo-col {
+            width: 210px;
+            flex-shrink: 0;
+            position: relative;
+            overflow: hidden;
+            background: #0f172a;
+        }
+        .panel-photo-col img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            display: none;
+        }
+        .panel-photo-placeholder {
+            position: absolute;
+            inset: 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
+        }
+        .panel-photo-placeholder svg { width: 36px; height: 36px; opacity: 0.25; }
+        .panel-photo-num {
+            font-size: 11px;
+            font-weight: 600;
+            letter-spacing: 0.12em;
+            color: #475569;
+            text-transform: uppercase;
+        }
+
+        /* ── Detail column ── */
+        .panel-detail-col {
+            flex: 1;
+            padding: 16px 20px;
+            display: flex;
+            flex-direction: column;
+            gap: 5px;
+            overflow: hidden;
+            border-left: 1px solid #1e293b;
+            min-width: 0;
         }
         .panel-region {
             font-size: 10px;
@@ -187,14 +228,15 @@
             letter-spacing: 0.12em;
             text-transform: uppercase;
             color: #64748b;
-            margin-bottom: 6px;
         }
         .panel-name {
             font-family: 'DM Serif Display', serif;
-            font-size: 18px;
+            font-size: 17px;
             color: #f1f5f9;
             line-height: 1.2;
-            margin-bottom: 10px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
         }
         .panel-status-badge {
             display: inline-flex;
@@ -204,25 +246,24 @@
             font-weight: 500;
             padding: 3px 9px;
             border-radius: 20px;
+            align-self: flex-start;
         }
         .psb-online  { background: #052e16; color: #4ade80; }
         .psb-warning { background: #1c1200; color: #fbbf24; }
         .psb-offline { background: #1f0404; color: #f87171; }
         .psb-incoming { background: #0f172a; color: #64748b; border: 1px solid #334155; }
         .psb-service  { background: #0c1a3d; color: #60a5fa; }
-
-        .panel-body {
-            flex: 1;
-            padding: 16px 20px;
-            overflow-y: auto;
+        .panel-detail-rows {
             display: flex;
             flex-direction: column;
-            gap: 16px;
+            gap: 5px;
+            margin-top: 4px;
         }
         .panel-row {
             display: flex;
-            flex-direction: column;
-            gap: 3px;
+            gap: 8px;
+            align-items: baseline;
+            min-width: 0;
         }
         .panel-row-label {
             font-size: 10px;
@@ -230,32 +271,44 @@
             letter-spacing: 0.1em;
             text-transform: uppercase;
             color: #475569;
+            white-space: nowrap;
+            flex-shrink: 0;
         }
         .panel-row-value {
-            font-size: 13px;
+            font-size: 12px;
             color: #cbd5e1;
             line-height: 1.4;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
         }
-        .panel-row-value a {
-            color: #60a5fa;
-            text-decoration: none;
-        }
+        .panel-row-value a { color: #60a5fa; text-decoration: none; }
         .panel-row-value a:hover { text-decoration: underline; }
 
-        .panel-divider {
-            height: 1px;
-            background: #1e293b;
-        }
-
-        .panel-footer {
-            padding: 14px 20px;
-            border-top: 1px solid #1e293b;
+        /* ── Stats column ── */
+        .panel-stats-col {
+            width: 175px;
+            flex-shrink: 0;
+            padding: 16px;
             display: flex;
-            gap: 8px;
+            flex-direction: column;
+            justify-content: space-between;
+            border-left: 1px solid #1e293b;
         }
+        .panel-stats { display: flex; flex-direction: column; gap: 10px; }
+        .panel-stat { display: flex; flex-direction: column; gap: 2px; }
+        .panel-stat-label {
+            font-size: 10px;
+            font-weight: 600;
+            letter-spacing: 0.1em;
+            text-transform: uppercase;
+            color: #475569;
+        }
+        .panel-stat-value { font-size: 13px; color: #cbd5e1; font-weight: 500; }
+        .panel-actions { display: flex; flex-direction: column; gap: 6px; }
         .panel-btn {
-            flex: 1;
-            padding: 8px 0;
+            width: 100%;
+            padding: 7px 0;
             border-radius: 7px;
             font-size: 12px;
             font-weight: 500;
@@ -266,17 +319,9 @@
             border: 1px solid transparent;
             transition: background 0.15s;
         }
-        .panel-btn-primary {
-            background: #1d4ed8;
-            color: #fff;
-            border-color: #1d4ed8;
-        }
+        .panel-btn-primary { background: #1d4ed8; color: #fff; border-color: #1d4ed8; }
         .panel-btn-primary:hover { background: #2563eb; }
-        .panel-btn-secondary {
-            background: transparent;
-            color: #94a3b8;
-            border-color: #334155;
-        }
+        .panel-btn-secondary { background: transparent; color: #94a3b8; border-color: #334155; }
         .panel-btn-secondary:hover { background: #1e293b; color: #e2e8f0; }
 
         /* ── Leaflet overrides ── */
@@ -342,37 +387,57 @@
             <!-- Facility detail panel -->
             <div id="facility-panel">
                 <button class="panel-close" id="panel-close" title="Close">&times;</button>
-                <div class="panel-header">
+
+                <!-- Photo -->
+                <div class="panel-photo-col">
+                    <img id="panel-photo" src="" alt="">
+                    <div class="panel-photo-placeholder" id="panel-photo-placeholder">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+                        <span class="panel-photo-num" id="panel-photo-num"></span>
+                    </div>
+                </div>
+
+                <!-- Details -->
+                <div class="panel-detail-col">
                     <div class="panel-region" id="panel-region"></div>
                     <div class="panel-name" id="panel-name"></div>
                     <span class="panel-status-badge" id="panel-status"></span>
-                </div>
-                <div class="panel-body">
-                    <div class="panel-row">
-                        <div class="panel-row-label">Address</div>
-                        <div class="panel-row-value" id="panel-address"></div>
-                    </div>
-                    <div class="panel-divider"></div>
-                    <div class="panel-row">
-                        <div class="panel-row-label">Phone</div>
-                        <div class="panel-row-value" id="panel-phone"></div>
-                    </div>
-                    <div class="panel-row">
-                        <div class="panel-row-label">Administrator</div>
-                        <div class="panel-row-value" id="panel-admin"></div>
-                    </div>
-                    <div class="panel-row">
-                        <div class="panel-row-label">Employees</div>
-                        <div class="panel-row-value" id="panel-emp"></div>
-                    </div>
-                    <div id="panel-notes-wrap" class="panel-row" style="display:none">
-                        <div class="panel-row-label">Notes</div>
-                        <div class="panel-row-value" id="panel-notes"></div>
+                    <div class="panel-detail-rows">
+                        <div class="panel-row">
+                            <span class="panel-row-label">Address</span>
+                            <span class="panel-row-value" id="panel-address"></span>
+                        </div>
+                        <div class="panel-row">
+                            <span class="panel-row-label">Phone</span>
+                            <span class="panel-row-value" id="panel-phone"></span>
+                        </div>
+                        <div class="panel-row">
+                            <span class="panel-row-label">Admin</span>
+                            <span class="panel-row-value" id="panel-admin"></span>
+                        </div>
                     </div>
                 </div>
-                <div class="panel-footer">
-                    <a id="panel-maps-btn" class="panel-btn panel-btn-primary" href="#" target="_blank">Google Maps</a>
-                    <a id="panel-tickets-btn" class="panel-btn panel-btn-secondary" href="#" target="_blank">Tickets</a>
+
+                <!-- Stats + actions -->
+                <div class="panel-stats-col">
+                    <div class="panel-stats">
+                        <div class="panel-stat">
+                            <div class="panel-stat-label">Employees</div>
+                            <div class="panel-stat-value" id="panel-emp">—</div>
+                        </div>
+                        <div class="panel-stat">
+                            <div class="panel-stat-label">Open Tickets</div>
+                            <div class="panel-stat-value" id="panel-tickets">—</div>
+                        </div>
+                        <div class="panel-stat">
+                            <div class="panel-stat-label">UCx Status</div>
+                            <div class="panel-stat-value" id="panel-ucx">—</div>
+                        </div>
+                    </div>
+                    <div class="panel-actions">
+                        <a id="panel-maps-btn" class="panel-btn panel-btn-primary" href="#" target="_blank">Google Maps</a>
+                        <a id="panel-tickets-btn" class="panel-btn panel-btn-secondary" href="#" target="_blank" style="display:none">Tickets</a>
+                    </div>
                 </div>
             </div>
         </div>
@@ -460,7 +525,7 @@ function addMarker(f) {
 
 // ── Detail panel ─────────────────────────────────────────────────────────────
 function populatePanel(f) {
-    document.getElementById('panel-region').textContent = f.region || '';
+    document.getElementById('panel-region').textContent = (f.region || '').toUpperCase();
     document.getElementById('panel-name').textContent = f.name;
 
     const badge = document.getElementById('panel-status');
@@ -479,20 +544,20 @@ function populatePanel(f) {
 
     const addr = `${f.address}, ${f.city}, ${f.state} ${f.zip}`;
     const mapsUrl = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(addr)}`;
-    document.getElementById('panel-address').innerHTML =
-        `<a href="${mapsUrl}" target="_blank">${f.address}<br>${f.city}, ${f.state} ${f.zip}</a>`;
-
+    document.getElementById('panel-address').textContent = `${f.address}, ${f.city}, ${f.state}`;
     document.getElementById('panel-phone').textContent = f.phone || '—';
     document.getElementById('panel-admin').textContent = f.admin_name || '—';
-    document.getElementById('panel-emp').textContent = f.emp_count ? `${f.emp_count} employees` : '—';
+    document.getElementById('panel-emp').textContent = f.emp_count || '—';
 
-    const notesWrap = document.getElementById('panel-notes-wrap');
-    if (f.notes) {
-        document.getElementById('panel-notes').textContent = f.notes;
-        notesWrap.style.display = '';
-    } else {
-        notesWrap.style.display = 'none';
-    }
+    // Photo — try facility-specific image, fall back to placeholder
+    const photoImg = document.getElementById('panel-photo');
+    const photoPlaceholder = document.getElementById('panel-photo-placeholder');
+    document.getElementById('panel-photo-num').textContent = `Facility ${String(f.facility_number).padStart(2, '0')}`;
+    photoImg.style.display = 'none';
+    photoPlaceholder.style.display = 'flex';
+    photoImg.onload = () => { photoImg.style.display = 'block'; photoPlaceholder.style.display = 'none'; };
+    photoImg.onerror = () => { photoImg.style.display = 'none'; photoPlaceholder.style.display = 'flex'; };
+    photoImg.src = `/facilities/photos/${f.facility_number}.jpg`;
 
     document.getElementById('panel-maps-btn').href = mapsUrl;
     const ticketsBtn = document.getElementById('panel-tickets-btn');
