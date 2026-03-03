@@ -91,6 +91,13 @@ function renderNav(active) {
       module: 'swot',
       icon: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><line x1="12" y1="3" x2="12" y2="21"/><line x1="3" y1="12" x2="21" y2="12"/></svg>`
     },
+    {
+      id: 'stakeholder',
+      href: '/stakeholder/index.html',
+      label: 'Stakeholder Outreach',
+      module: 'stakeholder',
+      icon: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></svg>`
+    },
   ];
 
   const mount = document.getElementById('rail-mount');

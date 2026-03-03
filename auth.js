@@ -49,7 +49,7 @@ async function npInit(requireModule = null) {
 
 // Modules automatically granted by role (no Supabase modules column entry required)
 const ROLE_MODULES = {
-  exec: ['restructure', 'budget-planner', 'responsibility-planner', 'swot'],
+  exec: ['restructure', 'budget-planner', 'responsibility-planner', 'swot', 'stakeholder'],
 };
 
 function npHasModule(module) {
