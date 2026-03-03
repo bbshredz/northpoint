@@ -229,6 +229,19 @@
         }
         .form-check input { width: 14px; height: 14px; cursor: pointer; }
 
+        /* ── Framing prompt ── */
+        .framing-prompt {
+            background: rgba(59,130,246,0.07);
+            border: 1px solid rgba(59,130,246,0.2);
+            border-left: 3px solid #3b82f6;
+            border-radius: 8px;
+            padding: 12px 14px;
+            font-size: 12px;
+            color: #94a3b8;
+            line-height: 1.65;
+        }
+        .framing-prompt strong { color: #93c5fd; font-weight: 600; }
+
         .modal-footer {
             padding: 14px 24px;
             border-top: 1px solid #1e293b;
@@ -402,6 +415,9 @@
             </div>
             <!-- Form -->
             <div class="modal-form">
+                <div class="framing-prompt">
+                    <strong>Before you dial:</strong> Frame yourself as a VP of IT, Quality, or Care — not just tech support. Tell them you're gathering input to understand their experience and improve IT from the ground up. This gives people permission to be honest. Lead with curiosity. <em>"I'm here to listen, not defend."</em>
+                </div>
                 <div class="form-row">
                     <div class="form-group">
                         <label class="form-label">Name *</label>
@@ -415,7 +431,8 @@
                 <div class="form-row">
                     <div class="form-group">
                         <label class="form-label">Facility / Department</label>
-                        <input type="text" class="form-input" id="f-facility" placeholder="Lincoln Square Post-Acute">
+                        <input type="text" class="form-input" id="f-facility" list="facility-datalist" placeholder="Type or select a facility…" autocomplete="off">
+                        <datalist id="facility-datalist"></datalist>
                     </div>
                     <div class="form-group" style="flex:0 0 160px">
                         <label class="form-label">Region</label>
@@ -493,11 +510,31 @@ npInit('stakeholder').then(session => {
     npPopulateTopbar();
     renderNav('stakeholder');
     document.getElementById('f-date').value = new Date().toISOString().split('T')[0];
+    loadFacilities();
     loadResponses();
 });
 
-let _responses = [];
-let _editId    = null;
+let _responses  = [];
+let _editId     = null;
+let _facilities = [];
+
+// ── Facility datalist ─────────────────────────────────────────────────────────
+async function loadFacilities() {
+    const { data } = await _npSupabase
+        .from('facilities')
+        .select('name, region')
+        .order('name');
+    if (!data) return;
+    _facilities = data;
+    const dl = document.getElementById('facility-datalist');
+    dl.innerHTML = data.map(f => `<option value="${f.name}">`).join('');
+}
+
+// Auto-fill region when a facility is selected
+document.getElementById('f-facility').addEventListener('change', function() {
+    const match = _facilities.find(f => f.name === this.value);
+    if (match) document.getElementById('f-region').value = match.region || '';
+});
 
 // ── Load ─────────────────────────────────────────────────────────────────────
 async function loadResponses() {

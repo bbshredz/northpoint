@@ -580,16 +580,17 @@ function openPanel(f) {
     }
 
     if (panel.classList.contains('open')) {
-        // Different facility while open — flash content, no slide
+        // Different facility while open — flash content, no pan
         panel.classList.add('panel-refresh');
         setTimeout(() => {
             populatePanel(f);
             panel.classList.remove('panel-refresh');
         }, 150);
     } else {
-        // First open — slide drawer in
+        // First open — slide panel down, pan map up slightly
         populatePanel(f);
         panel.classList.add('open');
+        setTimeout(() => _map.panBy([0, -55], { animate: true, duration: 0.32 }), 60);
     }
 
     _openFacilityId = f.id;
@@ -597,6 +598,7 @@ function openPanel(f) {
 
 function closePanel() {
     document.getElementById('facility-panel').classList.remove('open');
+    _map.panBy([0, 55], { animate: true, duration: 0.32 });
     _openFacilityId = null;
 }
 

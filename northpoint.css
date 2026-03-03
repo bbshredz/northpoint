@@ -83,7 +83,7 @@ body {
     width: var(--rail-width);
     height: 100vh;
     border-right: 1px solid var(--navy-border);
-    z-index: 100;
+    z-index: 1001;
     overflow: hidden;
     transition: width var(--rail-transition), box-shadow var(--rail-transition);
 }
