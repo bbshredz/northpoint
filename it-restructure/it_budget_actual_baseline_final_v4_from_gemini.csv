@@ -1,0 +1,36 @@
+Category,Vendor,Ownership_Type,Allocation_Type,Cost_Driver,Include_Toggle,Annual_Cost_Expected,Annual_Cost_Low,Annual_Cost_High,Source,Confidence_Level,Notes
+Connectivity,TPX Communications,IT Owned,Shared,Usage,True,598777.54,568838.663,658655.294,DocLink 2025,High,Consolidated from DocLink
+Clinical Software,PointClickCare,Department Owned (Non-IT),Shared,Usage,False,258419.19,245498.2305,284261.10900000005,DocLink 2025,High,Consolidated from DocLink
+Software (Shared),Stage Marketing,IT Steward (Shared),Shared,Usage,True,252655.72999999998,240022.9435,277921.303,DocLink 2025,High,Consolidated from DocLink
+Connectivity,Fusion Connect,IT Owned,Shared,Usage,True,221641.96,210559.862,243806.15600000005,DocLink 2025,High,Consolidated from DocLink
+Personnel,Geremia Doan,IT Owned,Enterprise,Headcount,True,166750.0,159600.0,179550.0,Comp Estimates,High,"Base: $133,000 | 25% Burden (Taxes/Benefits) + $500 Bonus"
+Personnel,Jon Andrews,IT Owned,Enterprise,Headcount,True,150500.0,144000.0,162000.0,Comp Estimates,High,"Base: $120,000 | 25% Burden (Taxes/Benefits) + $500 Bonus"
+Personnel,Anthony Trujillo,IT Owned,Enterprise,Headcount,True,116750.0,111600.0,125550.00000000001,Comp Estimates,High,"Base: $93,000 | 25% Burden (Taxes/Benefits) + $500 Bonus"
+Other IT,Image 2000 (Copiers),IT Owned,Shared,Usage,True,116187.56,110378.182,127806.31600000002,DocLink 2025,High,Consolidated from DocLink
+Personnel,Tom Jarrell,IT Owned,Enterprise,Headcount,True,94250.0,90000.0,101250.0,Comp Estimates,High,"Base: $75,000 | 25% Burden (Taxes/Benefits) + $500 Bonus"
+Personnel,Rogi Poblete,IT Owned,Enterprise,Headcount,True,94250.0,90000.0,101250.0,Comp Estimates,High,"Base: $75,000 | 25% Burden (Taxes/Benefits) + $500 Bonus"
+Personnel,Francis Ferma,IT Owned,Enterprise,Headcount,True,83000.0,79200.0,89100.0,Comp Estimates,High,"Base: $66,000 | 25% Burden (Taxes/Benefits) + $500 Bonus"
+Security,"DRU.ID SECURITY, LLC",IT Owned,Shared,Usage,True,82382.47,78263.3465,90620.717,DocLink 2025,High,Consolidated from DocLink
+Connectivity,Verizon Wireless,IT Owned,Shared,Usage,True,72940.92,69293.874,80235.012,DocLink 2025,High,Consolidated from DocLink
+Hardware,Connection (PC Connection),IT Owned,Shared,Usage,True,72860.2,69217.19,80146.22,DocLink 2025,High,Consolidated from DocLink
+Security,CORONET CYBER SECURITY 866-849-1561 IL,IT Owned,Enterprise,Contract,True,71599.77,64439.793000000005,78759.74700000002,CC 2025,High,Consolidated from Credit Card
+Other IT,NTH GENERATION COMPUTING INC,IT Owned,Shared,Usage,True,47031.97,44680.3715,51735.16700000001,DocLink 2025,High,Consolidated from DocLink
+Security,NINJAONE LLC,IT Owned,Shared,Usage,True,42368.0,40249.6,46604.8,DocLink 2025,High,Consolidated from DocLink
+Other IT,IRON MOUNTAIN,IT Owned,Shared,Usage,True,33199.04,31539.088,36518.944,DocLink 2025,High,Consolidated from DocLink
+Connectivity,AT&T / FirstNet,IT Owned,Shared,Usage,True,18757.4,17819.53,20633.14,DocLink 2025,High,Consolidated from DocLink
+Connectivity,Frontier Communications,IT Owned,Shared,Usage,True,17879.550000000003,16985.572500000002,19667.505000000005,DocLink 2025,High,Consolidated from DocLink
+Software (Shared),GOOGLE LLC,IT Steward (Shared),Shared,Usage,True,17699.61,16814.6295,19469.571000000004,DocLink 2025,High,Consolidated from DocLink
+Software (Shared),Adobe,IT Steward (Shared),Enterprise,Contract,True,16362.72,14726.448,17998.992000000002,CC 2025,High,Consolidated from Credit Card
+Security,CORONET WWW.URL.COM IL,IT Owned,Enterprise,Contract,True,15911.06,14319.954,17502.166,CC 2025,High,Consolidated from Credit Card
+Connectivity,Spectrum,IT Owned,Shared,Usage,True,9534.46,9057.737,10487.906,DocLink 2025,High,Consolidated from DocLink
+Other IT,FIRST NET,IT Owned,Shared,Usage,True,8621.04,8189.988,9483.144000000002,DocLink 2025,High,Consolidated from DocLink
+Software/SaaS,Amazon Web Services (AWS),IT Owned,Enterprise,Contract,True,7549.85,6794.865000000001,8304.835000000001,CC 2025,High,Consolidated from Credit Card
+Software/SaaS,"JAMF SOFTWARE, LLC JAMF.COM MN",IT Owned,Enterprise,Contract,True,5876.0,5288.400000000001,6463.6,CC 2025,High,Consolidated from Credit Card
+Other IT,ORACLE,IT Owned,Shared,Usage,True,2673.7599999999998,2540.0719999999997,2941.136,DocLink 2025,High,Consolidated from DocLink
+Other IT,SYNERGY CT SURGERY PARTNERSHIP,IT Owned,Shared,Usage,True,2531.0,2404.45,2784.1000000000004,DocLink 2025,High,Consolidated from DocLink
+Software/SaaS,GOTOCOM*LOGMEINRESCUE GOTO.COM MA,IT Owned,Enterprise,Contract,True,1341.0,1206.9,1475.1000000000001,CC 2025,High,Consolidated from Credit Card
+Software (Shared),STAGE MARKEING,IT Steward (Shared),Shared,Usage,True,1088.0,1033.6,1196.8000000000002,DocLink 2025,High,Consolidated from DocLink
+Software/SaaS,GoDaddy,IT Owned,Enterprise,Contract,True,1028.19,925.3710000000001,1131.009,CC 2025,High,Consolidated from Credit Card
+Software/SaaS,BIRCH GROVE SOFTWARE WWW.ACTIVTRAK TX,IT Owned,Enterprise,Contract,True,720.0,648.0,792.0000000000001,CC 2025,High,Consolidated from Credit Card
+Software/SaaS,AIRTABLE.COM/BILL AIRTABLE.COM CA,IT Owned,Enterprise,Contract,True,240.0,216.0,264.0,CC 2025,High,Consolidated from Credit Card
+Software/SaaS,Microsoft,IT Owned,Enterprise,Contract,True,30.0,27.0,33.0,CC 2025,High,Consolidated from Credit Card
