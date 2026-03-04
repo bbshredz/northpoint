@@ -615,6 +615,135 @@
             color: #64748b;
         }
         .guest-notice strong { color: #94a3b8; }
+
+        /* ── Market comparison ── */
+        .mktcmp-wrap {
+            background: #1e293b;
+            border: 1px solid #334155;
+            border-radius: 14px;
+            overflow: hidden;
+            margin-bottom: 36px;
+        }
+        .mktcmp-head { padding: 24px 28px 16px; }
+        .mktcmp-title {
+            font-family: 'DM Serif Display', serif;
+            font-size: 21px;
+            color: #f1f5f9;
+            margin-bottom: 4px;
+        }
+        .mktcmp-desc { font-size: 13px; color: #94a3b8; margin-bottom: 16px; }
+
+        /* Pill toggles */
+        .tool-pills { display: flex; flex-wrap: wrap; gap: 7px; margin-bottom: 4px; }
+        .tool-pill {
+            padding: 5px 13px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 500;
+            border: 1.5px solid #334155;
+            background: transparent;
+            color: #64748b;
+            cursor: pointer;
+            transition: all 0.18s;
+            font-family: inherit;
+        }
+        .tool-pill:hover { border-color: #475569; color: #94a3b8; }
+        .tool-pill.on-current  { border-color: #0d9488; color: #0d9488; background: rgba(13,148,136,0.07); }
+        .tool-pill.on-proposed { border-color: #3b82f6; color: #3b82f6; background: rgba(59,130,246,0.07); }
+        .tool-pill.on-alt      { border-color: #a855f7; color: #a855f7; background: rgba(168,85,247,0.07); }
+        .tool-pill.on-ent      { border-color: #f59e0b; color: #f59e0b; background: rgba(245,158,11,0.07); }
+
+        /* Table scroll wrapper */
+        .mktcmp-scroll { overflow-x: auto; }
+        .mktcmp-table {
+            width: 100%;
+            border-collapse: collapse;
+            min-width: 560px;
+        }
+
+        /* Tool header cells */
+        .mktcmp-table th {
+            padding: 0;
+            background: #0f172a;
+            border-left: 1px solid #1a2535;
+            vertical-align: top;
+        }
+        .mktcmp-table th:first-child { border-left: none; }
+        .th-feature {
+            padding: 12px 16px;
+            font-size: 10px;
+            font-weight: 700;
+            letter-spacing: 0.08em;
+            text-transform: uppercase;
+            color: #475569;
+            text-align: left;
+            min-width: 180px;
+        }
+        .th-tool {
+            padding: 14px 14px 12px;
+            text-align: center;
+            min-width: 120px;
+        }
+        .th-tool-name {
+            font-size: 13px;
+            font-weight: 700;
+            color: #f1f5f9;
+            margin-bottom: 3px;
+        }
+        .th-tool-tag {
+            display: inline-block;
+            padding: 2px 8px;
+            border-radius: 10px;
+            font-size: 10px;
+            font-weight: 600;
+            margin-bottom: 4px;
+        }
+        .tag-current  { background: rgba(13,148,136,0.15);  color: #0d9488; }
+        .tag-proposed { background: rgba(59,130,246,0.12);  color: #60a5fa; }
+        .tag-alt      { background: rgba(168,85,247,0.12);  color: #c084fc; }
+        .tag-ent      { background: rgba(245,158,11,0.12);  color: #fbbf24; }
+        .th-tool-cost {
+            font-size: 11px;
+            color: #64748b;
+            line-height: 1.4;
+        }
+
+        /* Data cells */
+        .mktcmp-table td {
+            padding: 11px 14px;
+            border-top: 1px solid #1a2535;
+            border-left: 1px solid #1a2535;
+            vertical-align: middle;
+            font-size: 13px;
+        }
+        .mktcmp-table td:first-child {
+            border-left: none;
+            font-size: 13px;
+            color: #94a3b8;
+            font-weight: 500;
+            background: #161f2e;
+        }
+        .mktcmp-table td:not(:first-child) { text-align: center; }
+        .mktcmp-table tbody tr:hover td { background: rgba(255,255,255,0.015); }
+        .mktcmp-table tbody tr:hover td:first-child { background: #1a2535; }
+
+        /* Cell status icons */
+        .cs { font-size: 13px; font-weight: 700; }
+        .cs-full    { color: #0d9488; }
+        .cs-partial { color: #f59e0b; }
+        .cs-none    { color: #ef444488; }
+        .cs-warn    { color: #f59e0b; }
+        .cs-text    { font-size: 11px; color: #64748b; display: block; margin-top: 2px; }
+
+        .mktcmp-legend {
+            padding: 11px 20px;
+            border-top: 1px solid #1a2535;
+            display: flex;
+            gap: 18px;
+            font-size: 11px;
+            color: #475569;
+        }
+        .mktcmp-legend span { display: flex; align-items: center; gap: 4px; }
     </style>
 </head>
 <body class="mod-software">
@@ -700,6 +829,57 @@ const DS_BASE   = 19800;   // $/yr
 const DS_LIMIT  = 1666;    // envelopes/mo (≈ 20000/12)
 const DS_OVER   = 5.80;    // $/envelope
 const ADOBE_PPU = 35;      // $/seat/mo
+
+/* ── Multi-tool market comparison data ─────────────────── */
+
+const MKT_TOOLS = [
+    {
+        id: 'docusign', name: 'DocuSign', tag: 'Current', tagCls: 'current',
+        cost: '$19,800/yr', model: 'Per envelope',
+        hipaa: 'full', ehr: 'full', esign: 'full',
+        clm: 'warn',   // CLM is a very expensive separate product
+        pdf: 'none', overage: 'warn', setup: 'full',
+        note: 'Best-in-class eSign for healthcare. EHR-native. Watch the overage.',
+    },
+    {
+        id: 'adobe', name: 'Adobe Sign', tag: 'Proposed', tagCls: 'proposed',
+        cost: '~$35/user/mo', model: 'Per seat',
+        hipaa: 'full', ehr: 'partial', esign: 'full',
+        clm: 'none', pdf: 'full', overage: 'full', setup: 'full',
+        note: 'Strong PDF editing, no overage risk. EHR integration requires custom API work.',
+    },
+    {
+        id: 'pandadoc', name: 'PandaDoc', tag: 'Alternative', tagCls: 'alt',
+        cost: '$19–49/user/mo', model: 'Per seat',
+        hipaa: 'full', ehr: 'none', esign: 'full',
+        clm: 'full', pdf: 'partial', overage: 'full', setup: 'full',
+        note: 'Great for sales contracts and proposals. No EHR integration. Strong CLM.',
+    },
+    {
+        id: 'ironclad', name: 'Ironclad', tag: 'Enterprise', tagCls: 'ent',
+        cost: '$60K+/yr', model: 'Custom quote',
+        hipaa: 'full', ehr: 'none', esign: 'partial',
+        clm: 'full', pdf: 'partial', overage: 'full', setup: 'none',
+        note: 'Best-in-class contract management. Overkill and overpriced for NACS today.',
+    },
+    {
+        id: 'contractsafe', name: 'ContractSafe', tag: 'Alternative', tagCls: 'alt',
+        cost: '$400–1,500/mo', model: 'Per seat',
+        hipaa: 'full', ehr: 'none', esign: 'partial',
+        clm: 'full', pdf: 'none', overage: 'full', setup: 'full',
+        note: 'Contract storage and search — not a signing tool. Pairs with DocuSign.',
+    },
+];
+
+const MKT_ROWS = [
+    { key: 'hipaa',   label: 'HIPAA Compliant (signs BAA)' },
+    { key: 'ehr',     label: 'EHR Integration (PointClickCare / MatrixCare)' },
+    { key: 'esign',   label: 'Electronic Signature (core capability)' },
+    { key: 'clm',     label: 'Contract Management (storage, renewals, search)' },
+    { key: 'pdf',     label: 'PDF Editing & Creation' },
+    { key: 'overage', label: 'No Overage Risk (predictable pricing)' },
+    { key: 'setup',   label: 'Quick Setup (under 2 weeks)' },
+];
 
 /* ── Helpers ─────────────────────────────────────────────── */
 
@@ -1098,6 +1278,101 @@ function OverageCalculator() {
     );
 }
 
+/* ── Market comparison ───────────────────────────────────── */
+
+const TAG_CLS = { current: 'tag-current', proposed: 'tag-proposed', alt: 'tag-alt', ent: 'tag-ent' };
+const PILL_ON = { current: 'on-current', proposed: 'on-proposed', alt: 'on-alt', ent: 'on-ent' };
+
+function CellStatus({ val }) {
+    const map = {
+        full:    <span className="cs cs-full">✓</span>,
+        partial: <span className="cs cs-partial">~</span>,
+        none:    <span className="cs cs-none">✕</span>,
+        warn:    <span className="cs cs-warn">!</span>,
+    };
+    return map[val] || null;
+}
+
+function MarketComparison() {
+    const [active, setActive] = useState(MKT_TOOLS.map(t => t.id));
+
+    const toggle = id => setActive(prev =>
+        prev.includes(id)
+            ? prev.length > 1 ? prev.filter(x => x !== id) : prev
+            : [...prev, id]
+    );
+
+    const visible = MKT_TOOLS.filter(t => active.includes(t.id));
+
+    return (
+        <div className="mktcmp-wrap">
+            <div className="mktcmp-head">
+                <div className="es-section" style={{marginBottom:'4px'}}>
+                    <span className="es-section-label">Full Market Comparison</span>
+                    <div className="es-section-line" />
+                </div>
+                <div className="mktcmp-title">All Options on the Table</div>
+                <div className="mktcmp-desc">
+                    Not just DocuSign vs Adobe — here's the full landscape of tools relevant to NACS. Toggle tools on or off to compare.
+                </div>
+                <div className="tool-pills">
+                    {MKT_TOOLS.map(t => (
+                        <button
+                            key={t.id}
+                            className={`tool-pill${active.includes(t.id) ? ' ' + PILL_ON[t.tagCls] : ''}`}
+                            onClick={() => toggle(t.id)}
+                        >
+                            {t.name}
+                        </button>
+                    ))}
+                </div>
+            </div>
+            <div className="mktcmp-scroll">
+                <table className="mktcmp-table">
+                    <thead>
+                        <tr>
+                            <th><div className="th-feature">Feature</div></th>
+                            {visible.map(t => (
+                                <th key={t.id}>
+                                    <div className="th-tool">
+                                        <div className="th-tool-name">{t.name}</div>
+                                        <div>
+                                            <span className={`th-tool-tag ${TAG_CLS[t.tagCls]}`}>{t.tag}</span>
+                                        </div>
+                                        <div className="th-tool-cost">{t.cost}<br />{t.model}</div>
+                                    </div>
+                                </th>
+                            ))}
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {MKT_ROWS.map(row => (
+                            <tr key={row.key}>
+                                <td>{row.label}</td>
+                                {visible.map(t => (
+                                    <td key={t.id}><CellStatus val={t[row.key]} /></td>
+                                ))}
+                            </tr>
+                        ))}
+                        <tr>
+                            <td style={{color:'#64748b', fontStyle:'italic', fontSize:'12px'}}>Notes</td>
+                            {visible.map(t => (
+                                <td key={t.id} style={{fontSize:'11px', color:'#475569', textAlign:'left'}}>{t.note}</td>
+                            ))}
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+            <div className="mktcmp-legend">
+                <span><span className="cs cs-full">✓</span> Full support</span>
+                <span><span className="cs cs-partial">~</span> Partial / requires work</span>
+                <span><span className="cs cs-none">✕</span> Not available</span>
+                <span><span className="cs cs-warn">!</span> Risk / watch</span>
+            </div>
+        </div>
+    );
+}
+
 /* ── Compliance matrix ───────────────────────────────────── */
 
 function ComplianceMatrix() {
@@ -1157,7 +1432,7 @@ function StrategicAccordion() {
         <div className="accordion-wrap">
             <button className="accordion-btn" onClick={() => setOpen(o => !o)}>
                 <div>
-                    <div className="accordion-eyebrow">IT Director's Perspective</div>
+                    <div className="accordion-eyebrow">My Perspective</div>
                     <div className="accordion-title">Strategic Consolidation</div>
                 </div>
                 <svg
@@ -1248,6 +1523,7 @@ function App({ prefillName, isGuest }) {
 
             <OverageCalculator />
             <ComplianceMatrix />
+            <MarketComparison />
             <StrategicAccordion />
         </div>
     );
