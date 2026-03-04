@@ -616,6 +616,27 @@
         }
         .guest-notice strong { color: #94a3b8; }
 
+        /* ── Discovery lead-in ── */
+        .discovery-leadin {
+            background: #131e2e;
+            border: 1px solid #1e293b;
+            border-radius: 12px;
+            padding: 20px 24px;
+            margin-bottom: 24px;
+            font-size: 14px;
+            color: #94a3b8;
+            line-height: 1.7;
+        }
+        .discovery-leadin strong { color: #f1f5f9; }
+
+        /* 3-col cost row */
+        .cost-row-3 {
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr;
+            gap: 12px;
+            margin-bottom: 24px;
+        }
+
         /* ── Market comparison ── */
         .mktcmp-wrap {
             background: #1e293b;
@@ -839,35 +860,35 @@ const MKT_TOOLS = [
         hipaa: 'full', ehr: 'full', esign: 'full',
         clm: 'warn',   // CLM is a very expensive separate product
         pdf: 'none', overage: 'warn', setup: 'full',
-        note: 'Best-in-class eSign for healthcare. EHR-native. Watch the overage.',
+        note: 'Best-in-class eSign for healthcare. In the PCC Marketplace — flip the switch, no dev work.',
     },
     {
         id: 'adobe', name: 'Adobe Sign', tag: 'Proposed', tagCls: 'proposed',
         cost: '~$35/user/mo', model: 'Per seat',
         hipaa: 'full', ehr: 'partial', esign: 'full',
         clm: 'none', pdf: 'full', overage: 'full', setup: 'full',
-        note: 'Strong PDF editing, no overage risk. EHR integration requires custom API work.',
+        note: 'Strong PDF editing, no overage risk. PCC integration doable via REST API + Make.com, but requires setup (est. 2–4 weeks).',
     },
     {
         id: 'pandadoc', name: 'PandaDoc', tag: 'Alternative', tagCls: 'alt',
-        cost: '$19–49/user/mo', model: 'Per seat',
+        cost: '$49/user/mo', model: 'Per seat',
         hipaa: 'full', ehr: 'none', esign: 'full',
         clm: 'full', pdf: 'partial', overage: 'full', setup: 'full',
-        note: 'Great for sales contracts and proposals. No EHR integration. Strong CLM.',
+        note: 'No PCC Marketplace listing. API integration possible via Make.com webhook — workable for triggering doc sends, but status write-back to PCC records requires custom dev.',
     },
     {
         id: 'ironclad', name: 'Ironclad', tag: 'Enterprise', tagCls: 'ent',
         cost: '$60K+/yr', model: 'Custom quote',
         hipaa: 'full', ehr: 'none', esign: 'partial',
         clm: 'full', pdf: 'partial', overage: 'full', setup: 'none',
-        note: 'Best-in-class contract management. Overkill and overpriced for NACS today.',
+        note: 'No PCC integration. Best-in-class contract management but enterprise pricing — doesn\'t fit NACS\'s current scale or budget.',
     },
     {
         id: 'contractsafe', name: 'ContractSafe', tag: 'Alternative', tagCls: 'alt',
         cost: '$400–1,500/mo', model: 'Per seat',
         hipaa: 'full', ehr: 'none', esign: 'partial',
         clm: 'full', pdf: 'none', overage: 'full', setup: 'full',
-        note: 'Contract storage and search — not a signing tool. Pairs with DocuSign.',
+        note: 'Contract storage and search, not a primary signing tool. No PCC integration. Pairs with DocuSign for full workflow.',
     },
 ];
 
@@ -1151,28 +1172,34 @@ function DiscoveryWizard({ prefillName }) {
 
 /* ── Overage calculator ──────────────────────────────────── */
 
-function OverageCalculator() {
-    const [monthly,     setMonthly]     = useState(1200);
-    const [adobeSeats,  setAdobeSeats]  = useState(25);
+const PANDA_PPU = 49; // PandaDoc Business (HIPAA BAA tier) $/seat/mo
 
-    const overage    = Math.max(0, monthly - DS_LIMIT);
-    const isDanger   = overage > 0;
-    const dsAnnual   = DS_BASE + overage * DS_OVER * 12;
-    const abAnnual   = adobeSeats * ADOBE_PPU * 12;
-    const MAX_CHART  = Math.max(dsAnnual, abAnnual, 25000);
-    const dsH        = Math.round((dsAnnual / MAX_CHART) * 88);
-    const abH        = Math.round((abAnnual / MAX_CHART) * 88);
-    const fmt        = n => '$' + Math.round(n).toLocaleString();
+function OverageCalculator() {
+    const [monthly,    setMonthly]    = useState(1200);
+    const [abSeats,    setAbSeats]    = useState(25);
+    const [pdSeats,    setPdSeats]    = useState(25);
+
+    const overage   = Math.max(0, monthly - DS_LIMIT);
+    const isDanger  = overage > 0;
+    const dsAnnual  = DS_BASE + overage * DS_OVER * 12;
+    const abAnnual  = abSeats * ADOBE_PPU * 12;
+    const pdAnnual  = pdSeats * PANDA_PPU * 12;
+    const MAX_CHART = Math.max(dsAnnual, abAnnual, pdAnnual, 25000);
+    const dsH       = Math.round((dsAnnual / MAX_CHART) * 88);
+    const abH       = Math.round((abAnnual / MAX_CHART) * 88);
+    const pdH       = Math.round((pdAnnual / MAX_CHART) * 88);
+    const fmt       = n => '$' + Math.round(n).toLocaleString();
+    const cheapest  = Math.min(dsAnnual, abAnnual, pdAnnual);
 
     return (
         <div className="calc-card">
             <div className="es-section">
-                <span className="es-section-label">Overage Calculator</span>
+                <span className="es-section-label">Cost Calculator</span>
                 <div className="es-section-line" />
             </div>
             <div className="calc-title">Cost vs. Volume</div>
             <div className="calc-desc">
-                Adjust monthly envelope usage to see when DocuSign's $5.80 overage fee kicks in — and whether Adobe's seat model makes more sense.
+                Adjust the sliders to model your actual usage. DocuSign charges per envelope — the other two charge per seat, no matter how many you send.
             </div>
 
             <div className="slider-row">
@@ -1186,56 +1213,63 @@ function OverageCalculator() {
                 <span className={`slider-val${isDanger ? ' danger' : ''}`}>{monthly.toLocaleString()}</span>
             </div>
             <div className="slider-hint">
-                Monthly limit: 1,666 &nbsp;·&nbsp;&nbsp;
+                DocuSign limit: 1,666/mo &nbsp;·&nbsp;&nbsp;
                 {isDanger
-                    ? <span style={{color:'#ef4444'}}>{overage.toLocaleString()} over limit → ${(overage * DS_OVER).toLocaleString(undefined, {maximumFractionDigits:0})}/mo in overages</span>
-                    : <span>{(DS_LIMIT - monthly).toLocaleString()} envelopes under limit — no overage</span>
+                    ? <span style={{color:'#ef4444'}}>{overage.toLocaleString()} over → +${(overage * DS_OVER).toLocaleString(undefined, {maximumFractionDigits:0})}/mo in fees</span>
+                    : <span>{(DS_LIMIT - monthly).toLocaleString()} under limit — no overage</span>
                 }
             </div>
 
             <div className="slider-row">
-                <span className="slider-lbl">Adobe Seat Count</span>
-                <input
-                    type="range"
-                    className="es-range"
-                    min="5" max="100" value={adobeSeats}
-                    onChange={e => setAdobeSeats(Number(e.target.value))}
-                />
-                <span className="slider-val">{adobeSeats} users</span>
+                <span className="slider-lbl">Adobe Sign Seats</span>
+                <input type="range" className="es-range" min="5" max="100" value={abSeats}
+                    onChange={e => setAbSeats(Number(e.target.value))} />
+                <span className="slider-val">{abSeats} users</span>
             </div>
             <div className="slider-hint">@ $35/seat/mo · no envelope limits</div>
 
-            <div className="cost-row">
+            <div className="slider-row">
+                <span className="slider-lbl">PandaDoc Seats</span>
+                <input type="range" className="es-range" min="5" max="100" value={pdSeats}
+                    onChange={e => setPdSeats(Number(e.target.value))} />
+                <span className="slider-val">{pdSeats} users</span>
+            </div>
+            <div className="slider-hint">@ $49/seat/mo Business tier (HIPAA BAA) · no envelope limits</div>
+
+            <div className="cost-row-3">
                 <div className="cost-card">
                     <div className="cost-eyebrow">Current</div>
                     <div className="cost-vendor">DocuSign</div>
-                    <div className={`cost-amount${isDanger ? ' danger' : ''}`}>{fmt(dsAnnual)}/yr</div>
+                    <div className={`cost-amount${isDanger ? ' danger' : dsAnnual === cheapest ? ' safe' : ''}`}>{fmt(dsAnnual)}/yr</div>
                     <div className="cost-detail">
-                        Base: $19,800/yr (20,000 envelopes)<br />
-                        {isDanger
-                            ? `Overage: +${fmt(overage * DS_OVER * 12)}/yr ($5.80 × ${overage.toLocaleString()} × 12mo)`
-                            : 'No overage at this volume'}
+                        Base: $19,800/yr (20K envelopes)<br />
+                        {isDanger ? `+${fmt(overage * DS_OVER * 12)}/yr overage` : 'No overage at this volume'}
                     </div>
-                    {isDanger && (
-                        <div className="cost-badge bad">⚠ Budget Bleed: +{fmt(overage * DS_OVER * 12)}/yr</div>
-                    )}
+                    {isDanger && <div className="cost-badge bad">⚠ +{fmt(overage * DS_OVER * 12)}/yr bleed</div>}
+                    {!isDanger && dsAnnual === cheapest && <div className="cost-badge good">Lowest cost at this volume</div>}
                 </div>
                 <div className="cost-card">
                     <div className="cost-eyebrow">Proposed</div>
-                    <div className="cost-vendor">Adobe Sign Enterprise</div>
-                    <div className={`cost-amount${abAnnual < dsAnnual ? ' safe' : ''}`}>{fmt(abAnnual)}/yr</div>
+                    <div className="cost-vendor">Adobe Sign</div>
+                    <div className={`cost-amount${abAnnual === cheapest ? ' safe' : ''}`}>{fmt(abAnnual)}/yr</div>
                     <div className="cost-detail">
-                        {adobeSeats} seats × $35/mo × 12<br />
-                        Seat-based — no envelope limits
+                        {abSeats} seats × $35/mo × 12<br />
+                        No envelope limits
                     </div>
-                    {abAnnual < dsAnnual && (
-                        <div className="cost-badge good">↓ Saves {fmt(dsAnnual - abAnnual)}/yr at this usage</div>
-                    )}
-                    {abAnnual >= dsAnnual && (
-                        <div style={{marginTop:'8px', fontSize:'12px', color:'#475569'}}>
-                            DocuSign cheaper by {fmt(abAnnual - dsAnnual)}/yr at this volume
-                        </div>
-                    )}
+                    {abAnnual === cheapest && <div className="cost-badge good">Lowest cost at this volume</div>}
+                </div>
+                <div className="cost-card">
+                    <div className="cost-eyebrow">Alternative</div>
+                    <div className="cost-vendor">PandaDoc Business</div>
+                    <div className={`cost-amount${pdAnnual === cheapest ? ' safe' : ''}`}>{fmt(pdAnnual)}/yr</div>
+                    <div className="cost-detail">
+                        {pdSeats} seats × $49/mo × 12<br />
+                        No envelope limits · includes CLM
+                    </div>
+                    {pdAnnual === cheapest && <div className="cost-badge good">Lowest cost at this volume</div>}
+                    <div style={{marginTop:'6px', fontSize:'11px', color:'#475569'}}>
+                        Note: PCC integration not native — requires Make.com setup
+                    </div>
                 </div>
             </div>
 
@@ -1245,33 +1279,30 @@ function OverageCalculator() {
             </div>
             <div className="bar-chart-wrap" style={{height:'108px'}}>
                 <div className="bar-col">
-                    <div
-                        className="bar-rect"
-                        style={{
-                            height: `${dsH}px`,
-                            background: isDanger ? '#ef4444' : '#3b82f6',
-                            minHeight: '4px',
-                        }}
-                    />
+                    <div className="bar-rect" style={{
+                        height: `${dsH}px`, minHeight: '4px',
+                        background: isDanger ? '#ef4444' : '#3b82f6',
+                    }} />
                     <div className="bar-col-lbl">DocuSign</div>
                 </div>
                 <div className="bar-col">
-                    <div
-                        className="bar-rect"
-                        style={{ height: `${abH}px`, background: '#a855f7', minHeight: '4px' }}
-                    />
+                    <div className="bar-rect" style={{ height: `${abH}px`, minHeight: '4px', background: '#a855f7' }} />
                     <div className="bar-col-lbl">Adobe Sign</div>
                 </div>
+                <div className="bar-col">
+                    <div className="bar-rect" style={{ height: `${pdH}px`, minHeight: '4px', background: '#f59e0b' }} />
+                    <div className="bar-col-lbl">PandaDoc</div>
+                </div>
                 <div className="bar-compare-text">
-                    <div style={{fontWeight:600, color:'#64748b', marginBottom:'2px', fontSize:'11px'}}>
+                    <div style={{fontWeight:600, color:'#64748b', marginBottom:'4px', fontSize:'11px'}}>
                         AT {monthly.toLocaleString()} ENVELOPES/MO
                     </div>
                     DocuSign: <span style={{color: isDanger ? '#ef4444' : '#f1f5f9', fontWeight:600}}>{fmt(dsAnnual)}/yr</span><br />
-                    Adobe ({adobeSeats} seats): <span style={{color:'#f1f5f9', fontWeight:600}}>{fmt(abAnnual)}/yr</span><br />
-                    {abAnnual < dsAnnual
-                        ? <span style={{color:'#0d9488'}}>Adobe saves {fmt(dsAnnual - abAnnual)}/yr</span>
-                        : <span style={{color:'#3b82f6'}}>DocuSign saves {fmt(abAnnual - dsAnnual)}/yr</span>
-                    }
+                    Adobe ({abSeats} seats): <span style={{color:'#f1f5f9', fontWeight:600}}>{fmt(abAnnual)}/yr</span><br />
+                    PandaDoc ({pdSeats} seats): <span style={{color:'#f1f5f9', fontWeight:600}}>{fmt(pdAnnual)}/yr</span><br />
+                    <span style={{color:'#0d9488', fontSize:'11px', marginTop:'4px', display:'inline-block'}}>
+                        Cheapest: {dsAnnual === cheapest ? 'DocuSign' : abAnnual === cheapest ? 'Adobe Sign' : 'PandaDoc'} at {fmt(cheapest)}/yr
+                    </span>
                 </div>
             </div>
         </div>
@@ -1512,11 +1543,15 @@ function App({ prefillName, isGuest }) {
             )}
 
             <RecBanner />
+            <StrategicAccordion />
 
             <div id="discovery" style={{scrollMarginTop:'16px'}}>
                 <div className="es-section" style={{marginBottom:'18px'}}>
-                    <span className="es-section-label">Stakeholder Discovery</span>
+                    <span className="es-section-label">Your Turn</span>
                     <div className="es-section-line" />
+                </div>
+                <div className="discovery-leadin">
+                    That's my read on the situation. But I'd rather make this call with input than without it. <strong>If you use eSign tools day-to-day, your experience matters more than the contract math.</strong> Tell me what you're actually signing, what's frustrating, and what winning looks like — it takes about 2 minutes and goes directly into my renewal recommendation.
                 </div>
                 <DiscoveryWizard prefillName={prefillName} />
             </div>
@@ -1524,7 +1559,6 @@ function App({ prefillName, isGuest }) {
             <OverageCalculator />
             <ComplianceMatrix />
             <MarketComparison />
-            <StrategicAccordion />
         </div>
     );
 }
