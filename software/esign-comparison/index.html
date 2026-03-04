@@ -7,13 +7,27 @@
     <link rel="stylesheet" href="/northpoint.css">
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script src="/auth.js"></script>
+    <script>(function(){if(localStorage.getItem('esign-theme')==='light')document.body.classList.add('light');}());</script>
     <script src="https://unpkg.com/react@18/umd/react.production.min.js" crossorigin></script>
     <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js" crossorigin></script>
     <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
     <style>
         /* ── Layout ── */
-        :root { --bg: #080f1a; }
-        .main { background: #080f1a; }
+        :root {
+            --bg: #080f1a;
+            --surface-card: #1e293b;
+            --surface-deep: #0f172a;
+            --border: #334155;
+            --border-subtle: #1a2535;
+            --text-primary: #f1f5f9;
+            --text-secondary: #94a3b8;
+            --text-muted: #64748b;
+            --text-dim: #475569;
+            --cat-bg: #0a1220;
+            --tooltip-bg: #1a2540;
+            --rec-inner-border: #162032;
+        }
+        .main { background: var(--bg); }
         .content { padding: 0; overflow-y: auto; }
         .es-wrap {
             padding: 28px 32px 60px;
@@ -785,6 +799,117 @@
             color: #64748b;
         }
         .mktcmp-legend span { display: flex; align-items: center; gap: 4px; }
+
+        /* ── Theme toggle ── */
+        .theme-toggle {
+            flex-shrink: 0;
+            background: #1e293b;
+            border: 1px solid #334155;
+            border-radius: 8px;
+            color: #64748b;
+            cursor: pointer;
+            font-size: 14px;
+            line-height: 1;
+            padding: 7px 11px;
+            transition: border-color 0.18s, color 0.18s;
+            font-family: inherit;
+            margin-top: 6px;
+        }
+        .theme-toggle:hover { border-color: #475569; color: #94a3b8; }
+
+        /* ── Light mode ── */
+        body.light {
+            --bg: #f8fafc;
+            --surface-card: #ffffff;
+            --surface-deep: #f1f5f9;
+            --border: #e2e8f0;
+            --border-subtle: #e2e8f0;
+            --text-primary: #0f172a;
+            --text-secondary: #475569;
+            --text-muted: #94a3b8;
+            --text-dim: #94a3b8;
+            --cat-bg: #f0f4f8;
+            --tooltip-bg: #ffffff;
+            --rec-inner-border: #d1fae5;
+            background: #f8fafc;
+        }
+        body.light .main { background: #f8fafc; }
+        body.light .theme-toggle { background: #ffffff; border-color: #e2e8f0; }
+        body.light .theme-toggle:hover { border-color: #cbd5e1; }
+        body.light .es-page-title { color: #0f172a; }
+        body.light .es-page-sub { color: #64748b; }
+        body.light .es-section-line { background: #e2e8f0; }
+        body.light .es-section-label { color: #94a3b8; }
+        body.light .rec-banner { background: #f0fdf9; }
+        body.light .rec-title { color: #0f172a; }
+        body.light .rec-sub { color: #64748b; }
+        body.light .rec-points li { color: #374151; }
+        body.light .rec-caveat { border-top-color: #d1fae5; color: #94a3b8; }
+        body.light .wizard-card { background: #ffffff; border-color: #e2e8f0; }
+        body.light .wizard-title { color: #0f172a; }
+        body.light .wizard-desc { color: #64748b; }
+        body.light .wizard-step-label { color: #94a3b8; }
+        body.light .step-dot { background: #e2e8f0; }
+        body.light .step-dot.active { background: #0d9488; }
+        body.light .step-dot.done { background: #0d9488; opacity: 0.35; }
+        body.light .es-label { color: #475569; }
+        body.light .es-input,
+        body.light .es-select,
+        body.light .es-textarea { background: #f8fafc; border-color: #e2e8f0; color: #0f172a; }
+        body.light .es-input:focus,
+        body.light .es-select:focus,
+        body.light .es-textarea:focus { border-color: #0d9488; }
+        body.light .check-item { background: #f8fafc; border-color: #e2e8f0; }
+        body.light .check-item:hover { border-color: #cbd5e1; }
+        body.light .check-text { color: #374151; }
+        body.light .vote-option { background: #f8fafc; border-color: #e2e8f0; }
+        body.light .vote-option:hover { border-color: #cbd5e1; }
+        body.light .vote-label { color: #0f172a; }
+        body.light .vote-desc { color: #94a3b8; }
+        body.light .btn-ghost { border-color: #e2e8f0; color: #94a3b8; }
+        body.light .btn-ghost:hover { border-color: #cbd5e1; color: #64748b; }
+        body.light .calc-card { background: #ffffff; border-color: #e2e8f0; }
+        body.light .calc-title { color: #0f172a; }
+        body.light .calc-desc { color: #64748b; }
+        body.light .slider-lbl { color: #64748b; }
+        body.light .slider-val { color: #0f172a; }
+        body.light .slider-val.danger { color: #ef4444; }
+        body.light .slider-hint { color: #94a3b8; }
+        body.light .es-range::-webkit-slider-runnable-track { background: #e2e8f0; }
+        body.light .es-range::-moz-range-track { background: #e2e8f0; }
+        body.light .bar-compare-text { border-left-color: #e2e8f0; color: #475569; }
+        body.light .cost-card { background: #f8fafc; border-color: #e2e8f0; }
+        body.light .cost-eyebrow { color: #94a3b8; }
+        body.light .cost-amount { color: #0f172a; }
+        body.light .cost-detail { color: #64748b; }
+        body.light .mktcmp-wrap { background: #ffffff; border-color: #e2e8f0; }
+        body.light .mktcmp-title { color: #0f172a; }
+        body.light .mktcmp-desc { color: #64748b; }
+        body.light .tool-pill { border-color: #e2e8f0; color: #94a3b8; }
+        body.light .tool-pill:hover { border-color: #cbd5e1; color: #64748b; }
+        body.light .mktcmp-table th { background: #f8fafc; border-left-color: #e2e8f0; }
+        body.light .th-feature { color: #94a3b8; }
+        body.light .th-tool-cost { color: #64748b; }
+        body.light .mktcmp-table td { border-top-color: #e2e8f0; border-left-color: #e2e8f0; }
+        body.light .mktcmp-table td:first-child { color: #0f172a; background: #f8fafc; }
+        body.light .mktcmp-table tbody tr:hover td { background: rgba(0,0,0,0.02); }
+        body.light .mktcmp-table tbody tr:hover td:first-child { background: #f1f5f9; }
+        body.light .m-feat { color: #0f172a; }
+        body.light .m-note { color: #94a3b8; }
+        body.light .cs-text { color: #94a3b8; }
+        body.light .mktcmp-legend { border-top-color: #e2e8f0; color: #94a3b8; }
+        body.light .accordion-wrap { background: #f0fdf9; border-color: #d1fae5; }
+        body.light .accordion-title { color: #0f172a; }
+        body.light .accordion-inner { border-top-color: #d1fae5; }
+        body.light .strat-title { color: #0f172a; }
+        body.light .strat-text { color: #64748b; }
+        body.light .strat-callout { background: #ffffff; }
+        body.light .guest-notice { background: #f8fafc; border-color: #e2e8f0; color: #64748b; }
+        body.light .guest-notice strong { color: #374151; }
+        body.light .discovery-leadin { background: #f8fafc; border-color: #e2e8f0; color: #64748b; }
+        body.light .discovery-leadin strong { color: #0f172a; }
+        body.light .success-title { color: #0f172a; }
+        body.light .success-desc { color: #64748b; }
     </style>
 </head>
 <body class="mod-software">
@@ -1125,17 +1250,17 @@ function Tooltip({ content, children, width = 260 }) {
                     position:'fixed', top: pos.top, left: pos.left,
                     transform:'translate(-50%, -100%)',
                     zIndex:9999,
-                    background:'#1a2540', border:'1px solid #334155', borderRadius:'8px',
+                    background:'var(--tooltip-bg)', border:'1px solid var(--border)', borderRadius:'8px',
                     padding:'10px 13px', width:`${width}px`, maxWidth:'90vw',
-                    fontSize:'12px', color:'#94a3b8', lineHeight:'1.55',
-                    pointerEvents:'none', boxShadow:'0 8px 32px rgba(0,0,0,0.6)',
+                    fontSize:'12px', color:'var(--text-secondary)', lineHeight:'1.55',
+                    pointerEvents:'none', boxShadow:'0 8px 32px rgba(0,0,0,0.45)',
                     whiteSpace:'normal', textAlign:'left', fontWeight:'normal', fontStyle:'normal',
                 }}>
                     {content}
                     <span style={{
                         position:'absolute', top:'100%', left:'50%', transform:'translateX(-50%)',
                         borderLeft:'5px solid transparent', borderRight:'5px solid transparent',
-                        borderTop:'5px solid #334155', display:'block', width:0, height:0,
+                        borderTop:'5px solid var(--border)', display:'block', width:0, height:0,
                     }} />
                 </span>
             )}
@@ -1514,12 +1639,12 @@ function OverageCalculator() {
                     <div className="bar-col-lbl" style={{color:'#c084fc'}}>PandaDoc</div>
                 </div>
                 <div className="bar-compare-text">
-                    <div style={{fontWeight:600, color:'#64748b', marginBottom:'4px', fontSize:'11px'}}>
+                    <div style={{fontWeight:600, color:'var(--text-muted)', marginBottom:'4px', fontSize:'11px'}}>
                         AT {monthly.toLocaleString()} ENVELOPES/MO
                     </div>
-                    <span style={{color:'#60a5fa'}}>DocuSign:</span> <span style={{color: isDanger ? '#ef4444' : '#f1f5f9', fontWeight:600}}>{fmt(dsAnnual)}/yr</span>{isDanger && <span style={{color:'#ef4444', fontSize:'11px'}}> ⚠ overage</span>}<br />
-                    <span style={{color:'#f87171'}}>Adobe</span> <span style={{color:'#64748b', fontSize:'11px'}}>({abSeats} seats):</span> <span style={{color:'#f1f5f9', fontWeight:600}}>{fmt(abAnnual)}/yr</span><br />
-                    <span style={{color:'#c084fc'}}>PandaDoc</span> <span style={{color:'#64748b', fontSize:'11px'}}>({pdSeats} seats):</span> <span style={{color:'#f1f5f9', fontWeight:600}}>{fmt(pdAnnual)}/yr</span><br />
+                    <span style={{color:'#60a5fa'}}>DocuSign:</span> <span style={{color: isDanger ? '#ef4444' : 'var(--text-primary)', fontWeight:600}}>{fmt(dsAnnual)}/yr</span>{isDanger && <span style={{color:'#ef4444', fontSize:'11px'}}> ⚠ overage</span>}<br />
+                    <span style={{color:'#f87171'}}>Adobe</span> <span style={{color:'var(--text-muted)', fontSize:'11px'}}>({abSeats} seats):</span> <span style={{color:'var(--text-primary)', fontWeight:600}}>{fmt(abAnnual)}/yr</span><br />
+                    <span style={{color:'#c084fc'}}>PandaDoc</span> <span style={{color:'var(--text-muted)', fontSize:'11px'}}>({pdSeats} seats):</span> <span style={{color:'var(--text-primary)', fontWeight:600}}>{fmt(pdAnnual)}/yr</span><br />
                     <span style={{color:'#0d9488', fontSize:'11px', marginTop:'4px', display:'inline-block'}}>
                         Cheapest: {dsAnnual === cheapest ? 'DocuSign' : abAnnual === cheapest ? 'Adobe Sign' : 'PandaDoc'} at {fmt(cheapest)}/yr
                     </span>
@@ -1601,8 +1726,8 @@ function UnifiedMatrix() {
                             <React.Fragment key={cat}>
                                 <tr>
                                     <td colSpan={visible.length + 1} style={{
-                                        background:'#0a1220', fontSize:'11px', fontWeight:700,
-                                        color:'#475569', letterSpacing:'0.09em', textTransform:'uppercase',
+                                        background:'var(--cat-bg)', fontSize:'11px', fontWeight:700,
+                                        color:'var(--text-dim)', letterSpacing:'0.09em', textTransform:'uppercase',
                                         padding:'7px 16px',
                                     }}>{cat}</td>
                                 </tr>
@@ -1610,7 +1735,7 @@ function UnifiedMatrix() {
                                     <tr key={row.feature}>
                                         <td>
                                             <Tooltip content={row.tooltip} width={290}>
-                                                <span className="m-feat" style={{cursor:'help', borderBottom:'1px dashed #334155'}}>{row.feature}</span>
+                                                <span className="m-feat" style={{cursor:'help', borderBottom:'1px dashed var(--border)'}}>{row.feature}</span>
                                             </Tooltip>
                                         </td>
                                         {visible.map(t => {
@@ -1637,7 +1762,7 @@ function UnifiedMatrix() {
                 <span><span className="m-status partial">~</span> Partial / requires work</span>
                 <span><span className="m-status none">✕</span> Not available</span>
                 <span><span className="m-status warn">!</span> Risk / watch</span>
-                <span style={{color:'#334155', marginLeft:'auto'}}>Hover cells for detail</span>
+                <span style={{color:'var(--text-dim)', marginLeft:'auto'}}>Hover cells for detail</span>
             </div>
         </div>
     );
@@ -1728,7 +1853,7 @@ function RecBanner() {
                 overflow:'hidden', maxHeight: open ? '600px' : '0',
                 transition:'max-height 0.38s ease',
             }}>
-                <div style={{padding:'0 32px 28px', borderTop:'1px solid #162032'}}>
+                <div style={{padding:'0 32px 28px', borderTop:'1px solid var(--rec-inner-border)'}}>
                     <ul className="rec-points" style={{marginTop:'20px'}}>
                         <li>PointClickCare integration is native to DocuSign — rebuilding it in Adobe Sign requires custom API work and re-validation</li>
                         <li>At current envelope volume (under 1,666/mo), DocuSign at $19,800/yr beats Adobe Sign at most realistic seat counts</li>
@@ -1747,11 +1872,28 @@ function RecBanner() {
 /* ── App root ────────────────────────────────────────────── */
 
 function App({ prefillName, isGuest }) {
+    const [lightMode, setLightMode] = useState(() =>
+        localStorage.getItem('esign-theme') === 'light'
+    );
+    useEffect(() => {
+        document.body.classList.toggle('light', lightMode);
+        localStorage.setItem('esign-theme', lightMode ? 'light' : 'dark');
+    }, [lightMode]);
+
     return (
         <div className="es-wrap">
             <div className="es-page-header">
-                <div className="es-page-title">Adobe Sign vs. DocuSign</div>
-                <div className="es-page-sub">eSignature governance · March 2026 renewal decision</div>
+                <div style={{display:'flex', justifyContent:'space-between', alignItems:'flex-start'}}>
+                    <div>
+                        <div className="es-page-title">Adobe Sign vs. DocuSign</div>
+                        <div className="es-page-sub">eSignature governance · March 2026 renewal decision</div>
+                    </div>
+                    <button
+                        className="theme-toggle"
+                        onClick={() => setLightMode(m => !m)}
+                        title={lightMode ? 'Dark mode' : 'Light mode'}
+                    >{lightMode ? '☾' : '☀'}</button>
+                </div>
             </div>
 
             {isGuest && (
