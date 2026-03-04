@@ -1,0 +1,518 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>NetSuite Migration — NorthPoint</title>
+  <link rel="stylesheet" href="/northpoint.css">
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="/auth.js"></script>
+  <script src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+  <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+  <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+  <style>
+    :root {
+      --bg:        #080f1a;
+      --surface:   #0d1829;
+      --surface-2: #111f35;
+      --border:    #1e2d45;
+      --border-2:  #253754;
+      --text:      #f1f5f9;
+      --text-2:    #94a3b8;
+      --text-3:    #475569;
+      --orange:    #f97316;
+      --orange-dim: rgba(249,115,22,0.12);
+      --green:     #10b981;
+      --green-dim: rgba(16,185,129,0.12);
+      --red:       #ef4444;
+      --amber:     #f59e0b;
+    }
+    body, html { background: var(--bg); }
+    .content { background: var(--bg); padding: 32px 40px 80px; }
+
+    /* ── Hero ──────────────────────────────────────────────── */
+    .ns-eyebrow { font-size: 10px; font-weight: 700; letter-spacing: 0.14em; text-transform: uppercase; color: var(--orange); margin-bottom: 10px; }
+    .ns-title   { font-size: 32px; font-weight: 800; color: var(--text); line-height: 1.1; margin-bottom: 6px; }
+    .ns-sub     { font-size: 14px; color: var(--text-2); margin-bottom: 28px; line-height: 1.6; }
+
+    .ns-stats { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; margin-bottom: 36px; }
+    .ns-stat  { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 18px 20px; }
+    .ns-stat.accent { border-top: 2px solid var(--orange); }
+    .ns-stat-label { font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.1em; color: var(--text-3); margin-bottom: 8px; }
+    .ns-stat-value { font-size: 18px; font-weight: 800; color: var(--text); line-height: 1.1; }
+    .ns-stat-sub   { font-size: 11px; color: var(--text-2); margin-top: 4px; }
+
+    /* ── Section label ─────────────────────────────────────── */
+    .sec-label { font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.12em; color: var(--text-3); margin-bottom: 16px; display: flex; align-items: center; gap: 10px; }
+    .sec-label::after { content: ''; flex: 1; height: 1px; background: var(--border); }
+
+    /* ── Indiana Bell ──────────────────────────────────────── */
+    .bell-trigger {
+      width: 100%; background: var(--surface); border: 1px solid var(--border);
+      border-radius: 12px; padding: 22px 28px; cursor: pointer; text-align: left;
+      transition: border-color 0.2s; display: flex; align-items: center; gap: 18px;
+    }
+    .bell-trigger:hover { border-color: var(--border-2); }
+    .bell-trigger.open  { border-radius: 12px 12px 0 0; border-color: var(--border-2); }
+    .bell-dot   { width: 7px; height: 7px; border-radius: 50%; background: var(--orange); flex-shrink: 0; margin-top: 2px; }
+    .bell-quote { flex: 1; font-size: 14px; color: var(--text-2); line-height: 1.6; font-style: italic; }
+    .bell-quote strong { color: var(--text); font-style: normal; }
+    .bell-source { font-size: 11px; color: var(--text-3); white-space: nowrap; flex-shrink: 0; }
+    .bell-chevron { flex-shrink: 0; color: var(--text-3); transition: transform 0.3s; }
+    .bell-chevron.open { transform: rotate(180deg); }
+
+    .bell-body {
+      background: var(--surface); border: 1px solid var(--border-2); border-top: none;
+      border-radius: 0 0 12px 12px; overflow: hidden; margin-bottom: 32px;
+    }
+    .bell-inner  { padding: 36px 40px 40px; display: grid; grid-template-columns: 1fr 1fr; gap: 52px; }
+    .bell-divider { display: none; }
+    .bcol-label  { font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.12em; color: var(--text-3); margin-bottom: 12px; }
+    .bcol-title  { font-size: 20px; font-weight: 800; color: var(--text); margin-bottom: 4px; line-height: 1.2; }
+    .bcol-place  { font-size: 11px; color: var(--orange); font-weight: 600; letter-spacing: 0.05em; margin-bottom: 18px; }
+    .bcol-body   { font-size: 13px; color: var(--text-2); line-height: 1.8; }
+    .bcol-body p + p { margin-top: 12px; }
+    .bcol-body .kicker { color: var(--text); font-weight: 600; }
+
+    .bell-facts { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-top: 22px; }
+    .bell-fact  { background: var(--bg); border: 1px solid var(--border); border-radius: 8px; padding: 12px 14px; }
+    .bfact-val  { font-size: 20px; font-weight: 800; color: var(--text); line-height: 1; }
+    .bfact-lbl  { font-size: 10px; color: var(--text-3); margin-top: 3px; }
+
+    /* ── Phase Timeline ────────────────────────────────────── */
+    .timeline-card { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 32px 36px; margin-bottom: 32px; }
+    .tl-track  { display: flex; align-items: flex-start; }
+    .tl-phase  { flex: 1; display: flex; flex-direction: column; align-items: center; position: relative; }
+
+    .tl-connector {
+      position: absolute; top: 13px; left: 50%; right: -50%;
+      height: 2px; z-index: 0;
+    }
+    .tl-node {
+      width: 26px; height: 26px; border-radius: 50%; display: flex; align-items: center;
+      justify-content: center; position: relative; z-index: 1; flex-shrink: 0;
+    }
+    .tl-node.complete { background: var(--green); border: 2px solid var(--green); }
+    .tl-node.active   { background: var(--orange); border: 2px solid var(--orange); animation: pulse 2.2s infinite; }
+    .tl-node.pending  { background: var(--surface); border: 2px solid var(--border-2); }
+    .tl-node.blocked  { background: var(--red); border: 2px solid var(--red); }
+    @keyframes pulse {
+      0%   { box-shadow: 0 0 0 0 rgba(249,115,22,0.45); }
+      60%  { box-shadow: 0 0 0 8px rgba(249,115,22,0); }
+      100% { box-shadow: 0 0 0 0 rgba(249,115,22,0); }
+    }
+    .tl-name   { font-size: 11px; font-weight: 700; color: var(--text); margin-top: 10px; text-align: center; line-height: 1.3; }
+    .tl-name.pending { color: var(--text-3); }
+    .tl-target { font-size: 10px; color: var(--text-3); margin-top: 3px; text-align: center; }
+    .tl-target.active { color: var(--orange); font-weight: 600; }
+
+    .tl-detail       { margin-top: 28px; padding-top: 24px; border-top: 1px solid var(--border); }
+    .tl-detail-label { font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.1em; color: var(--text-3); margin-bottom: 6px; }
+    .tl-detail-phase { font-size: 16px; font-weight: 800; color: var(--orange); margin-bottom: 6px; }
+    .tl-detail-desc  { font-size: 13px; color: var(--text-2); line-height: 1.65; }
+
+    /* ── Lower grid ────────────────────────────────────────── */
+    .ns-lower { display: grid; grid-template-columns: 3fr 2fr; gap: 24px; }
+
+    .ns-panel { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 24px 28px; }
+    .ns-panel .sec-label { margin-bottom: 16px; }
+
+    .link-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+    .ns-link {
+      background: var(--bg); border: 1px solid var(--border); border-radius: 10px;
+      padding: 14px 16px; text-decoration: none; display: flex; align-items: center;
+      gap: 12px; transition: border-color 0.2s, background 0.2s;
+    }
+    .ns-link:hover:not(.stub)     { border-color: var(--border-2); background: #0d1829; }
+    .ns-link.stub { opacity: 0.4; pointer-events: none; }
+    .link-icon  { font-size: 18px; flex-shrink: 0; }
+    .link-label { font-size: 13px; font-weight: 600; color: var(--text); line-height: 1.2; }
+    .link-tag   { font-size: 10px; color: var(--text-3); margin-top: 2px; }
+    .link-arrow { margin-left: auto; color: var(--text-3); font-size: 13px; flex-shrink: 0; }
+
+    .item-row { border-bottom: 1px solid var(--border); padding: 13px 0; display: flex; gap: 12px; align-items: flex-start; }
+    .item-row:first-child { padding-top: 0; }
+    .item-row:last-child  { border-bottom: none; padding-bottom: 0; }
+    .item-dot { width: 7px; height: 7px; border-radius: 50%; flex-shrink: 0; margin-top: 5px; }
+    .item-dot.blocker { background: var(--red); }
+    .item-dot.action  { background: var(--amber); }
+    .item-dot.info    { background: var(--text-3); }
+    .item-text { font-size: 13px; color: var(--text-2); line-height: 1.5; }
+    .item-badge { font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.08em; margin-top: 3px; }
+    .item-badge.blocker { color: var(--red); }
+    .item-badge.action  { color: var(--amber); }
+    .item-badge.info    { color: var(--text-3); }
+  </style>
+</head>
+<body class="mod-projects">
+<div class="layout">
+  <div id="rail-mount"></div>
+  <div class="main">
+    <header class="topbar">
+      <div class="topbar-left">
+        <a href="/" class="topbar-name">NorthPoint</a>
+        <div class="topbar-sep"></div>
+        <a href="/projects/" style="text-decoration:none;color:var(--topbar-text,#94a3b8);font-size:13px;font-weight:500">Projects</a>
+        <div class="topbar-sep"></div>
+        <span class="topbar-section">NetSuite Migration</span>
+      </div>
+      <div class="topbar-right">
+        <span class="topbar-date" id="currentDate"></span>
+        <div class="topbar-avatar">AT</div>
+      </div>
+    </header>
+    <div class="content">
+      <div id="app-root"></div>
+    </div>
+  </div>
+</div>
+<script src="/nav.js"></script>
+<script type="text/babel">
+const { useState, useEffect } = React;
+
+// ── Project data ─────────────────────────────────────────────
+// Update phase statuses and targets as the project advances.
+const PHASES = [
+  {
+    id: 'discovery',
+    name: 'Discovery',
+    desc: 'Scope definition, stakeholder alignment, current-state process mapping, and implementation partner selection',
+    status: 'complete',
+    target: '—',
+  },
+  {
+    id: 'data-mapping',
+    name: 'Data Mapping',
+    desc: 'Legacy data audit, field-by-field mapping, cleanse and transform requirements, and migration design',
+    status: 'active',
+    target: 'TBD',
+  },
+  {
+    id: 'configuration',
+    name: 'Configuration',
+    desc: 'Module setup, chart of accounts, custom workflows, user roles, permissions, and integration build',
+    status: 'pending',
+    target: 'TBD',
+  },
+  {
+    id: 'testing',
+    name: 'UAT & Testing',
+    desc: 'User acceptance cycles, integration validation, data verification, edge case testing, and parallel run',
+    status: 'pending',
+    target: 'TBD',
+  },
+  {
+    id: 'training',
+    name: 'Training',
+    desc: 'Role-based training for all affected users, change management, runbooks, and readiness verification',
+    status: 'pending',
+    target: 'TBD',
+  },
+  {
+    id: 'go-live',
+    name: 'Go-Live',
+    desc: 'Cutover execution, hypercare support window, stabilization period, and final sign-off',
+    status: 'pending',
+    target: 'TBD',
+  },
+];
+
+const LINKS = [
+  { label: 'NetSuite Admin',        url: 'https://system.netsuite.com',      tag: 'Application',   icon: '☁️' },
+  { label: 'SuiteAnswers',          url: 'https://netsuite.custhelp.com',     tag: 'Support',       icon: '📖' },
+  { label: 'Implementation Partner', url: null,                               tag: 'Vendor Portal', icon: '🤝' },
+  { label: 'Project Charter',       url: null,                                tag: 'Document',      icon: '📋' },
+  { label: 'Data Migration Runbook', url: null,                               tag: 'Document',      icon: '📊' },
+  { label: 'Training Materials',    url: null,                                tag: 'Training',      icon: '🎓' },
+];
+
+const OPEN_ITEMS = [
+  { id: 1, text: 'Implementation partner selection pending final approval',               status: 'blocker' },
+  { id: 2, text: 'IT stewardship scope and handoff from Jon dissolution not yet formalized', status: 'action' },
+  { id: 3, text: 'Data warehouse design in progress — analytics layer and ownership TBD', status: 'info'    },
+  { id: 4, text: 'EHR integration requirements not yet defined',                          status: 'action'  },
+];
+
+// ── Indiana Bell Accordion ───────────────────────────────────
+function IndianaAccordion() {
+  const [open, setOpen] = useState(false);
+  return (
+    <div style={{ marginBottom: '32px' }}>
+      <button
+        className={'bell-trigger' + (open ? ' open' : '')}
+        onClick={() => setOpen(o => !o)}
+      >
+        <div className="bell-dot" />
+        <div className="bell-quote">
+          "In 1930, they moved an occupied 11-story building 52 feet — rotating it 90 degrees —
+          while <strong>every phone inside kept ringing.</strong>"
+        </div>
+        <div className="bell-source">Indiana Bell, Indianapolis</div>
+        <svg
+          className={'bell-chevron' + (open ? ' open' : '')}
+          width="16" height="16" viewBox="0 0 16 16" fill="none"
+        >
+          <path d="M4 6l4 4 4-4" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+        </svg>
+      </button>
+      <div
+        className="bell-body"
+        style={{ maxHeight: open ? '800px' : '0', transition: 'max-height 0.45s cubic-bezier(0.4,0,0.2,1)', overflow: 'hidden' }}
+      >
+        <div className="bell-inner">
+
+          {/* Left column: The story */}
+          <div>
+            <div className="bcol-label">The Engineering Feat</div>
+            <div className="bcol-title">The Indiana Bell Building Move</div>
+            <div className="bcol-place">Indianapolis · 1930 · 34 Days</div>
+            <div className="bcol-body">
+              <p>
+                The Indiana Bell Telephone Company needed space for a larger structure.
+                Their existing 11-story exchange — the nerve center for telephone service
+                across Indianapolis — was directly in the way. Demolishing it would mean
+                silence across the city. That was not an option.
+              </p>
+              <p>
+                So they moved it. Steel needles were threaded through the brick foundation.
+                The building was lifted onto rollers and hydraulic jacks. Six hundred workers
+                coordinated the migration over 34 days — rotating the structure 90 degrees
+                and walking it 52 feet south, measured in inches.
+              </p>
+              <p>
+                Gas lines stayed connected. Water stayed on. Every telephone wire inside
+                remained live. Workers continued their shifts on every floor throughout
+                the move. <span className="kicker">Not one call was dropped.</span>
+              </p>
+            </div>
+            <div className="bell-facts">
+              {[
+                ['52 ft',   'Distance moved'],
+                ['90°',     'Rotation applied'],
+                ['34 days', 'Duration'],
+                ['600',     'Workers on site'],
+              ].map(([v, l]) => (
+                <div className="bell-fact" key={l}>
+                  <div className="bfact-val">{v}</div>
+                  <div className="bfact-lbl">{l}</div>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          {/* Right column: The parallel */}
+          <div>
+            <div className="bcol-label">The Parallel</div>
+            <div className="bcol-title">What This Means for NetSuite</div>
+            <div className="bcol-place">NACS · 2025–2026 · Still Running</div>
+            <div className="bcol-body">
+              <p>
+                NACS operates every day on its current systems. Payroll clears. Invoices
+                process. Facilities get paid. The NetSuite migration is not a shutdown —
+                it's a move. The foundation shifts while the building stays open.
+              </p>
+              <p>
+                Data is mapped and cleansed while operations continue. Workflows are rebuilt
+                in parallel. Integrations are validated before anything goes live. The move
+                happens beneath the surface — and no one on any floor should feel it.
+              </p>
+              <p>
+                The Indiana Bell move required precision, patience, trust, and an
+                extraordinary willingness to attempt something difficult without stopping.
+                That's the energy this project is built on.
+              </p>
+              <p>
+                <span className="kicker">
+                  The goal isn't to replace the system. It's to move it — and keep every
+                  phone ringing while we do.
+                </span>
+              </p>
+            </div>
+          </div>
+
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// ── Phase Timeline ───────────────────────────────────────────
+function PhaseTimeline() {
+  const active = PHASES.find(p => p.status === 'active');
+
+  const CheckIcon = () => (
+    <svg width="12" height="12" viewBox="0 0 12 12" fill="none">
+      <path d="M2 6l3 3 5-5" stroke="#fff" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+    </svg>
+  );
+  const Dot = () => (
+    <span style={{ width: 8, height: 8, borderRadius: '50%', background: '#fff', display: 'block' }} />
+  );
+
+  return (
+    <div style={{ marginBottom: '32px' }}>
+      <div className="sec-label">Project Timeline</div>
+      <div className="timeline-card">
+        <div className="tl-track">
+          {PHASES.map((ph, i) => {
+            const isLast = i === PHASES.length - 1;
+            const connBg =
+              ph.status === 'complete' ? 'var(--green)' :
+              ph.status === 'active'   ? 'linear-gradient(90deg, var(--green) 0%, var(--border) 100%)' :
+              'var(--border)';
+            return (
+              <div className="tl-phase" key={ph.id}>
+                {!isLast && (
+                  <div
+                    className="tl-connector"
+                    style={{ background: connBg }}
+                  />
+                )}
+                <div className={'tl-node ' + ph.status}>
+                  {ph.status === 'complete' && <CheckIcon />}
+                  {ph.status === 'active'   && <Dot />}
+                  {ph.status === 'blocked'  && <span style={{ color: '#fff', fontSize: 10, fontWeight: 900 }}>!</span>}
+                </div>
+                <div className={'tl-name' + (ph.status === 'pending' ? ' pending' : '')}>
+                  {ph.name}
+                </div>
+                <div className={'tl-target' + (ph.status === 'active' ? ' active' : '')}>
+                  {ph.target}
+                </div>
+              </div>
+            );
+          })}
+        </div>
+        {active && (
+          <div className="tl-detail">
+            <div className="tl-detail-label">Current Phase</div>
+            <div className="tl-detail-phase">{active.name}</div>
+            <div className="tl-detail-desc">{active.desc}</div>
+          </div>
+        )}
+      </div>
+    </div>
+  );
+}
+
+// ── Quick Links ──────────────────────────────────────────────
+function QuickLinks() {
+  return (
+    <div className="ns-panel">
+      <div className="sec-label">Quick Links</div>
+      <div className="link-grid">
+        {LINKS.map((l, i) =>
+          l.url ? (
+            <a key={i} href={l.url} target="_blank" rel="noopener noreferrer" className="ns-link">
+              <div className="link-icon">{l.icon}</div>
+              <div>
+                <div className="link-label">{l.label}</div>
+                <div className="link-tag">{l.tag}</div>
+              </div>
+              <div className="link-arrow">↗</div>
+            </a>
+          ) : (
+            <div key={i} className="ns-link stub">
+              <div className="link-icon">{l.icon}</div>
+              <div>
+                <div className="link-label">{l.label}</div>
+                <div className="link-tag">{l.tag} · Pending</div>
+              </div>
+            </div>
+          )
+        )}
+      </div>
+    </div>
+  );
+}
+
+// ── Open Items ───────────────────────────────────────────────
+function OpenItems() {
+  const LABELS = { blocker: 'Blocker', action: 'Action Required', info: 'Info' };
+  return (
+    <div className="ns-panel">
+      <div className="sec-label">Open Items</div>
+      {OPEN_ITEMS.map(item => (
+        <div className="item-row" key={item.id}>
+          <div className={'item-dot ' + item.status} />
+          <div>
+            <div className="item-text">{item.text}</div>
+            <div className={'item-badge ' + item.status}>{LABELS[item.status]}</div>
+          </div>
+        </div>
+      ))}
+    </div>
+  );
+}
+
+// ── App ──────────────────────────────────────────────────────
+function App() {
+  const [ready, setReady] = useState(false);
+
+  useEffect(() => {
+    npInit(null).then(session => {
+      if (!session) { window.location.href = '/login.html'; return; }
+      npPopulateTopbar();
+      renderNav('projects');
+      setReady(true);
+    });
+  }, []);
+
+  if (!ready) return null;
+
+  const active    = PHASES.find(p => p.status === 'active');
+  const goLive    = PHASES.find(p => p.id === 'go-live');
+  const doneCount = PHASES.filter(p => p.status === 'complete').length;
+
+  return (
+    <>
+      {/* Hero */}
+      <div style={{ marginBottom: '36px' }}>
+        <div className="ns-eyebrow">Projects & Pipelines</div>
+        <div className="ns-title">NetSuite Migration</div>
+        <div className="ns-sub">ERP transition · Business systems ownership · IT stewardship</div>
+        <div className="ns-stats">
+          <div className="ns-stat accent">
+            <div className="ns-stat-label">Current Phase</div>
+            <div className="ns-stat-value" style={{ color: 'var(--orange)' }}>
+              {active ? active.name : 'Complete'}
+            </div>
+            <div className="ns-stat-sub">Phase {doneCount + (active ? 1 : 0)} of {PHASES.length}</div>
+          </div>
+          <div className="ns-stat">
+            <div className="ns-stat-label">Target Go-Live</div>
+            <div className="ns-stat-value">{goLive?.target || 'TBD'}</div>
+            <div className="ns-stat-sub">Pending partner timeline</div>
+          </div>
+          <div className="ns-stat">
+            <div className="ns-stat-label">Project Health</div>
+            <div className="ns-stat-value" style={{ color: 'var(--amber)' }}>In Progress</div>
+            <div className="ns-stat-sub">Partner selection pending</div>
+          </div>
+          <div className="ns-stat">
+            <div className="ns-stat-label">IT Owner</div>
+            <div className="ns-stat-value">Anthony T.</div>
+            <div className="ns-stat-sub">Systems &amp; Business Ops</div>
+          </div>
+        </div>
+      </div>
+
+      {/* Indiana Bell */}
+      <IndianaAccordion />
+
+      {/* Timeline */}
+      <PhaseTimeline />
+
+      {/* Lower grid */}
+      <div className="ns-lower">
+        <QuickLinks />
+        <OpenItems />
+      </div>
+    </>
+  );
+}
+
+ReactDOM.createRoot(document.getElementById('app-root')).render(<App />);
+</script>
+</body>
+</html>
