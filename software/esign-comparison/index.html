@@ -7,7 +7,13 @@
     <link rel="stylesheet" href="/northpoint.css">
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script src="/auth.js"></script>
-    <script>(function(){if(localStorage.getItem('esign-theme')==='light')document.body.classList.add('light');}());</script>
+    <script>(function(){
+      // Use local override if set, otherwise inherit site-wide np-theme (dark = no light class, light = add light class)
+      var local = localStorage.getItem('esign-theme');
+      var site  = localStorage.getItem('np-theme');
+      var isLight = local ? local === 'light' : site !== 'dark';
+      if (isLight) document.body.classList.add('light');
+    }());</script>
     <script src="https://unpkg.com/react@18/umd/react.production.min.js" crossorigin></script>
     <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js" crossorigin></script>
     <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
@@ -1878,6 +1884,8 @@ function App({ prefillName, isGuest }) {
     useEffect(() => {
         document.body.classList.toggle('light', lightMode);
         localStorage.setItem('esign-theme', lightMode ? 'light' : 'dark');
+        localStorage.setItem('np-theme', lightMode ? 'light' : 'dark');
+        document.documentElement[lightMode ? 'removeAttribute' : 'setAttribute']('data-theme', 'dark');
     }, [lightMode]);
 
     return (

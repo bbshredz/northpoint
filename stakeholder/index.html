@@ -20,16 +20,16 @@
         .page-title {
             font-family: 'DM Serif Display', serif;
             font-size: 26px;
-            color: #f1f5f9;
+            color: var(--text-primary);
         }
-        .page-subtitle { font-size: 13px; color: #64748b; margin-top: 4px; }
+        .page-subtitle { font-size: 13px; color: var(--text-secondary); margin-top: 4px; }
 
         /* ── Stat row ── */
         .stat-row { display: flex; gap: 14px; margin-bottom: 24px; }
         .stat-card {
             flex: 1;
-            background: #0f172a;
-            border: 1px solid #1e293b;
+            background: var(--card);
+            border: 1px solid var(--border);
             border-radius: 10px;
             padding: 16px 20px;
         }
@@ -38,30 +38,30 @@
             font-weight: 600;
             letter-spacing: 0.1em;
             text-transform: uppercase;
-            color: #475569;
+            color: var(--text-tertiary);
             margin-bottom: 6px;
         }
-        .stat-card-value { font-size: 28px; font-weight: 700; color: #f1f5f9; }
+        .stat-card-value { font-size: 28px; font-weight: 700; color: var(--text-primary); }
 
         /* ── Filter bar ── */
         .filter-bar { display: flex; gap: 10px; align-items: center; margin-bottom: 14px; }
-        .filter-label { font-size: 11px; color: #475569; }
+        .filter-label { font-size: 11px; color: var(--text-tertiary); }
         .filter-select {
-            background: #0f172a;
-            border: 1px solid #1e293b;
+            background: var(--card);
+            border: 1px solid var(--border);
             border-radius: 7px;
-            color: #94a3b8;
+            color: var(--text-secondary);
             font-size: 12px;
             padding: 6px 10px;
             font-family: inherit;
             outline: none;
         }
-        .filter-select option { background: #1e293b; }
+        .filter-select option { background: var(--navy-mid); }
 
         /* ── Table ── */
         .table-wrap {
-            background: #0f172a;
-            border: 1px solid #1e293b;
+            background: var(--card);
+            border: 1px solid var(--border);
             border-radius: 10px;
             overflow: hidden;
         }
@@ -73,20 +73,20 @@
             font-weight: 600;
             letter-spacing: 0.1em;
             text-transform: uppercase;
-            color: #475569;
-            border-bottom: 1px solid #1e293b;
-            background: #0a0f1e;
+            color: var(--text-tertiary);
+            border-bottom: 1px solid var(--border);
+            background: var(--silver-light);
         }
         .np-table td {
             padding: 12px 16px;
             font-size: 13px;
-            color: #94a3b8;
-            border-bottom: 1px solid #1e293b;
+            color: var(--text-secondary);
+            border-bottom: 1px solid var(--border);
         }
         .np-table tr:last-child td { border-bottom: none; }
-        .np-table tbody tr:hover td { background: #1e293b; cursor: pointer; }
-        .cell-name { font-weight: 500; color: #e2e8f0; }
-        .cell-sub { font-size: 11px; color: #475569; margin-top: 2px; }
+        .np-table tbody tr:hover td { background: var(--card-hover); cursor: pointer; }
+        .cell-name { font-weight: 500; color: var(--text-primary); }
+        .cell-sub { font-size: 11px; color: var(--text-tertiary); margin-top: 2px; }
         .pain-cell { max-width: 280px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 
         /* ── Badges ── */

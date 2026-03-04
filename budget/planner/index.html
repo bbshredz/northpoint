@@ -219,6 +219,42 @@
         .ctx-coverage-footer { margin-top: 10px; padding: 7px 10px; background: #e0f2fe; border-radius: 6px; font-size: 11px; color: #0369a1; }
         .bench-callout { margin-top: 14px; padding: 12px 16px; background: #fff7ed; border-radius: 8px; border: 1px solid #fed7aa; font-size: 12px; color: #92400e; line-height: 1.6; }
         .bench-source { font-size: 11px; color: #8a95a8; margin-top: 12px; }
+
+        /* ── DARK MODE ── */
+        html[data-theme="dark"] .content { background: #0a0f1e; }
+        html[data-theme="dark"] .pg-title,
+        html[data-theme="dark"] .sum-value:not(.dark .sum-value):not(.warn .sum-value),
+        html[data-theme="dark"] .cat-name, html[data-theme="dark"] .cat-total,
+        html[data-theme="dark"] .detail-h-name, html[data-theme="dark"] .detail-h-total,
+        html[data-theme="dark"] .li-name, html[data-theme="dark"] .li-cost,
+        html[data-theme="dark"] .person-name, html[data-theme="dark"] .wf-slider-val,
+        html[data-theme="dark"] .wf-card-title, html[data-theme="dark"] .wf-row-label.bold,
+        html[data-theme="dark"] .ctx-name, html[data-theme="dark"] .ctx-h-name { color: #f1f5f9; }
+        html[data-theme="dark"] .pg-desc, html[data-theme="dark"] .sum-sub:not(.dark .sum-sub),
+        html[data-theme="dark"] .sum-label:not(.dark .sum-label), html[data-theme="dark"] .section-lbl,
+        html[data-theme="dark"] .tbar-label, html[data-theme="dark"] .detail-h-sub,
+        html[data-theme="dark"] .li-sub, html[data-theme="dark"] .li-conf, html[data-theme="dark"] .li-tbd,
+        html[data-theme="dark"] .wf-row-label, html[data-theme="dark"] .wf-slider-delta,
+        html[data-theme="dark"] .wf-toggle-row, html[data-theme="dark"] .bench-source,
+        html[data-theme="dark"] .ctx-sub, html[data-theme="dark"] .ctx-h-sub { color: #64748b; }
+        html[data-theme="dark"] .sum-card:not(.dark):not(.warn),
+        html[data-theme="dark"] .cat-card, html[data-theme="dark"] .detail-panel,
+        html[data-theme="dark"] .spec-wrap, html[data-theme="dark"] .wf-card,
+        html[data-theme="dark"] .ctx-card, html[data-theme="dark"] .bench-callout { background: rgba(255,255,255,0.05); border-color: rgba(255,255,255,0.08); color: #94a3b8; }
+        html[data-theme="dark"] .li-table th, html[data-theme="dark"] .li-sep-row td { background: rgba(255,255,255,0.03); border-color: rgba(255,255,255,0.06); }
+        html[data-theme="dark"] .li-table tr.li-total td { background: rgba(255,255,255,0.05); border-color: rgba(255,255,255,0.1); }
+        html[data-theme="dark"] .li-table td, html[data-theme="dark"] .person-row td { border-color: rgba(255,255,255,0.05); }
+        html[data-theme="dark"] .li-table tr:hover td, html[data-theme="dark"] .person-row:hover td { background: rgba(255,255,255,0.04); }
+        html[data-theme="dark"] .tbar-btn { background: rgba(255,255,255,0.06); border-color: rgba(255,255,255,0.1); color: #94a3b8; }
+        html[data-theme="dark"] .tbar-btn.active { background: rgba(255,255,255,0.18); color: #f1f5f9; border-color: rgba(255,255,255,0.2); }
+        html[data-theme="dark"] .detail-close { background: rgba(255,255,255,0.05); border-color: rgba(255,255,255,0.1); color: #64748b; }
+        html[data-theme="dark"] .detail-close:hover { background: rgba(255,255,255,0.1); color: #f1f5f9; }
+        html[data-theme="dark"] .cat-bar { background: rgba(255,255,255,0.06); }
+        html[data-theme="dark"] .cat-pct-badge { background: rgba(255,255,255,0.06); color: #64748b; }
+        html[data-theme="dark"] .cost-input { color: #f1f5f9; }
+        html[data-theme="dark"] .cost-input:hover { background: rgba(255,255,255,0.06); }
+        html[data-theme="dark"] .wf-bar-track { background: rgba(255,255,255,0.07); }
+        html[data-theme="dark"] .section-lbl::after { background: rgba(255,255,255,0.08); }
     </style>
 </head>
 <body class="mod-budget">
@@ -229,7 +265,7 @@
             <div class="topbar-left">
                 <a href="/index.html" class="topbar-name">NorthPoint</a>
                 <div class="topbar-sep"></div>
-                <a href="/budget/index.html" class="topbar-section" style="text-decoration:none;color:inherit;">Budget & Finance</a>
+                <a href="/budget/index.html" class="topbar-section" style="text-decoration:none;">Budget & Finance</a>
                 <div class="topbar-sep"></div>
                 <span class="topbar-section">Budget Planner</span>
             </div>
