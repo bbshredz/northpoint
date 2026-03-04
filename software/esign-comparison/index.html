@@ -16,6 +16,7 @@
         .es-wrap {
             padding: 28px 32px 60px;
             max-width: 1040px;
+            margin: 0 auto;
         }
 
         /* ── Page header ── */
@@ -669,7 +670,7 @@ const FRUSTRATIONS = [
 const VOTE_OPTIONS = [
     { id: 'renew_docusign',  label: 'Renew DocuSign',        desc: 'Keep current setup, manage overage proactively', icon: '✓' },
     { id: 'switch_adobe',    label: 'Evaluate Adobe Sign',   desc: 'Seat-based pricing, stronger PDF tools, M365 native', icon: '↔' },
-    { id: 'consolidate',     label: 'Consolidate + LMS',     desc: 'One eSign tool for external docs; LMS for internal policies', icon: '◈' },
+    { id: 'consolidate',     label: 'Standardize + Simplify', desc: 'One eSign tool for external docs; track internal policy sign-offs separately', icon: '◈' },
 ];
 
 const MATRIX = [
@@ -1155,7 +1156,7 @@ function StrategicAccordion() {
         <div className="accordion-wrap">
             <button className="accordion-btn" onClick={() => setOpen(o => !o)}>
                 <div>
-                    <div className="accordion-eyebrow">VP Perspective</div>
+                    <div className="accordion-eyebrow">IT Director's Perspective</div>
                     <div className="accordion-title">Strategic Consolidation</div>
                 </div>
                 <svg
@@ -1169,26 +1170,26 @@ function StrategicAccordion() {
             <div className={`accordion-body${open ? ' open' : ''}`}>
                 <div className="accordion-inner">
                     <div className="strat-block">
-                        <div className="strat-title">The Problem with Two Overlapping Tools</div>
+                        <div className="strat-title">The real problem isn't which tool — it's what we're signing</div>
                         <div className="strat-text">
-                            NACS currently pays for DocuSign for legal documents and Adobe Acrobat for PDF workflows. They overlap significantly, and neither team is using either to full capacity. That's two annual contracts solving 80% of the same problem.
+                            NACS uses DocuSign for two very different things: legally-binding documents (resident admissions, employment contracts, vendor agreements) and internal confirmations (staff acknowledging they read a policy or completed training). These are not the same need — and using a $5.80-per-signature legal tool for the second category is where the budget risk lives.
                         </div>
                     </div>
                     <div className="strat-callout">
-                        "We're paying for a Golden Pen (DocuSign) and PDF Power (Adobe). By standardizing on one and shifting internal policies to an LMS or compliance tool, we eliminate the $5.80 overage risk entirely and stop paying for redundant capabilities."
+                        "We're paying premium rates to have staff click 'I agree' on a handbook. That same workflow can run on something we already own — or build — at a fraction of the cost, with better visibility into who's actually in compliance."
                     </div>
                     <div className="strat-block">
-                        <div className="strat-title">The Recommended Path</div>
+                        <div className="strat-title">The recommended split</div>
                         <div className="strat-text">
-                            Keep DocuSign for all externally-signed documents: resident admissions, employment agreements, vendor contracts. These require a strong chain of custody, specific EHR integrations, and audit trails that DocuSign handles natively with PointClickCare and MatrixCare.<br /><br />
-                            Move internal policy acknowledgments — staff handbook sign-offs, training completions, compliance acknowledgments — to an LMS or dedicated compliance tool. These don't require a legally-binding eSignature. They require a timestamp, a record, and a report. An LMS does this better, cheaper, and with more operational context.
+                            Keep DocuSign for everything that needs a legally-binding signature: resident admissions, employment agreements, vendor contracts. These need a formal audit trail and connect directly to PointClickCare and MatrixCare (our EHR systems) without any custom setup.<br /><br />
+                            Move internal sign-offs to something simpler. Staff confirming they read the employee handbook, completing a required training, or acknowledging a policy update — those just need a timestamp and a record, not a $5.80-per-click legal signature. This could be a dedicated training platform, a module added to NorthPoint, or even an existing system NACS already pays for.
                         </div>
                     </div>
                     <div className="strat-block">
-                        <div className="strat-title">Why Not Switch to Adobe Sign?</div>
+                        <div className="strat-title">Why not just switch to Adobe Sign?</div>
                         <div className="strat-text">
-                            Adobe Sign is a legitimate contender — particularly for organizations already deep in Microsoft's ecosystem with heavy PDF editing needs. But for NACS today, switching introduces migration cost, retraining burden, and re-integration work with PointClickCare and MatrixCare. At current envelope volume, DocuSign's $19,800/yr beats Adobe at most realistic seat counts.<br /><br />
-                            Revisit Adobe Sign at the March 2027 renewal if: (1) envelope volume consistently exceeds 2,500/month, or (2) Adobe Acrobat becomes a core M365 workflow tool across facilities.
+                            Adobe Sign solves the overage problem (you pay per seat, not per signature) but creates new ones: reconnecting PointClickCare and MatrixCare, retraining every facility, and moving all existing templates. At current usage levels, DocuSign is still cheaper. Adobe only wins on price if signature volume consistently exceeds ~2,000/month — check the calculator above.<br /><br />
+                            Adobe's real strength is PDF creation and editing. If NACS standardizes on Microsoft 365 and needs heavy document-building workflows, that's worth revisiting at the 2027 renewal.
                         </div>
                     </div>
                 </div>
@@ -1208,7 +1209,7 @@ function RecBanner() {
             <ul className="rec-points">
                 <li>PointClickCare and MatrixCare integrations are native to DocuSign — rebuilding them in Adobe Sign requires custom API work and re-validation</li>
                 <li>At current envelope volume (under 1,666/mo), DocuSign at $19,800/yr beats Adobe Sign at most seat counts</li>
-                <li>Moving internal policy acknowledgments to an LMS eliminates the $5.80 overage risk entirely — that's where the budget exposure lives</li>
+                <li>Moving internal policy sign-offs (staff handbook, training confirmations) out of DocuSign eliminates the $5.80 overage risk entirely — those don't need a legally-binding signature, just a record</li>
                 <li>No migration cost, no retraining, no re-integration work — the ROI math on switching doesn't close at this volume</li>
             </ul>
             <div className="rec-caveat">
