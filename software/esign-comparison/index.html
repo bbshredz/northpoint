@@ -689,8 +689,8 @@
             font-family: inherit;
         }
         .tool-pill:hover { border-color: #475569; color: #94a3b8; }
-        .tool-pill.on-current  { border-color: #0d9488; color: #0d9488; background: rgba(13,148,136,0.07); }
-        .tool-pill.on-proposed { border-color: #3b82f6; color: #3b82f6; background: rgba(59,130,246,0.07); }
+        .tool-pill.on-current  { border-color: #3b82f6; color: #3b82f6; background: rgba(59,130,246,0.07); }
+        .tool-pill.on-proposed { border-color: #ef4444; color: #ef4444; background: rgba(239,68,68,0.07); }
         .tool-pill.on-alt      { border-color: #a855f7; color: #a855f7; background: rgba(168,85,247,0.07); }
         .tool-pill.on-ent      { border-color: #f59e0b; color: #f59e0b; background: rgba(245,158,11,0.07); }
 
@@ -739,8 +739,8 @@
             font-weight: 600;
             margin-bottom: 4px;
         }
-        .tag-current  { background: rgba(13,148,136,0.15);  color: #0d9488; }
-        .tag-proposed { background: rgba(59,130,246,0.12);  color: #60a5fa; }
+        .tag-current  { background: rgba(59,130,246,0.15);  color: #60a5fa; }
+        .tag-proposed { background: rgba(239,68,68,0.12);   color: #f87171; }
         .tag-alt      { background: rgba(168,85,247,0.12);  color: #c084fc; }
         .tag-ent      { background: rgba(245,158,11,0.12);  color: #fbbf24; }
         .th-tool-cost {
@@ -845,7 +845,7 @@ const VOTE_OPTIONS = [
 ];
 
 const MATRIX = [
-    { feature: 'HIPAA Business Associate Agreement', ds: 'full',    ab: 'full',    pd: 'full',    note: 'All three sign BAAs — DocuSign/Adobe at Enterprise, PandaDoc at Business tier' },
+    { feature: 'HIPAA Business Associate Agreement', ds: 'full',    ab: 'partial', pd: 'full',    note: 'DocuSign (Enterprise) and PandaDoc (Business $49/seat) include BAA. Adobe BAA requires Enterprise plan — custom pricing, must contact sales. The $35 Business plan does NOT include a BAA.' },
     { feature: 'SOC 2 Type II Certified',            ds: 'full',    ab: 'full',    pd: 'full',    note: 'All three maintain SOC 2 Type II' },
     { feature: 'PointClickCare Integration',          ds: 'full',    ab: 'partial', pd: 'none',    note: 'DocuSign: native PCC Marketplace connector. Adobe: REST API + Make.com (2–4 wks). PandaDoc: no listing — requires custom webhook.' },
     { feature: 'MatrixCare Integration',              ds: 'full',    ab: 'partial', pd: 'none',    note: 'DocuSign is preferred partner. Adobe and PandaDoc require custom API work.' },
@@ -869,7 +869,7 @@ const STATUS = {
 const DS_BASE   = 19800;   // $/yr
 const DS_LIMIT  = 1666;    // envelopes/mo (≈ 20000/12)
 const DS_OVER   = 5.80;    // $/envelope
-const ADOBE_PPU = 35;      // $/seat/mo
+const ADOBE_PPU = 50;      // $/seat/mo — Enterprise tier (required for HIPAA BAA; est., requires quote)
 
 /* ── Multi-tool market comparison data ─────────────────── */
 
@@ -884,10 +884,10 @@ const MKT_TOOLS = [
     },
     {
         id: 'adobe', name: 'Adobe Sign', tag: 'Proposed', tagCls: 'proposed', domain: 'adobe.com',
-        cost: '~$35/user/mo', model: 'Per seat',
+        cost: '~$50/user/mo est.', model: 'Enterprise (BAA req.)',
         hipaa: 'full', ehr: 'partial', esign: 'full',
         clm: 'none', pdf: 'full', overage: 'full', setup: 'full',
-        note: 'Strong PDF editing, no overage risk. PCC integration doable via REST API + Make.com, but requires setup (est. 2–4 weeks).',
+        note: 'BAA only available on Enterprise plan (custom pricing — requires sales quote). $35 Business tier does not include BAA. PCC integration doable via REST API + Make.com, est. 2–4 weeks.',
     },
     {
         id: 'pandadoc', name: 'PandaDoc', tag: 'Alternative', tagCls: 'alt', domain: 'pandadoc.com',
@@ -1196,8 +1196,8 @@ const PANDA_PPU = 49; // PandaDoc Business (HIPAA BAA tier) $/seat/mo
 
 function OverageCalculator() {
     const [monthly,    setMonthly]    = useState(1200);
-    const [abSeats,    setAbSeats]    = useState(25);
-    const [pdSeats,    setPdSeats]    = useState(25);
+    const [abSeats,    setAbSeats]    = useState(55);  // 12 fac × ~3–4 seats + 15 service center
+    const [pdSeats,    setPdSeats]    = useState(55);  // same baseline
 
     const overage   = Math.max(0, monthly - DS_LIMIT);
     const isDanger  = overage > 0;
@@ -1241,54 +1241,56 @@ function OverageCalculator() {
             </div>
 
             <div className="slider-row">
-                <span className="slider-lbl">Adobe Sign Seats</span>
-                <input type="range" className="es-range" min="5" max="100" value={abSeats}
+                <span className="slider-lbl"><span style={{color:'#f87171'}}>Adobe Sign</span> Seats</span>
+                <input type="range" className="es-range" min="5" max="150" value={abSeats}
                     onChange={e => setAbSeats(Number(e.target.value))} />
                 <span className="slider-val">{abSeats} users</span>
             </div>
-            <div className="slider-hint">@ $35/seat/mo · no envelope limits</div>
+            <div className="slider-hint">@ $50/seat/mo est. <span style={{color:'#f87171', fontWeight:600}}>Enterprise tier required for HIPAA BAA</span> · no envelope limits</div>
 
             <div className="slider-row">
-                <span className="slider-lbl">PandaDoc Seats</span>
-                <input type="range" className="es-range" min="5" max="100" value={pdSeats}
+                <span className="slider-lbl"><span style={{color:'#c084fc'}}>PandaDoc</span> Seats</span>
+                <input type="range" className="es-range" min="5" max="150" value={pdSeats}
                     onChange={e => setPdSeats(Number(e.target.value))} />
                 <span className="slider-val">{pdSeats} users</span>
             </div>
-            <div className="slider-hint">@ $49/seat/mo Business tier (HIPAA BAA) · no envelope limits</div>
+            <div className="slider-hint">@ $49/seat/mo <span style={{color:'#c084fc', fontWeight:600}}>Business tier (BAA included)</span> · no envelope limits · includes CLM</div>
 
             <div className="cost-row-3">
-                <div className="cost-card">
+                <div className="cost-card" style={{borderTop:'2px solid #3b82f6'}}>
                     <div className="cost-eyebrow">Current</div>
-                    <div className="cost-vendor">DocuSign</div>
+                    <div className="cost-vendor" style={{color:'#60a5fa'}}>DocuSign</div>
                     <div className={`cost-amount${isDanger ? ' danger' : dsAnnual === cheapest ? ' safe' : ''}`}>{fmt(dsAnnual)}/yr</div>
                     <div className="cost-detail">
                         Base: $19,800/yr (20K envelopes)<br />
-                        {isDanger ? `+${fmt(overage * DS_OVER * 12)}/yr overage` : 'No overage at this volume'}
+                        {isDanger ? <span style={{color:'#ef4444'}}>+{fmt(overage * DS_OVER * 12)}/yr overage</span> : 'No overage at this volume'}
                     </div>
                     {isDanger && <div className="cost-badge bad">⚠ +{fmt(overage * DS_OVER * 12)}/yr bleed</div>}
                     {!isDanger && dsAnnual === cheapest && <div className="cost-badge good">Lowest cost at this volume</div>}
                 </div>
-                <div className="cost-card">
+                <div className="cost-card" style={{borderTop:'2px solid #ef4444'}}>
                     <div className="cost-eyebrow">Proposed</div>
-                    <div className="cost-vendor">Adobe Sign</div>
+                    <div className="cost-vendor" style={{color:'#f87171'}}>Adobe Sign</div>
                     <div className={`cost-amount${abAnnual === cheapest ? ' safe' : ''}`}>{fmt(abAnnual)}/yr</div>
                     <div className="cost-detail">
-                        {abSeats} seats × $35/mo × 12<br />
-                        No envelope limits
+                        {abSeats} seats × $50/mo × 12<br />
+                        Enterprise tier · BAA included<br />
+                        <span style={{color:'#64748b', fontSize:'12px'}}>est. — requires sales quote</span>
                     </div>
                     {abAnnual === cheapest && <div className="cost-badge good">Lowest cost at this volume</div>}
                 </div>
-                <div className="cost-card">
+                <div className="cost-card" style={{borderTop:'2px solid #a855f7'}}>
                     <div className="cost-eyebrow">Alternative</div>
-                    <div className="cost-vendor">PandaDoc Business</div>
+                    <div className="cost-vendor" style={{color:'#c084fc'}}>PandaDoc Business</div>
                     <div className={`cost-amount${pdAnnual === cheapest ? ' safe' : ''}`}>{fmt(pdAnnual)}/yr</div>
                     <div className="cost-detail">
                         {pdSeats} seats × $49/mo × 12<br />
-                        No envelope limits · includes CLM
+                        Business tier · BAA included · CLM<br />
+                        <span style={{color:'#64748b', fontSize:'12px'}}>Published pricing — no quote needed</span>
                     </div>
                     {pdAnnual === cheapest && <div className="cost-badge good">Lowest cost at this volume</div>}
-                    <div style={{marginTop:'6px', fontSize:'11px', color:'#475569'}}>
-                        Note: PCC integration not native — requires Make.com setup
+                    <div style={{marginTop:'6px', fontSize:'12px', color:'#64748b'}}>
+                        PCC integration requires Make.com setup
                     </div>
                 </div>
             </div>
@@ -1299,27 +1301,24 @@ function OverageCalculator() {
             </div>
             <div className="bar-chart-wrap" style={{height:'108px'}}>
                 <div className="bar-col">
-                    <div className="bar-rect" style={{
-                        height: `${dsH}px`, minHeight: '4px',
-                        background: isDanger ? '#ef4444' : '#3b82f6',
-                    }} />
-                    <div className="bar-col-lbl">DocuSign</div>
+                    <div className="bar-rect" style={{ height: `${dsH}px`, minHeight: '4px', background: '#3b82f6' }} />
+                    <div className="bar-col-lbl" style={{color:'#60a5fa'}}>DocuSign</div>
                 </div>
                 <div className="bar-col">
-                    <div className="bar-rect" style={{ height: `${abH}px`, minHeight: '4px', background: '#a855f7' }} />
-                    <div className="bar-col-lbl">Adobe Sign</div>
+                    <div className="bar-rect" style={{ height: `${abH}px`, minHeight: '4px', background: '#ef4444' }} />
+                    <div className="bar-col-lbl" style={{color:'#f87171'}}>Adobe Sign</div>
                 </div>
                 <div className="bar-col">
-                    <div className="bar-rect" style={{ height: `${pdH}px`, minHeight: '4px', background: '#f59e0b' }} />
-                    <div className="bar-col-lbl">PandaDoc</div>
+                    <div className="bar-rect" style={{ height: `${pdH}px`, minHeight: '4px', background: '#a855f7' }} />
+                    <div className="bar-col-lbl" style={{color:'#c084fc'}}>PandaDoc</div>
                 </div>
                 <div className="bar-compare-text">
                     <div style={{fontWeight:600, color:'#64748b', marginBottom:'4px', fontSize:'11px'}}>
                         AT {monthly.toLocaleString()} ENVELOPES/MO
                     </div>
-                    DocuSign: <span style={{color: isDanger ? '#ef4444' : '#f1f5f9', fontWeight:600}}>{fmt(dsAnnual)}/yr</span><br />
-                    Adobe ({abSeats} seats): <span style={{color:'#f1f5f9', fontWeight:600}}>{fmt(abAnnual)}/yr</span><br />
-                    PandaDoc ({pdSeats} seats): <span style={{color:'#f1f5f9', fontWeight:600}}>{fmt(pdAnnual)}/yr</span><br />
+                    <span style={{color:'#60a5fa'}}>DocuSign:</span> <span style={{color: isDanger ? '#ef4444' : '#f1f5f9', fontWeight:600}}>{fmt(dsAnnual)}/yr</span>{isDanger && <span style={{color:'#ef4444', fontSize:'11px'}}> ⚠ overage</span>}<br />
+                    <span style={{color:'#f87171'}}>Adobe</span> <span style={{color:'#64748b', fontSize:'11px'}}>({abSeats} seats):</span> <span style={{color:'#f1f5f9', fontWeight:600}}>{fmt(abAnnual)}/yr</span><br />
+                    <span style={{color:'#c084fc'}}>PandaDoc</span> <span style={{color:'#64748b', fontSize:'11px'}}>({pdSeats} seats):</span> <span style={{color:'#f1f5f9', fontWeight:600}}>{fmt(pdAnnual)}/yr</span><br />
                     <span style={{color:'#0d9488', fontSize:'11px', marginTop:'4px', display:'inline-block'}}>
                         Cheapest: {dsAnnual === cheapest ? 'DocuSign' : abAnnual === cheapest ? 'Adobe Sign' : 'PandaDoc'} at {fmt(cheapest)}/yr
                     </span>
@@ -1331,8 +1330,10 @@ function OverageCalculator() {
 
 /* ── Market comparison ───────────────────────────────────── */
 
-const TAG_CLS = { current: 'tag-current', proposed: 'tag-proposed', alt: 'tag-alt', ent: 'tag-ent' };
-const PILL_ON = { current: 'on-current', proposed: 'on-proposed', alt: 'on-alt', ent: 'on-ent' };
+const TAG_CLS  = { current: 'tag-current', proposed: 'tag-proposed', alt: 'tag-alt', ent: 'tag-ent' };
+const PILL_ON  = { current: 'on-current', proposed: 'on-proposed', alt: 'on-alt', ent: 'on-ent' };
+const TOOL_COL = { docusign: '#3b82f6', adobe: '#ef4444', pandadoc: '#a855f7', ironclad: '#f59e0b', contractsafe: '#64748b' };
+const TOOL_MUTED = { docusign: '#1e3a6e', adobe: '#4a1414', pandadoc: '#2d1a4a', ironclad: '#3d2e07', contractsafe: '#1a2535' };
 
 function CellStatus({ val }) {
     const map = {
@@ -1384,10 +1385,10 @@ function MarketComparison() {
                         <tr>
                             <th><div className="th-feature">Feature</div></th>
                             {visible.map(t => (
-                                <th key={t.id}>
+                                <th key={t.id} style={{borderTop:`2px solid ${TOOL_COL[t.id] || '#334155'}`}}>
                                     <div className="th-tool">
                                         <ToolLogo domain={t.domain} alt={t.name} />
-                                        <div className="th-tool-name">{t.name}</div>
+                                        <div className="th-tool-name" style={{color: TOOL_COL[t.id] || '#f1f5f9'}}>{t.name}</div>
                                         <div>
                                             <span className={`th-tool-tag ${TAG_CLS[t.tagCls]}`}>{t.tag}</span>
                                         </div>
@@ -1406,10 +1407,10 @@ function MarketComparison() {
                                 ))}
                             </tr>
                         ))}
-                        <tr>
-                            <td style={{color:'#64748b', fontStyle:'italic', fontSize:'12px'}}>Notes</td>
+                        <tr style={{background:'rgba(0,0,0,0.15)'}}>
+                            <td style={{color:'#94a3b8', fontStyle:'italic', fontSize:'13px', fontWeight:500}}>Notes</td>
                             {visible.map(t => (
-                                <td key={t.id} style={{fontSize:'11px', color:'#475569', textAlign:'left'}}>{t.note}</td>
+                                <td key={t.id} style={{fontSize:'13px', color:'#94a3b8', textAlign:'left', lineHeight:'1.5', borderLeft:`1px solid ${TOOL_COL[t.id]}22`}}>{t.note}</td>
                             ))}
                         </tr>
                     </tbody>
@@ -1455,9 +1456,18 @@ function ComplianceMatrix() {
                 <thead>
                     <tr>
                         <th>Feature</th>
-                        <th><ToolLogo domain="docusign.com" alt="DocuSign" />DocuSign</th>
-                        <th><ToolLogo domain="adobe.com" alt="Adobe Sign" />Adobe Sign</th>
-                        <th><ToolLogo domain="pandadoc.com" alt="PandaDoc" />PandaDoc</th>
+                        <th style={{borderTop:'2px solid #3b82f6'}}>
+                            <ToolLogo domain="docusign.com" alt="DocuSign" />
+                            <span style={{color:'#60a5fa'}}>DocuSign</span>
+                        </th>
+                        <th style={{borderTop:'2px solid #ef4444'}}>
+                            <ToolLogo domain="adobe.com" alt="Adobe Sign" />
+                            <span style={{color:'#f87171'}}>Adobe Sign</span>
+                        </th>
+                        <th style={{borderTop:'2px solid #a855f7'}}>
+                            <ToolLogo domain="pandadoc.com" alt="PandaDoc" />
+                            <span style={{color:'#c084fc'}}>PandaDoc</span>
+                        </th>
                         <th>Notes</th>
                     </tr>
                 </thead>
@@ -1468,7 +1478,7 @@ function ComplianceMatrix() {
                             <td><span className={`m-status ${STATUS[row.ds].cls}`}>{STATUS[row.ds].icon}</span></td>
                             <td><span className={`m-status ${STATUS[row.ab].cls}`}>{STATUS[row.ab].icon}</span></td>
                             <td><span className={`m-status ${STATUS[row.pd].cls}`}>{STATUS[row.pd].icon}</span></td>
-                            <td style={{fontSize:'12px', color:'#64748b'}}>{row.note}</td>
+                            <td style={{fontSize:'13px', color:'#94a3b8', lineHeight:'1.5'}}>{row.note}</td>
                         </tr>
                     ))}
                 </tbody>
