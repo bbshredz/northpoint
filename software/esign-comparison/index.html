@@ -19,17 +19,18 @@
             padding: 28px 32px 60px;
             max-width: 1040px;
             margin: 0 auto;
+            font-size: 14px;
         }
 
         /* ── Page header ── */
         .es-page-header { margin-bottom: 28px; }
         .es-page-title {
             font-family: 'DM Serif Display', serif;
-            font-size: 26px;
+            font-size: 28px;
             color: #f1f5f9;
             margin-bottom: 4px;
         }
-        .es-page-sub { font-size: 13px; color: #64748b; }
+        .es-page-sub { font-size: 14px; color: #64748b; }
 
         /* ── Section divider ── */
         .es-section {
@@ -39,7 +40,7 @@
             margin-bottom: 18px;
         }
         .es-section-label {
-            font-size: 10px;
+            font-size: 11px;
             font-weight: 700;
             letter-spacing: 0.1em;
             text-transform: uppercase;
@@ -66,7 +67,7 @@
             background: linear-gradient(90deg, #0d9488 0%, #3b82f6 100%);
         }
         .rec-eyebrow {
-            font-size: 10px;
+            font-size: 11px;
             font-weight: 700;
             letter-spacing: 0.1em;
             text-transform: uppercase;
@@ -75,11 +76,11 @@
         }
         .rec-title {
             font-family: 'DM Serif Display', serif;
-            font-size: 24px;
+            font-size: 26px;
             color: #f1f5f9;
             margin-bottom: 4px;
         }
-        .rec-sub { font-size: 13px; color: #94a3b8; margin-bottom: 20px; }
+        .rec-sub { font-size: 14px; color: #94a3b8; margin-bottom: 20px; }
         .rec-points {
             list-style: none;
             padding: 0; margin: 0;
@@ -88,7 +89,7 @@
             gap: 8px 24px;
         }
         .rec-points li {
-            font-size: 13px;
+            font-size: 14px;
             color: #cbd5e1;
             padding-left: 18px;
             position: relative;
@@ -396,7 +397,7 @@
         }
         .slider-val.danger { color: #ef4444; }
         .slider-hint {
-            font-size: 11px;
+            font-size: 12px;
             color: #64748b;
             margin-bottom: 20px;
             padding-left: 144px;
@@ -432,7 +433,7 @@
         }
         .cost-amount.danger { color: #ef4444; }
         .cost-amount.safe { color: #0d9488; }
-        .cost-detail { font-size: 12px; color: #64748b; line-height: 1.6; }
+        .cost-detail { font-size: 13px; color: #64748b; line-height: 1.6; }
         .cost-badge {
             display: inline-flex;
             align-items: center;
@@ -497,9 +498,9 @@
             border-collapse: collapse;
         }
         .matrix-table th {
-            padding: 10px 20px;
+            padding: 10px 16px;
             background: #0f172a;
-            font-size: 10px;
+            font-size: 11px;
             font-weight: 700;
             letter-spacing: 0.08em;
             text-transform: uppercase;
@@ -507,16 +508,26 @@
             text-align: left;
         }
         .matrix-table th:nth-child(2),
-        .matrix-table th:nth-child(3) { text-align: center; width: 100px; }
+        .matrix-table th:nth-child(3),
+        .matrix-table th:nth-child(4) { text-align: center; width: 90px; }
         .matrix-table td {
-            padding: 12px 20px;
+            padding: 12px 16px;
             border-top: 1px solid #1a2535;
-            font-size: 13px;
+            font-size: 14px;
             color: #cbd5e1;
             vertical-align: top;
         }
         .matrix-table td:nth-child(2),
-        .matrix-table td:nth-child(3) { text-align: center; vertical-align: middle; }
+        .matrix-table td:nth-child(3),
+        .matrix-table td:nth-child(4) { text-align: center; vertical-align: middle; }
+        /* Tool logo in matrix/market headers */
+        .tool-logo {
+            width: 22px; height: 22px;
+            border-radius: 5px;
+            object-fit: contain;
+            display: block;
+            margin: 0 auto 4px;
+        }
         .matrix-table tbody tr:hover td { background: rgba(255,255,255,0.015); }
         .m-feat { font-weight: 500; color: #e2e8f0; }
         .m-note { font-size: 11px; color: #475569; margin-top: 2px; }
@@ -834,18 +845,18 @@ const VOTE_OPTIONS = [
 ];
 
 const MATRIX = [
-    { feature: 'HIPAA Business Associate Agreement', ds: 'full',    ab: 'full',    note: 'Both sign BAAs at Enterprise tier' },
-    { feature: 'SOC 2 Type II Certified',            ds: 'full',    ab: 'full',    note: 'Both maintain SOC 2 Type II certification' },
-    { feature: 'PointClickCare Integration',          ds: 'full',    ab: 'partial', note: 'DocuSign has a native connector; Adobe Sign requires REST API' },
-    { feature: 'MatrixCare Integration',              ds: 'full',    ab: 'partial', note: 'DocuSign is preferred partner; Adobe requires custom configuration' },
-    { feature: 'Audit Trail / Certificate of Completion', ds: 'full', ab: 'full',  note: 'Both provide legally-binding, tamper-evident audit trails' },
-    { feature: '21 CFR Part 11 Compliance',           ds: 'full',    ab: 'full',    note: 'Both support pharma/clinical electronic records requirements' },
-    { feature: 'Microsoft 365 / Teams',               ds: 'full',    ab: 'full',    note: 'Adobe has native Acrobat for M365 advantage' },
-    { feature: 'Bulk Send / Mass Signing',            ds: 'full',    ab: 'full',    note: 'DocuSign PowerForms vs. Adobe Mega Sign' },
-    { feature: 'PDF Editing & Acrobat Suite',         ds: 'none',    ab: 'full',    note: "Adobe's core advantage — full Acrobat tools included" },
-    { feature: 'Overage / Volume Risk',               ds: 'warn',    ab: 'full',    note: 'DocuSign: $5.80/envelope over 20K/yr; Adobe: seat-based, no overage' },
-    { feature: 'Pricing Predictability',              ds: 'partial', ab: 'full',    note: 'DocuSign: transaction-based exposure; Adobe: fixed seat cost' },
-    { feature: 'Salesforce / CRM Integration',        ds: 'full',    ab: 'full',    note: 'DocuSign is AppExchange preferred partner' },
+    { feature: 'HIPAA Business Associate Agreement', ds: 'full',    ab: 'full',    pd: 'full',    note: 'All three sign BAAs — DocuSign/Adobe at Enterprise, PandaDoc at Business tier' },
+    { feature: 'SOC 2 Type II Certified',            ds: 'full',    ab: 'full',    pd: 'full',    note: 'All three maintain SOC 2 Type II' },
+    { feature: 'PointClickCare Integration',          ds: 'full',    ab: 'partial', pd: 'none',    note: 'DocuSign: native PCC Marketplace connector. Adobe: REST API + Make.com (2–4 wks). PandaDoc: no listing — requires custom webhook.' },
+    { feature: 'MatrixCare Integration',              ds: 'full',    ab: 'partial', pd: 'none',    note: 'DocuSign is preferred partner. Adobe and PandaDoc require custom API work.' },
+    { feature: 'Audit Trail / Certificate of Completion', ds: 'full', ab: 'full',  pd: 'full',    note: 'All three provide legally-binding, tamper-evident audit trails' },
+    { feature: '21 CFR Part 11 Compliance',           ds: 'full',    ab: 'full',    pd: 'partial', note: 'DocuSign and Adobe are primary use cases; PandaDoc has basic support but is not purpose-built for clinical compliance' },
+    { feature: 'Microsoft 365 / Teams',               ds: 'full',    ab: 'full',    pd: 'partial', note: 'Adobe has native Acrobat for M365 advantage; PandaDoc has limited Teams integration' },
+    { feature: 'Bulk Send / Mass Signing',            ds: 'full',    ab: 'full',    pd: 'full',    note: 'DocuSign: PowerForms. Adobe: Mega Sign. PandaDoc: Mass Send.' },
+    { feature: 'PDF Editing & Acrobat Suite',         ds: 'none',    ab: 'full',    pd: 'partial', note: "Adobe's core advantage — full Acrobat suite. PandaDoc has basic editor. DocuSign: signing only." },
+    { feature: 'Contract Storage & Management',       ds: 'partial', ab: 'none',    pd: 'full',    note: 'PandaDoc includes full CLM. DocuSign CLM is a costly add-on. Adobe Sign has no contract management.' },
+    { feature: 'Overage / Volume Risk',               ds: 'warn',    ab: 'full',    pd: 'full',    note: 'DocuSign: $5.80/envelope over 20K/yr. Adobe and PandaDoc are seat-based — no overage.' },
+    { feature: 'Pricing Predictability',              ds: 'partial', ab: 'full',    pd: 'full',    note: 'DocuSign: transaction-based cost exposure. Adobe and PandaDoc: fixed seat cost.' },
 ];
 
 const STATUS = {
@@ -864,7 +875,7 @@ const ADOBE_PPU = 35;      // $/seat/mo
 
 const MKT_TOOLS = [
     {
-        id: 'docusign', name: 'DocuSign', tag: 'Current', tagCls: 'current',
+        id: 'docusign', name: 'DocuSign', tag: 'Current', tagCls: 'current', domain: 'docusign.com',
         cost: '$19,800/yr', model: 'Per envelope',
         hipaa: 'full', ehr: 'full', esign: 'full',
         clm: 'warn',   // CLM is a very expensive separate product
@@ -872,28 +883,28 @@ const MKT_TOOLS = [
         note: 'Best-in-class eSign for healthcare. In the PCC Marketplace — flip the switch, no dev work.',
     },
     {
-        id: 'adobe', name: 'Adobe Sign', tag: 'Proposed', tagCls: 'proposed',
+        id: 'adobe', name: 'Adobe Sign', tag: 'Proposed', tagCls: 'proposed', domain: 'adobe.com',
         cost: '~$35/user/mo', model: 'Per seat',
         hipaa: 'full', ehr: 'partial', esign: 'full',
         clm: 'none', pdf: 'full', overage: 'full', setup: 'full',
         note: 'Strong PDF editing, no overage risk. PCC integration doable via REST API + Make.com, but requires setup (est. 2–4 weeks).',
     },
     {
-        id: 'pandadoc', name: 'PandaDoc', tag: 'Alternative', tagCls: 'alt',
+        id: 'pandadoc', name: 'PandaDoc', tag: 'Alternative', tagCls: 'alt', domain: 'pandadoc.com',
         cost: '$49/user/mo', model: 'Per seat',
         hipaa: 'full', ehr: 'none', esign: 'full',
         clm: 'full', pdf: 'partial', overage: 'full', setup: 'full',
         note: 'No PCC Marketplace listing. API integration possible via Make.com webhook — workable for triggering doc sends, but status write-back to PCC records requires custom dev.',
     },
     {
-        id: 'ironclad', name: 'Ironclad', tag: 'Enterprise', tagCls: 'ent',
+        id: 'ironclad', name: 'Ironclad', tag: 'Enterprise', tagCls: 'ent', domain: 'ironcladapp.com',
         cost: '$60K+/yr', model: 'Custom quote',
         hipaa: 'full', ehr: 'none', esign: 'partial',
         clm: 'full', pdf: 'partial', overage: 'full', setup: 'none',
         note: 'No PCC integration. Best-in-class contract management but enterprise pricing — doesn\'t fit NACS\'s current scale or budget.',
     },
     {
-        id: 'contractsafe', name: 'ContractSafe', tag: 'Alternative', tagCls: 'alt',
+        id: 'contractsafe', name: 'ContractSafe', tag: 'Alternative', tagCls: 'alt', domain: 'contractsafe.com',
         cost: '$400–1,500/mo', model: 'Per seat',
         hipaa: 'full', ehr: 'none', esign: 'partial',
         clm: 'full', pdf: 'none', overage: 'full', setup: 'full',
@@ -1375,6 +1386,7 @@ function MarketComparison() {
                             {visible.map(t => (
                                 <th key={t.id}>
                                     <div className="th-tool">
+                                        <ToolLogo domain={t.domain} alt={t.name} />
                                         <div className="th-tool-name">{t.name}</div>
                                         <div>
                                             <span className={`th-tool-tag ${TAG_CLS[t.tagCls]}`}>{t.tag}</span>
@@ -1415,6 +1427,17 @@ function MarketComparison() {
 
 /* ── Compliance matrix ───────────────────────────────────── */
 
+function ToolLogo({ domain, alt }) {
+    return (
+        <img
+            className="tool-logo"
+            src={`https://img.logo.dev/${domain}?format=png&size=64`}
+            alt={alt}
+            onError={e => { e.target.style.display = 'none'; }}
+        />
+    );
+}
+
 function ComplianceMatrix() {
     return (
         <div className="matrix-wrap">
@@ -1425,31 +1448,27 @@ function ComplianceMatrix() {
                 </div>
                 <div className="matrix-head-title">Feature Comparison</div>
                 <div className="matrix-head-desc">
-                    Both platforms are healthcare-ready. The differentiators are EHR integration depth and pricing structure.
+                    All three platforms are healthcare-ready. The key differentiators are EHR integration depth, pricing structure, and contract management capability.
                 </div>
             </div>
             <table className="matrix-table">
                 <thead>
                     <tr>
                         <th>Feature</th>
-                        <th>DocuSign</th>
-                        <th>Adobe Sign</th>
+                        <th><ToolLogo domain="docusign.com" alt="DocuSign" />DocuSign</th>
+                        <th><ToolLogo domain="adobe.com" alt="Adobe Sign" />Adobe Sign</th>
+                        <th><ToolLogo domain="pandadoc.com" alt="PandaDoc" />PandaDoc</th>
                         <th>Notes</th>
                     </tr>
                 </thead>
                 <tbody>
                     {MATRIX.map(row => (
                         <tr key={row.feature}>
-                            <td>
-                                <div className="m-feat">{row.feature}</div>
-                            </td>
-                            <td>
-                                <span className={`m-status ${STATUS[row.ds].cls}`}>{STATUS[row.ds].icon}</span>
-                            </td>
-                            <td>
-                                <span className={`m-status ${STATUS[row.ab].cls}`}>{STATUS[row.ab].icon}</span>
-                            </td>
-                            <td style={{fontSize:'12px', color:'#475569'}}>{row.note}</td>
+                            <td><div className="m-feat">{row.feature}</div></td>
+                            <td><span className={`m-status ${STATUS[row.ds].cls}`}>{STATUS[row.ds].icon}</span></td>
+                            <td><span className={`m-status ${STATUS[row.ab].cls}`}>{STATUS[row.ab].icon}</span></td>
+                            <td><span className={`m-status ${STATUS[row.pd].cls}`}>{STATUS[row.pd].icon}</span></td>
+                            <td style={{fontSize:'12px', color:'#64748b'}}>{row.note}</td>
                         </tr>
                     ))}
                 </tbody>
@@ -1488,24 +1507,30 @@ function StrategicAccordion() {
                     <div className="strat-block">
                         <div className="strat-title">The real problem isn't which tool — it's what we're signing</div>
                         <div className="strat-text">
-                            NACS uses DocuSign for two very different things: legally-binding documents (resident admissions, employment contracts, vendor agreements) and internal confirmations (staff acknowledging they read a policy or completed training). These are not the same need — and using a $5.80-per-signature legal tool for the second category is where the budget risk lives.
+                            The $5.80 overage fee becomes a problem at volume. The question worth asking before renewal: <em>what are we actually sending?</em> If any portion of the monthly envelope count is going toward internal confirmations — staff acknowledging a policy update, confirming they read a training document — those don't require a legally-binding signature. They require a timestamp and a record. That distinction matters because it changes the volume math entirely.
                         </div>
                     </div>
                     <div className="strat-callout">
-                        "We're paying premium rates to have staff click 'I agree' on a handbook. That same workflow can run on something we already own — or build — at a fraction of the cost, with better visibility into who's actually in compliance."
+                        "I don't know for certain whether NACS is using DocuSign for internal sign-offs — but it's worth auditing before renewal. If even 20% of envelopes are going toward internal acknowledgments, moving those to a simpler workflow (or something built into NorthPoint) would eliminate the overage exposure without switching platforms."
                     </div>
                     <div className="strat-block">
-                        <div className="strat-title">The recommended split</div>
+                        <div className="strat-title">The recommended approach</div>
                         <div className="strat-text">
-                            Keep DocuSign for everything that needs a legally-binding signature: resident admissions, employment agreements, vendor contracts. These need a formal audit trail and connect directly to PointClickCare and MatrixCare (our EHR systems) without any custom setup.<br /><br />
-                            Move internal sign-offs to something simpler. Staff confirming they read the employee handbook, completing a required training, or acknowledging a policy update — those just need a timestamp and a record, not a $5.80-per-click legal signature. This could be a dedicated training platform, a module added to NorthPoint, or even an existing system NACS already pays for.
+                            Keep DocuSign for everything that needs a legally-binding signature: resident admissions, employment agreements, vendor contracts. These need a formal audit trail and connect directly to PointClickCare and MatrixCare without any custom setup.<br /><br />
+                            If internal confirmations are part of the current volume, the right move is a separate, simpler system — not a $5.80-per-envelope legal signature tool. This could be a dedicated training platform, a module built into NorthPoint, or a workflow already available in the HRIS. The goal is to stop paying legal-signature rates for administrative recordkeeping.
                         </div>
                     </div>
                     <div className="strat-block">
                         <div className="strat-title">Why not just switch to Adobe Sign?</div>
                         <div className="strat-text">
-                            Adobe Sign solves the overage problem (you pay per seat, not per signature) but creates new ones: reconnecting PointClickCare and MatrixCare, retraining every facility, and moving all existing templates. At current usage levels, DocuSign is still cheaper. Adobe only wins on price if signature volume consistently exceeds ~2,000/month — check the calculator above.<br /><br />
-                            Adobe's real strength is PDF creation and editing. If NACS standardizes on Microsoft 365 and needs heavy document-building workflows, that's worth revisiting at the 2027 renewal.
+                            Adobe Sign solves the overage problem (seat-based pricing, no per-envelope fee) but introduces new ones: rebuilding PointClickCare and MatrixCare integrations, retraining every facility, and migrating all existing templates. At current volumes, DocuSign is still cheaper. Adobe only wins on price if volume consistently exceeds ~2,000 envelopes/month — check the calculator below.<br /><br />
+                            Adobe's real differentiator is PDF creation and editing. If NACS standardizes on Microsoft 365 and needs document-building workflows across facilities, that conversation is worth reopening at the 2027 renewal.
+                        </div>
+                    </div>
+                    <div className="strat-block">
+                        <div className="strat-title">Ask about contract flexibility</div>
+                        <div className="strat-text">
+                            The current DocuSign agreement may be a multi-year (3-year) term. If so, it's worth asking directly at renewal whether a 1-year option is available — even at a slightly higher annual rate. A shorter term gives NACS the flexibility to reassess if usage patterns shift, if Adobe's M365 integration matures, or if a better option emerges. Locking in for 3 years at the wrong volume tier is a risk worth naming before signing.
                         </div>
                     </div>
                 </div>
@@ -1519,14 +1544,14 @@ function StrategicAccordion() {
 function RecBanner() {
     return (
         <div className="rec-banner">
-            <div className="rec-eyebrow">IT Director's Recommendation — March 2026 Renewal</div>
+            <div className="rec-eyebrow">IT Recommendation — March 2026 Renewal</div>
             <div className="rec-title">Renew DocuSign. Eliminate the overage risk.</div>
             <div className="rec-sub">Based on contract terms, current usage patterns, and EHR integration requirements</div>
             <ul className="rec-points">
                 <li>PointClickCare and MatrixCare integrations are native to DocuSign — rebuilding them in Adobe Sign requires custom API work and re-validation</li>
-                <li>At current envelope volume (under 1,666/mo), DocuSign at $19,800/yr beats Adobe Sign at most seat counts</li>
-                <li>Moving internal policy sign-offs (staff handbook, training confirmations) out of DocuSign eliminates the $5.80 overage risk entirely — those don't need a legally-binding signature, just a record</li>
-                <li>No migration cost, no retraining, no re-integration work — the ROI math on switching doesn't close at this volume</li>
+                <li>At current envelope volume (under 1,666/mo), DocuSign at $19,800/yr beats Adobe Sign at most realistic seat counts</li>
+                <li>Audit actual envelope usage before renewal — if any volume is going toward internal acknowledgments, those can move to a simpler workflow and drop the overage risk entirely</li>
+                <li>No migration cost, no retraining, no re-integration — the ROI math on switching doesn't close at current volume</li>
             </ul>
             <div className="rec-caveat">
                 Don't agree? <a href="#discovery">Fill out the discovery section below</a> — your use case might change this analysis.
