@@ -1665,7 +1665,7 @@ function StrategicAccordion() {
             <div className={`accordion-body${open ? ' open' : ''}`}>
                 <div className="accordion-inner">
                     <div className="strat-block">
-                        <div className="strat-title">The real problem isn't which tool — it's what we're signing</div>
+                        <div className="strat-title">What are we signing?</div>
                         <div className="strat-text">
                             The $5.80 overage fee becomes a problem at volume. The question worth asking before renewal: <em>what are we actually sending?</em> If any portion of the monthly envelope count is going toward internal confirmations — staff acknowledging a policy update, confirming they read a training document — those don't require a legally-binding signature. They require a timestamp and a record. That distinction matters because it changes the volume math entirely.
                         </div>
@@ -1702,19 +1702,43 @@ function StrategicAccordion() {
 /* ── Recommendation banner ───────────────────────────────── */
 
 function RecBanner() {
+    const [open, setOpen] = useState(false);
     return (
-        <div className="rec-banner">
-            <div className="rec-eyebrow">IT Recommendation — March 2026 Renewal</div>
-            <div className="rec-title">Renew DocuSign. Eliminate the overage risk.</div>
-            <div className="rec-sub">Based on contract terms, current usage patterns, and EHR integration requirements</div>
-            <ul className="rec-points">
-                <li>PointClickCare integration is native to DocuSign — rebuilding it in Adobe Sign requires custom API work and re-validation</li>
-                <li>At current envelope volume (under 1,666/mo), DocuSign at $19,800/yr beats Adobe Sign at most realistic seat counts</li>
-                <li>Audit actual envelope usage before renewal — if any volume is going toward internal acknowledgments, those can move to a simpler workflow and drop the overage risk entirely</li>
-                <li>No migration cost, no retraining, no re-integration — the ROI math on switching doesn't close at current volume</li>
-            </ul>
-            <div className="rec-caveat">
-                Don't agree? <a href="#discovery">Fill out the discovery section below</a> — your use case might change this analysis.
+        <div className="rec-banner" style={{padding:0}}>
+            <button
+                onClick={() => setOpen(o => !o)}
+                style={{
+                    width:'100%', display:'flex', justifyContent:'space-between', alignItems:'center',
+                    padding:'24px 32px', background:'transparent', border:'none', cursor:'pointer', textAlign:'left',
+                }}
+            >
+                <div>
+                    <div className="rec-eyebrow">IT Recommendation — March 2026 Renewal</div>
+                    <div className="rec-title">Renew DocuSign. Eliminate the overage risk.</div>
+                    <div className="rec-sub" style={{marginBottom:0}}>Based on contract terms, usage patterns, and EHR integration requirements</div>
+                </div>
+                <svg
+                    style={{color:'#0d9488', flexShrink:0, marginLeft:'20px', transition:'transform 0.3s', transform: open ? 'rotate(180deg)' : 'rotate(0deg)'}}
+                    width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"
+                >
+                    <path d="M6 9l6 6 6-6" />
+                </svg>
+            </button>
+            <div style={{
+                overflow:'hidden', maxHeight: open ? '600px' : '0',
+                transition:'max-height 0.38s ease',
+            }}>
+                <div style={{padding:'0 32px 28px', borderTop:'1px solid #162032'}}>
+                    <ul className="rec-points" style={{marginTop:'20px'}}>
+                        <li>PointClickCare integration is native to DocuSign — rebuilding it in Adobe Sign requires custom API work and re-validation</li>
+                        <li>At current envelope volume (under 1,666/mo), DocuSign at $19,800/yr beats Adobe Sign at most realistic seat counts</li>
+                        <li>Audit actual envelope usage before renewal — if any volume is going toward internal acknowledgments, those can move to a simpler workflow and drop the overage risk entirely</li>
+                        <li>No migration cost, no retraining, no re-integration — the ROI math on switching doesn't close at current volume</li>
+                    </ul>
+                    <div className="rec-caveat">
+                        Don't agree? <a href="#discovery">Fill out the discovery section below</a> — your use case might change this analysis.
+                    </div>
+                </div>
             </div>
         </div>
     );
