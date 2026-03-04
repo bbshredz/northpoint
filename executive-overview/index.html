@@ -402,6 +402,38 @@
                 <div style="grid-column:1/-1;font-size:13px;color:var(--text-tertiary);text-align:center;padding:20px 0">Loading…</div>
             </div>
 
+            <!-- TOOLS -->
+            <div class="section-header animate-4">
+                <span class="section-title">Tools</span>
+                <div class="section-line"></div>
+            </div>
+            <div class="tools-grid animate-4">
+                <a href="/swot/index.html" class="tool-card clickable">
+                    <div class="card-top">
+                        <div class="card-icon">⊞</div>
+                        <span class="card-status status-live">Live</span>
+                    </div>
+                    <div class="card-title">SWOT Analysis</div>
+                    <div class="card-desc">Strategic strengths, weaknesses, opportunities, and threats — editable, Supabase-backed, formatted for executive review.</div>
+                    <div class="card-footer">
+                        <div class="card-tags"><span class="card-tag">Strategy</span><span class="card-tag">Editable</span></div>
+                        <span class="card-arrow">→</span>
+                    </div>
+                </a>
+                <a href="/stakeholder/index.html" class="tool-card clickable" data-require-module="stakeholder" data-module-hide>
+                    <div class="card-top">
+                        <div class="card-icon">💬</div>
+                        <span class="card-status status-live">Live</span>
+                    </div>
+                    <div class="card-title">Stakeholder Outreach</div>
+                    <div class="card-desc">C-level pain point intake — capture leadership feedback on IT priorities and build a metrics database for strategic positioning.</div>
+                    <div class="card-footer">
+                        <div class="card-tags"><span class="card-tag">Executive</span><span class="card-tag">Feedback Loop</span></div>
+                        <span class="card-arrow">→</span>
+                    </div>
+                </a>
+            </div>
+
             <!-- IT TEAM -->
             <div class="section-header animate-4">
                 <span class="section-title">IT Team</span>
@@ -544,6 +576,13 @@ npInit('executive').then(session => {
     renderNav('executive-overview');
     loadInitiatives();
     loadRisks();
+    document.querySelectorAll('[data-require-module]').forEach(el => {
+        if (!npHasModule(el.dataset.requireModule)) {
+            el.hasAttribute('data-module-hide')
+                ? (el.style.display = 'none')
+                : el.classList.add('tile-locked');
+        }
+    });
 });
 </script>
 </body>

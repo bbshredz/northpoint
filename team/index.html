@@ -97,6 +97,18 @@
                     <div class="card-title">Org Chart</div>
                     <div class="card-desc">Visual reporting structure — current and proposed post-merger organization with role transitions.</div>
                 </div>
+                <a href="/team/iam/index.html" class="tool-card clickable" data-require-module="iam" data-module-hide>
+                    <div class="card-top">
+                        <div class="card-icon">🔑</div>
+                        <span class="card-status status-protected">Admin</span>
+                    </div>
+                    <div class="card-title">Identity & Access</div>
+                    <div class="card-desc">User role management — view all NorthPoint accounts, assign roles, and control module access without touching Supabase directly.</div>
+                    <div class="card-footer">
+                        <div class="card-tags"><span class="card-tag">Admin Only</span><span class="card-tag">Role Control</span></div>
+                        <span class="card-arrow">→</span>
+                    </div>
+                </a>
             </div>
 
         </div>
@@ -108,6 +120,13 @@ npInit(null).then(session => {
   if (!session) return;
   npPopulateTopbar();
   renderNav('team');
+  document.querySelectorAll('[data-require-module]').forEach(el => {
+    if (!npHasModule(el.dataset.requireModule)) {
+      el.hasAttribute('data-module-hide')
+        ? (el.style.display = 'none')
+        : el.classList.add('tile-locked');
+    }
+  });
 });
 </script>
 </body>

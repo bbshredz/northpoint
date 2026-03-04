@@ -2,6 +2,12 @@
 // Shared session + role management
 // Include on every protected page BEFORE nav.js
 
+// FOUC prevention — apply saved theme before first paint
+(function(){
+  var t = localStorage.getItem('np-theme');
+  if (t === 'dark') document.documentElement.setAttribute('data-theme', 'dark');
+}());
+
 const SUPABASE_URL = 'https://vpxlgtgavjmftbdsajtk.supabase.co';
 const SUPABASE_KEY = 'sb_publishable_xrH6NCenOJGh84f9NTf3WQ_xL8cmp3a';
 const LOGIN_URL = '/login/index.html';
@@ -49,7 +55,7 @@ async function npInit(requireModule = null) {
 
 // Modules automatically granted by role (no Supabase modules column entry required)
 const ROLE_MODULES = {
-  exec: ['restructure', 'budget-planner', 'responsibility-planner', 'swot', 'stakeholder'],
+  exec: ['executive', 'budget', 'restructure', 'budget-planner', 'responsibility-planner', 'swot'],
 };
 
 function npHasModule(module) {

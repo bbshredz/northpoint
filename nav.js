@@ -62,42 +62,6 @@ function renderNav(active) {
       module: 'field-guide',
       icon: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 19.5A2.5 2.5 0 016.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 014 19.5v-15A2.5 2.5 0 016.5 2z"/></svg>`
     },
-    // ── Direct-access pages for exec/review role ──
-    {
-      id: 'restructure',
-      href: '/budget/restructure/index.html',
-      label: 'Case for Restructure',
-      module: 'restructure',
-      icon: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 013 3L7 19l-4 1 1-4L16.5 3.5z"/></svg>`
-    },
-    {
-      id: 'budget-planner',
-      href: '/budget/planner/index.html',
-      label: 'Budget Planner',
-      module: 'budget-planner',
-      icon: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 000 7h5a3.5 3.5 0 010 7H6"/></svg>`
-    },
-    {
-      id: 'responsibility-planner',
-      href: '/team/responsibility-planner/index.html',
-      label: 'Roles & Responsibilities',
-      module: 'responsibility-planner',
-      icon: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 00-3-3.87"/><path d="M16 3.13a4 4 0 010 7.75"/></svg>`
-    },
-    {
-      id: 'swot',
-      href: '/swot/index.html',
-      label: 'SWOT Analysis',
-      module: 'swot',
-      icon: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><line x1="12" y1="3" x2="12" y2="21"/><line x1="3" y1="12" x2="21" y2="12"/></svg>`
-    },
-    {
-      id: 'stakeholder',
-      href: '/stakeholder/index.html',
-      label: 'Stakeholder Outreach',
-      module: 'stakeholder',
-      icon: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></svg>`
-    },
   ];
 
   const mount = document.getElementById('rail-mount');
@@ -131,6 +95,12 @@ function renderNav(active) {
       </a>`).join('')}
     </nav>
     <div class="rail-footer">
+      <button class="rail-theme-btn" id="rail-theme-btn" title="Toggle theme">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" id="rail-theme-icon">
+          <circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/>
+        </svg>
+        <span class="rail-theme-label" id="rail-theme-label">Light mode</span>
+      </button>
       <div class="rail-user" id="rail-user-btn">
         <div class="rail-avatar">${initials}</div>
         <div class="rail-user-info">
@@ -177,6 +147,34 @@ function renderNav(active) {
       userMenu.classList.toggle('open');
     });
     document.addEventListener('click', () => userMenu.classList.remove('open'));
+  }
+
+  // Theme toggle
+  const themeBtn   = document.getElementById('rail-theme-btn');
+  const themeLabel = document.getElementById('rail-theme-label');
+  const moonSvg = `<circle cx="12" cy="12" r="5"/><path d="M21 12.79A9 9 0 1111.21 3 7 7 0 0021 12.79z"/>`;
+  const sunSvg  = `<circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/>`;
+
+  function syncThemeBtn() {
+    const dark = document.documentElement.getAttribute('data-theme') === 'dark';
+    const icon = document.getElementById('rail-theme-icon');
+    if (icon) icon.innerHTML = dark ? moonSvg : sunSvg;
+    if (themeLabel) themeLabel.textContent = dark ? 'Dark mode' : 'Light mode';
+  }
+  syncThemeBtn();
+
+  if (themeBtn) {
+    themeBtn.addEventListener('click', () => {
+      const isDark = document.documentElement.getAttribute('data-theme') === 'dark';
+      if (isDark) {
+        document.documentElement.removeAttribute('data-theme');
+        localStorage.setItem('np-theme', 'light');
+      } else {
+        document.documentElement.setAttribute('data-theme', 'dark');
+        localStorage.setItem('np-theme', 'dark');
+      }
+      syncThemeBtn();
+    });
   }
 
   const dateEl = document.getElementById('currentDate');

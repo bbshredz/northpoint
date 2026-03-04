@@ -88,7 +88,7 @@
                         <span class="card-arrow">→</span>
                     </div>
                 </a>
-                <a href="/budget/restructure/index.html" class="tool-card clickable">
+                <a href="/budget/restructure/index.html" class="tool-card clickable" data-require-module="restructure" data-module-hide>
                     <div class="card-top">
                         <div class="card-icon">🔐</div>
                         <span class="card-status status-live">Live</span>
@@ -120,6 +120,13 @@ npInit('budget').then(session => {
   if (!session) return;
   npPopulateTopbar();
   renderNav('budget');
+  document.querySelectorAll('[data-require-module]').forEach(el => {
+    if (!npHasModule(el.dataset.requireModule)) {
+      el.hasAttribute('data-module-hide')
+        ? (el.style.display = 'none')
+        : el.classList.add('tile-locked');
+    }
+  });
 });
 </script>
 </body>
