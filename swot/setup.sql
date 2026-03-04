@@ -60,7 +60,7 @@ INSERT INTO swot_items (quadrant, label, description, priority, sort_order) VALU
 ('o','4 Incoming Facilities','Growth window to build a scalable structure before adding load. Significantly less expensive to build right now than to retrofit at 16 or 20 facilities.','high',1),
 ('o','Regional MSP Partnership','A contracted MSP for on-site field coverage reduces geographic dependency on Geremia and enables the team to scale without a proportional headcount increase.','high',2),
 ('o','AI / L0 Helpdesk Automation','Chat-based tier-0 support can deflect routine tickets and extend IT capacity. Francis is positioned to own, configure, and train around this system.','medium',3),
-('o','NetSuite & Analytics Platform','Incoming data warehouse creates a formal IT stewardship role. A clean handoff from Jon dissolution to structured business systems ownership.','medium',4),
+('o','NetSuite & Analytics Platform','Incoming data warehouse creates a formal IT stewardship role. Opportunity to establish structured business systems ownership under IT.','medium',4),
 ('o','Formal Specialization = Retention Tool','Defining career paths and domain ownership gives team members a reason to stay and grow. Dual function: succession framework and morale lever.','high',5),
 ('o','Stakeholder Input Loop','1-on-1s with facility admins and ticketing data analysis can surface high-impact quick wins, reset perception, and build goodwill at low cost.','medium',6),
 ('o','Ensign-Class IT Posture','Opportunity to model the department after operators that are already running specialized, structured IT at scale — before that gap becomes a competitive disadvantage.','medium',7),
