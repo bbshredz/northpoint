@@ -64,6 +64,12 @@ function npHasModule(module) {
   return _npModules.includes(module);
 }
 
+// Allow pages with custom init flows to populate auth context for npHasModule / nav rendering
+function npSetAuthContext(role, modules) {
+  _npRole    = role || 'staff';
+  _npModules = Array.isArray(modules) ? modules : [];
+}
+
 function npGetUser()        { return _npUser; }
 function npGetRole()        { return _npRole; }
 function npGetInitials()    { if (!_npUser?.email) return '?'; return _npUser.email.split('@')[0].slice(0,2).toUpperCase(); }
