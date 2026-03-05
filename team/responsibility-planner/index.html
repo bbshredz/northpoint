@@ -484,9 +484,9 @@ body.future-mode .pc-eng-desc { color: #64748b; }
 
     <!-- Tabs -->
     <div class="tab-bar">
-      <button class="tab-btn active" id="tabKanban" onclick="switchTab('kanban')">Kanban Board</button>
+      <button class="tab-btn active" id="tabProfiles" onclick="switchTab('profiles')">Team Profiles</button>
+      <button class="tab-btn" id="tabKanban" onclick="switchTab('kanban')">Responsibility Planner</button>
       <button class="tab-btn" id="tabHeatmap" onclick="switchTab('heatmap')">Coverage Heatmap</button>
-      <button class="tab-btn" id="tabProfiles" onclick="switchTab('profiles')">Team Profiles</button>
     </div>
 
     <!-- Action Bar -->
@@ -533,7 +533,7 @@ body.future-mode .pc-eng-desc { color: #64748b; }
     </div>
 
     <!-- Kanban Panel -->
-    <div class="tab-panel active" id="panelKanban">
+    <div class="tab-panel" id="panelKanban">
       <div class="kanban-wrap">
         <div class="kanban-board" id="kanbanBoard"></div>
       </div>
@@ -571,7 +571,7 @@ body.future-mode .pc-eng-desc { color: #64748b; }
     </div>
 
     <!-- Profiles Panel -->
-    <div class="tab-panel" id="panelProfiles">
+    <div class="tab-panel active" id="panelProfiles">
       <div class="profiles-wrap">
         <div class="profiles-sidebar" id="profilesSidebar"></div>
         <div class="profile-main" id="profileMain"></div>
@@ -588,7 +588,7 @@ const db = _npSupabase;
 
 // ── STATE ──
 let currentState = 'current';
-let currentTab = 'kanban';
+let currentTab = 'profiles';
 let currentUser = null;
 let boardData = { current: {}, future: {} };
 let hasUnsaved = false;
@@ -712,8 +712,8 @@ async function showApp() {
   renderNav('team');
   await loadData();
   initProfileStates();
+  renderProfiles();
   renderBoard();
-  renderHeatmap();
   await loadChangeLog();
 }
 
