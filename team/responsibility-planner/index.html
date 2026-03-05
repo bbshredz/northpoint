@@ -293,6 +293,118 @@ body.future-mode .log-action { color: #e2e8f0; }
 .loading-spinner { width: 32px; height: 32px; border: 3px solid rgba(255,255,255,0.1); border-top-color: var(--accent); border-radius: 50%; animation: spin 0.8s linear infinite; }
 @keyframes spin { to { transform: rotate(360deg); } }
 .loading-text { font-size: 13px; color: rgba(255,255,255,0.4); }
+
+/* ── PROFILES TAB ── */
+.profiles-wrap { flex: 1; overflow: hidden; display: flex; }
+.profiles-sidebar {
+  width: 210px; flex-shrink: 0; overflow-y: auto; padding: 12px 10px;
+  border-right: 1px solid var(--silver); background: var(--silver-light);
+}
+body.future-mode .profiles-sidebar { background: #0c1526; border-color: rgba(255,255,255,0.07); }
+.pnav-section-label {
+  font-size: 9px; font-weight: 700; text-transform: uppercase; letter-spacing: 1px;
+  color: var(--text-tertiary); padding: 6px 10px 4px; margin-top: 4px;
+}
+.profile-nav-btn {
+  display: flex; align-items: center; gap: 10px; width: 100%; padding: 9px 10px;
+  border-radius: 9px; border: none; background: none; cursor: pointer; text-align: left;
+  transition: background 0.15s; margin-bottom: 2px;
+}
+.profile-nav-btn:hover { background: var(--silver); }
+body.future-mode .profile-nav-btn:hover { background: rgba(255,255,255,0.06); }
+.profile-nav-btn.active { background: var(--card); box-shadow: 0 1px 4px rgba(0,0,0,0.08); }
+body.future-mode .profile-nav-btn.active { background: rgba(255,255,255,0.09); }
+.pnav-avatar {
+  width: 34px; height: 34px; border-radius: 9px; flex-shrink: 0;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 11px; font-weight: 700; color: white;
+}
+.pnav-name { font-size: 12.5px; font-weight: 600; color: var(--text-primary); }
+body.future-mode .pnav-name { color: #e2e8f0; }
+.pnav-role { font-size: 10.5px; color: var(--text-secondary); margin-top: 1px; }
+body.future-mode .pnav-role { color: #64748b; }
+
+/* ── PROFILE MAIN ── */
+.profile-main { flex: 1; overflow-y: auto; padding: 24px 28px; }
+.profile-card-inner { max-width: 840px; }
+
+.pc-header { display: flex; gap: 20px; align-items: flex-start; margin-bottom: 22px; }
+.pc-avatar-lg {
+  width: 68px; height: 68px; border-radius: 18px; flex-shrink: 0;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 20px; font-weight: 700; color: white;
+}
+.pc-header-info { flex: 1; }
+.pc-name { font-size: 22px; font-weight: 700; color: var(--text-primary); margin-bottom: 3px; }
+body.future-mode .pc-name { color: #f1f5f9; }
+.pc-title { font-size: 13.5px; color: var(--text-secondary); margin-bottom: 10px; }
+body.future-mode .pc-title { color: #94a3b8; }
+
+.pc-state-toggle { display: inline-flex; align-items: center; gap: 3px; padding: 3px; background: var(--silver-light); border-radius: 8px; }
+body.future-mode .pc-state-toggle { background: rgba(255,255,255,0.08); }
+.pc-state-btn {
+  padding: 5px 13px; border-radius: 6px; border: none; background: none;
+  font-size: 12px; font-weight: 600; cursor: pointer; font-family: inherit;
+  color: var(--text-tertiary); transition: all 0.15s;
+}
+.pc-state-btn.active-current { background: white; color: var(--text-primary); box-shadow: 0 1px 3px rgba(0,0,0,0.1); }
+.pc-state-btn.active-future { background: #0f172a; color: #38bdf8; }
+
+.pc-expertise { display: flex; flex-wrap: wrap; gap: 5px; margin-top: 10px; }
+.pc-tag {
+  font-size: 11px; padding: 3px 10px; border-radius: 20px;
+  background: var(--silver); color: var(--text-secondary); font-weight: 500;
+}
+body.future-mode .pc-tag { background: rgba(255,255,255,0.08); color: #94a3b8; }
+
+.pc-summary { font-size: 13px; color: var(--text-secondary); line-height: 1.65; margin-bottom: 18px; }
+body.future-mode .pc-summary { color: #94a3b8; }
+
+.pc-accountability {
+  background: var(--silver-light); border: 1px solid var(--silver); border-radius: 11px;
+  padding: 13px 16px; margin-bottom: 20px;
+}
+body.future-mode .pc-accountability { background: rgba(255,255,255,0.04); border-color: rgba(255,255,255,0.08); }
+.pc-acct-label { font-size: 9.5px; font-weight: 700; text-transform: uppercase; letter-spacing: 1px; color: var(--text-tertiary); margin-bottom: 5px; }
+.pc-acct-text { font-size: 12.5px; color: var(--text-secondary); line-height: 1.6; }
+body.future-mode .pc-acct-text { color: #94a3b8; }
+
+.pc-section { margin-bottom: 22px; }
+.pc-section-label {
+  font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 1px;
+  color: var(--text-tertiary); margin-bottom: 10px;
+  display: flex; align-items: center; gap: 8px;
+}
+.pc-section-label::after { content: ''; flex: 1; height: 1px; background: var(--silver); }
+body.future-mode .pc-section-label::after { background: rgba(255,255,255,0.08); }
+
+.pc-resp-list { list-style: none; padding: 0; display: flex; flex-direction: column; gap: 3px; }
+.pc-resp-item {
+  font-size: 12.5px; color: var(--text-secondary); padding: 5px 10px;
+  border-radius: 7px; line-height: 1.45; position: relative; padding-left: 18px;
+}
+body.future-mode .pc-resp-item { color: #94a3b8; }
+.pc-resp-item::before { content: '·'; position: absolute; left: 7px; color: var(--text-tertiary); }
+.pc-resp-item.is-key {
+  color: var(--text-primary); font-weight: 500; background: rgba(245,158,11,0.06);
+  border-left: 2px solid var(--amber); padding-left: 12px;
+}
+.pc-resp-item.is-key::before { content: none; }
+body.future-mode .pc-resp-item.is-key { color: #f1f5f9; background: rgba(16,185,129,0.06); border-left-color: var(--green); }
+
+.pc-engagements { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 10px; }
+.pc-engagement {
+  background: var(--card); border: 1px solid var(--silver); border-radius: 11px;
+  padding: 13px 15px; transition: box-shadow 0.15s;
+}
+.pc-engagement:hover { box-shadow: 0 4px 12px rgba(0,0,0,0.06); }
+body.future-mode .pc-engagement { background: rgba(255,255,255,0.04); border-color: rgba(255,255,255,0.08); }
+.pc-eng-title { font-size: 12.5px; font-weight: 600; color: var(--text-primary); margin-bottom: 5px; }
+body.future-mode .pc-eng-title { color: #e2e8f0; }
+.pc-eng-desc { font-size: 11.5px; color: var(--text-secondary); line-height: 1.5; margin-bottom: 9px; }
+body.future-mode .pc-eng-desc { color: #64748b; }
+.pc-eng-metric { font-size: 11px; font-weight: 600; color: var(--accent); display: flex; align-items: center; gap: 5px; }
+.pc-empty-hint { font-size: 12.5px; color: var(--text-tertiary); font-style: italic; padding: 8px 0; }
 </style>
 </head>
 <body>
@@ -356,6 +468,7 @@ body.future-mode .log-action { color: #e2e8f0; }
     <div class="tab-bar">
       <button class="tab-btn active" id="tabKanban" onclick="switchTab('kanban')">Kanban Board</button>
       <button class="tab-btn" id="tabHeatmap" onclick="switchTab('heatmap')">Coverage Heatmap</button>
+      <button class="tab-btn" id="tabProfiles" onclick="switchTab('profiles')">Team Profiles</button>
     </div>
 
     <!-- Action Bar -->
@@ -436,6 +549,14 @@ body.future-mode .log-action { color: #e2e8f0; }
             <tbody id="heatmapBody"></tbody>
           </table>
         </div>
+      </div>
+    </div>
+
+    <!-- Profiles Panel -->
+    <div class="tab-panel" id="panelProfiles">
+      <div class="profiles-wrap">
+        <div class="profiles-sidebar" id="profilesSidebar"></div>
+        <div class="profile-main" id="profileMain"></div>
       </div>
     </div>
 
@@ -568,6 +689,7 @@ async function showApp() {
   document.getElementById('currentDate').textContent = new Date().toLocaleDateString('en-US',{weekday:'short',month:'short',day:'numeric',year:'numeric'});
   renderNav('team');
   await loadData();
+  initProfileStates();
   renderBoard();
   renderHeatmap();
   await loadChangeLog();
@@ -807,14 +929,273 @@ function renderHeatmap() {
   });
 }
 
+// ── PROFILES ──
+const PROFILE_META = {
+  anthony: {
+    name: 'Anthony Trujillo', navRole: 'VP-Level Lead',
+    titles: { current: 'IT Director, South', future: 'Vice President, Business Systems & Technology' },
+    summaries: {
+      current: 'Anthony manages regional IT operations across the southern facilities, serving as the hands-on leader coordinating infrastructure, security, and end-user support. He oversees vendor relationships, equipment lifecycle, and day-to-day technology operations while ensuring alignment with organizational needs.',
+      future: 'Anthony transitions into executive leadership as VP, focusing on enterprise strategy, financial governance, and scalable technology architecture. He serves as the architect and steward of the department\'s long-term vision, ensuring systems support organizational growth, risk reduction, and operational efficiency across all facilities.'
+    },
+    accountability: {
+      current: 'Accountable for operational execution and coordination of IT services across southern facilities, ensuring reliable system performance, vendor management, and responsive support for staff and clinical operations.',
+      future: 'Accountable for the strategic alignment, governance, and financial return of enterprise technology investments, ensuring systems are scalable, secure, and cost-effective while enabling business and clinical operations across all facilities.'
+    },
+    expertise: ['Technology Strategy', 'Business Systems Architecture', 'Software Asset Management (SAM)', 'Enterprise Mobility & Device Management', 'Vendor & Financial Governance'],
+    past: [
+      { title: 'Clearview Project', description: 'Executive sponsor and architect of enterprise security camera unification initiative, standardizing physical security infrastructure across all facilities.', metric: 'Enterprise Security Unification' },
+      { title: 'Enterprise MDM Strategy', description: 'Established the organization\'s first enterprise Mobile Device Management (MDM) strategy and deployment using Jamf / MaaS360, creating scalable device governance.', metric: 'First Enterprise MDM' },
+      { title: 'eFax Modernization Initiative', description: 'Led modernization initiative transitioning legacy physical fax infrastructure to secure eFax systems across the organization.', metric: 'Legacy Infrastructure Eliminated' }
+    ],
+    future: [
+      { title: 'Enterprise AI Strategy', description: 'Develop comprehensive AI adoption roadmap including Tier-0 helpdesk automation, predictive analytics for resource planning, and RPA for routine administrative tasks.', metric: 'Est. $240K Annual Savings' },
+      { title: 'Cloud Cost Optimization', description: 'Implement FinOps practices, right-size cloud resources, and negotiate enterprise agreements to reduce cloud spend while supporting growth.', metric: 'Target: 25% Cost Reduction' },
+      { title: 'Strategic Vendor Consolidation', description: 'Consolidate 40+ vendor relationships into 15 strategic partnerships, improving leverage, reducing management overhead, and streamlining procurement.', metric: 'Projected: $180K Savings' }
+    ]
+  },
+  geremia: {
+    name: 'Geremia Doan', navRole: 'Infrastructure Lead',
+    titles: { current: 'Director, IT Infrastructure & Security', future: 'Director, IT Infrastructure & Security' },
+    summaries: {
+      current: 'Geremia manages the organization\'s network, server, and security infrastructure. He handles day-to-day maintenance, troubleshooting, patching, and ensures systems stay operational across all facilities.',
+      future: 'Geremia is the primary architect of the organization\'s technical backbone. His role centers on infrastructure resilience, security execution, and platform scalability, ensuring systems are hardened, performant, and capable of supporting modern clinical and business operations.'
+    },
+    accountability: {
+      current: 'Accountable for maintaining operational availability of network, server, and security systems, responding to outages and performance issues across all facilities.',
+      future: 'Accountable for the integrity, security, and performance of the organization\'s network, server, and infrastructure environments, ensuring high availability and resilience across all facilities.'
+    },
+    expertise: ['Network Architecture', 'Cybersecurity (Hardening & NDR)', 'Virtualization (Nutanix)', 'SD-WAN & Bandwidth', 'Infrastructure Design'],
+    past: [
+      { title: 'Dual Velo (SD-WAN) Implementation', description: 'Implemented SD-WAN infrastructure across all facilities, creating resilient, high-performance network connectivity.', metric: 'Enterprise-Wide SD-WAN' },
+      { title: 'VMWare to Nutanix Migration', description: 'Managed migration from VMWare to Nutanix, modernizing data center infrastructure and reducing licensing costs.', metric: 'Platform Modernization' },
+      { title: 'Enterprise Bandwidth Upgrades', description: 'Led enterprise-wide bandwidth upgrade initiative, improving network capacity and performance across all locations.', metric: 'Enhanced Connectivity' }
+    ],
+    future: [
+      { title: 'Zero Trust Architecture', description: 'Complete implementation of zero trust security model across all facilities, including micro-segmentation, continuous verification, and enhanced monitoring.', metric: 'Target: Q3 2025' },
+      { title: 'Network Infrastructure Modernization', description: 'Upgrade core switching infrastructure, implement 10Gb backbone, and deploy next-gen firewalls to support 30-facility growth.', metric: '12-Month Initiative' },
+      { title: 'SOC 2 Type II Certification', description: 'Achieve SOC 2 Type II certification to meet enterprise customer requirements and enhance competitive positioning.', metric: 'Target: Q4 2025' }
+    ]
+  },
+  francis: {
+    name: 'Francis Ferma', navRole: 'Service Delivery',
+    titles: { current: 'IT Service Delivery Manager', future: 'Director, Service Delivery & User Enablement' },
+    summaries: {
+      current: 'Francis manages the IT service desk, handling ticket routing, end-user support requests, and day-to-day troubleshooting. He ensures timely responses and resolution for staff technology issues.',
+      future: 'Francis owns the quality, consistency, and perception of IT services. His role focuses on scaling support operations while preserving empathy, responsiveness, and a strong end-user experience through AI-enabled tools and proactive enablement.'
+    },
+    accountability: {
+      current: 'Accountable for timely response and resolution of IT support requests, ensuring end-users receive responsive service and technical issues are addressed efficiently.',
+      future: 'Accountable for the quality, consistency, and scalability of IT support services, measured through service performance metrics, resolution efficiency, and end-user adoption outcomes.'
+    },
+    expertise: ['ITIL Service Management', 'Incident Resolution', 'End-User Experience (UX)', 'Service Operations', 'Change Enablement'],
+    past: [
+      { title: 'Service Excellence Recognition', description: 'Received peer-voted company awards for service excellence, reflecting consistently high-quality support and user satisfaction.', metric: 'Peer-Voted Recognition' },
+      { title: 'FreeScout Service Desk Deployment', description: 'Led the deployment and customization of the FreeScout helpdesk platform to streamline ticket management and improve response workflows.', metric: 'Centralized Support Platform' },
+      { title: 'End-User Onboarding Program', description: 'Developed standardized onboarding and offboarding workflows for IT, reducing setup time and improving new employee experience.', metric: 'Standardized Workflows' }
+    ],
+    future: [
+      { title: 'AI-Powered Service Desk (Tier-0)', description: 'Deploy AI chatbot handling 60% of routine requests autonomously, dramatically reducing response times and freeing technical staff for complex issues.', metric: 'Target: 60% Ticket Deflection' },
+      { title: 'ITIL Process Maturity', description: 'Elevate service delivery to ITIL v4 practices, implementing formal change advisory board, problem management, and service catalog.', metric: 'Maturity Level 3 by EOY' },
+      { title: 'User Experience Dashboard', description: 'Launch real-time UX monitoring dashboard tracking system performance, user satisfaction, and service quality metrics accessible to leadership.', metric: 'Real-Time Visibility' }
+    ]
+  },
+  tom: {
+    name: 'Tom Jarrell', navRole: 'Systems Admin',
+    titles: { current: 'Network Administrator', future: 'Systems Administrator' },
+    summaries: {
+      current: 'Tom manages hardware lifecycle, end-user device deployment, and after-hours maintenance windows. He executes technology refresh cycles and manages physical IT infrastructure across facilities.',
+      future: 'Tom expands into systems administration, taking ownership of identity management, network closets, patch cycles, and asset lifecycle. He becomes the primary owner of operational infrastructure and device governance.'
+    },
+    accountability: {
+      current: 'Accountable for hardware procurement, deployment, and lifecycle management across facilities, ensuring devices are properly configured and maintained.',
+      future: 'Accountable for the operational integrity of endpoint infrastructure, identity management systems, and hardware lifecycle processes across all facilities.'
+    },
+    expertise: ['Hardware Lifecycle', 'Device Management', 'Identity & Access Management', 'Systems Administration', 'After-Hours Operations'],
+    past: [
+      { title: 'Enterprise Device Refresh', description: 'Led organization-wide hardware refresh, standardizing device models and deployment processes across all facilities.', metric: 'Fleet Standardization' },
+      { title: 'Apple Business Manager Deployment', description: 'Implemented Apple Business Manager for zero-touch device enrollment and management, enabling scalable mobile device governance.', metric: 'Zero-Touch Enrollment' },
+      { title: 'After-Hours Maintenance Program', description: 'Established structured after-hours maintenance windows for patching and updates, minimizing disruption to clinical operations.', metric: 'Zero Business-Hours Impact' }
+    ],
+    future: [
+      { title: 'Hardware Lifecycle Automation', description: 'Implement automated asset tracking, predictive replacement scheduling, and streamlined procurement workflows to support rapid facility expansion.', metric: '100% Asset Visibility' },
+      { title: 'Identity Management Modernization', description: 'Migrate to Azure AD-native identity management with automated provisioning, self-service password reset, and enhanced security controls.', metric: '90% Automation Rate' },
+      { title: 'Wireless Infrastructure Expansion', description: 'Deploy enterprise-grade wireless across all facilities with capacity for 30-facility future state, including IoT device support and guest networks.', metric: '12-Facility Deployment' }
+    ]
+  },
+  rogi: {
+    name: 'Rogi Poblete', navRole: 'Clinical Systems',
+    titles: { current: 'Clinical Project Specialist', future: 'Clinical Systems Specialist' },
+    summaries: {
+      current: 'Rogi serves as the team\'s subject matter expert for PointClickCare and clinical SaaS platforms. She provides training, documentation, and workflow support to clinical staff across the organization.',
+      future: 'Rogi becomes the clinical technology owner, expanding her scope to include system integrations, compliance documentation, and a structured training academy. She bridges IT and clinical operations to drive adoption and outcomes.'
+    },
+    accountability: {
+      current: 'Accountable for clinical system support, user training, and workflow optimization within PointClickCare and related clinical platforms.',
+      future: 'Accountable for the performance, adoption, and compliance of clinical technology systems, ensuring clinical staff are empowered and that systems meet regulatory and operational requirements.'
+    },
+    expertise: ['PointClickCare (PCC)', 'Clinical SaaS Platforms', 'Workflow Optimization', 'Clinical Training & Documentation', 'HIPAA Compliance'],
+    past: [
+      { title: 'PCC System Optimization', description: 'Identified and resolved critical workflow bottlenecks within PointClickCare, reducing documentation time and improving clinical staff satisfaction.', metric: 'Workflow Efficiency Gain' },
+      { title: 'Clinical Documentation Library', description: 'Developed a comprehensive library of clinical system training materials, quick references, and how-to guides for staff across all facilities.', metric: '40+ Training Resources' },
+      { title: 'New Facility Clinical Onboarding', description: 'Led clinical system onboarding for multiple new facility acquisitions, ensuring smooth transitions and minimal disruption to patient care.', metric: 'Multi-Facility Onboarding' }
+    ],
+    future: [
+      { title: 'Clinical Workflow Optimization Program', description: 'Partner with clinical leadership to identify and resolve EHR workflow bottlenecks, reducing documentation time and improving clinician satisfaction.', metric: 'Target: 15% Time Savings' },
+      { title: 'Clinical System Integration Hub', description: 'Implement integration platform connecting PCC with pharmacy, labs, and ancillary systems for seamless data flow and reduced manual entry.', metric: '8 System Integrations' },
+      { title: 'Clinician Technology Training Academy', description: 'Establish ongoing training program with video library, quick reference guides, and hands-on sessions to maximize clinical system adoption.', metric: 'Quarterly Training Cycles' }
+    ]
+  },
+  jon: {
+    name: 'Jon Andrews', navRole: 'Database Admin',
+    titles: { current: 'Database Administrator', future: 'Database Administrator' },
+    summaries: {
+      current: 'Jon manages database operations, backup procedures, and performance monitoring for critical business systems including ERP and document management platforms.',
+      future: 'Jon expands into broader database engineering, owning automated backup verification, proactive performance management, and database infrastructure planning to support organizational growth.'
+    },
+    accountability: {
+      current: 'Accountable for database availability, data integrity, and operational performance across critical business and ERP systems.',
+      future: 'Accountable for the reliability, performance, and growth capacity of all enterprise database systems, ensuring data is protected and accessible to support business operations.'
+    },
+    expertise: ['SQL Server', 'Database Administration', 'ERP Systems (GP / Dynamics)', 'DocLink', 'Backup & Recovery'],
+    past: [
+      { title: 'GP/Dynamics Database Optimization', description: 'Managed optimization of the ERP database environment, improving performance and reducing redundancy across systems.', metric: 'ERP Performance Improved' },
+      { title: 'DocLink Workflow Configuration', description: 'Configured and optimized DocLink document management workflows, streamlining finance and HR document processing.', metric: 'Process Automation' },
+      { title: 'Database Backup Framework', description: 'Established standardized backup and recovery procedures for all critical databases, reducing recovery time objectives and ensuring data protection.', metric: 'Recovery Procedures Standardized' }
+    ],
+    future: [
+      { title: 'Database Performance Optimization', description: 'Comprehensive query optimization, index tuning, and database consolidation initiative to support 30-facility data growth.', metric: 'Target: 40% Faster Queries' },
+      { title: 'Automated Backup Verification', description: 'Implement automated backup testing and recovery validation ensuring 100% data recoverability across all critical systems.', metric: '100% Backup Confidence' },
+      { title: 'Database Monitoring Dashboard', description: 'Deploy real-time database health monitoring with predictive alerts for capacity, performance, and availability issues.', metric: 'Proactive Monitoring' }
+    ]
+  }
+};
+
+let currentProfilePerson = 'anthony';
+const profilePersonStates = {};
+
+function initProfileStates() {
+  TEAM.forEach(p => { profilePersonStates[p.key] = 'current'; });
+}
+
+function renderProfilesSidebar() {
+  const sidebar = document.getElementById('profilesSidebar');
+  sidebar.innerHTML = '<div class="pnav-section-label">Team Members</div>';
+  TEAM.forEach(person => {
+    const meta = PROFILE_META[person.key];
+    if (!meta) return;
+    const pState = profilePersonStates[person.key] || 'current';
+    const btn = document.createElement('button');
+    btn.className = 'profile-nav-btn' + (person.key === currentProfilePerson ? ' active' : '');
+    btn.onclick = () => { currentProfilePerson = person.key; renderProfilesSidebar(); renderProfileCard(); };
+    btn.innerHTML = `
+      <div class="pnav-avatar" style="background:${person.color}">${person.initials}</div>
+      <div>
+        <div class="pnav-name">${meta.name}</div>
+        <div class="pnav-role">${pState === 'future' ? meta.titles.future : meta.titles.current}</div>
+      </div>`;
+    sidebar.appendChild(btn);
+  });
+}
+
+function renderProfileCard() {
+  const main = document.getElementById('profileMain');
+  const person = currentProfilePerson;
+  const meta = PROFILE_META[person];
+  const pData = PEOPLE.find(p => p.key === person);
+  if (!meta || !pData) return;
+
+  const pState = profilePersonStates[person] || 'current';
+  const isCurrent = pState === 'current';
+
+  const assignedCards = (boardData[pState] || {})[person] || [];
+  const keyCards = assignedCards.filter(c => isCurrent ? c.is_key_current : c.is_key_future);
+  const otherCards = assignedCards.filter(c => !(isCurrent ? c.is_key_current : c.is_key_future));
+
+  const title = meta.titles[pState];
+  const summary = meta.summaries[pState];
+  const accountability = meta.accountability[pState];
+  const engagements = isCurrent ? meta.past : meta.future;
+  const engLabel = isCurrent ? 'Past Engagements' : 'Future Engagements';
+
+  const keyRespHtml = keyCards.length
+    ? `<div class="pc-section">
+        <div class="pc-section-label">Key Responsibilities</div>
+        <ul class="pc-resp-list">${keyCards.map(c => `<li class="pc-resp-item is-key">${c.text}</li>`).join('')}</ul>
+       </div>`
+    : '';
+
+  const allRespHtml = otherCards.length
+    ? `<div class="pc-section">
+        <div class="pc-section-label">All Responsibilities</div>
+        <ul class="pc-resp-list">${otherCards.map(c => `<li class="pc-resp-item">${c.text}</li>`).join('')}</ul>
+       </div>`
+    : (keyCards.length === 0
+        ? `<div class="pc-section">
+            <div class="pc-section-label">Responsibilities</div>
+            <p class="pc-empty-hint">No responsibilities assigned in ${pState} state — use the Kanban tab to assign.</p>
+           </div>`
+        : '');
+
+  const engHtml = `<div class="pc-section">
+    <div class="pc-section-label">${engLabel}</div>
+    <div class="pc-engagements">
+      ${engagements.map(e => `
+        <div class="pc-engagement">
+          <div class="pc-eng-title">${e.title}</div>
+          <div class="pc-eng-desc">${e.description}</div>
+          <div class="pc-eng-metric">✓ ${e.metric}</div>
+        </div>`).join('')}
+    </div>
+  </div>`;
+
+  main.innerHTML = `
+    <div class="profile-card-inner">
+      <div class="pc-header">
+        <div class="pc-avatar-lg" style="background:${pData.color}">${pData.initials}</div>
+        <div class="pc-header-info">
+          <div class="pc-name">${meta.name}</div>
+          <div class="pc-title">${title}</div>
+          <div class="pc-state-toggle">
+            <button class="pc-state-btn ${isCurrent ? 'active-current' : ''}" onclick="setProfileState('${person}','current')">Current</button>
+            <button class="pc-state-btn ${!isCurrent ? 'active-future' : ''}" onclick="setProfileState('${person}','future')">Future</button>
+          </div>
+          <div class="pc-expertise">${meta.expertise.map(e => `<span class="pc-tag">${e}</span>`).join('')}</div>
+        </div>
+      </div>
+      <p class="pc-summary">${summary}</p>
+      <div class="pc-accountability">
+        <div class="pc-acct-label">Primary Accountability</div>
+        <div class="pc-acct-text">${accountability}</div>
+      </div>
+      ${keyRespHtml}
+      ${allRespHtml}
+      ${engHtml}
+    </div>`;
+}
+
+function setProfileState(person, state) {
+  profilePersonStates[person] = state;
+  renderProfilesSidebar();
+  renderProfileCard();
+}
+
+function renderProfiles() {
+  renderProfilesSidebar();
+  renderProfileCard();
+}
+
 // ── TABS ──
 function switchTab(tab) {
   currentTab = tab;
   document.getElementById('tabKanban').className = 'tab-btn' + (tab === 'kanban' ? ' active' : '');
   document.getElementById('tabHeatmap').className = 'tab-btn' + (tab === 'heatmap' ? ' active' : '');
+  document.getElementById('tabProfiles').className = 'tab-btn' + (tab === 'profiles' ? ' active' : '');
   document.getElementById('panelKanban').className = 'tab-panel' + (tab === 'kanban' ? ' active' : '');
   document.getElementById('panelHeatmap').className = 'tab-panel' + (tab === 'heatmap' ? ' active' : '');
+  document.getElementById('panelProfiles').className = 'tab-panel' + (tab === 'profiles' ? ' active' : '');
   if (tab === 'heatmap') renderHeatmap();
+  if (tab === 'profiles') renderProfiles();
 }
 
 // ── STATE ──

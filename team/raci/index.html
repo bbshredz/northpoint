@@ -1,0 +1,382 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>RACI Matrix — NorthPoint</title>
+<link rel="stylesheet" href="/northpoint.css">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="/auth.js"></script>
+<style>
+/* ── RACI LAYOUT ── */
+.raci-wrap { padding: 28px 32px; overflow-y: auto; flex: 1; }
+.raci-intro { max-width: 720px; margin-bottom: 28px; }
+.raci-intro p { font-size: 13.5px; color: var(--text-secondary); line-height: 1.65; }
+
+/* ── LEGEND ── */
+.raci-legend { display: flex; gap: 12px; flex-wrap: wrap; margin-bottom: 32px; }
+.legend-item {
+  display: flex; align-items: center; gap: 8px;
+  font-size: 12px; color: var(--text-secondary);
+}
+.legend-badge {
+  display: inline-flex; align-items: center; justify-content: center;
+  width: 26px; height: 26px; border-radius: 7px;
+  font-size: 11px; font-weight: 700; flex-shrink: 0;
+}
+.lb-a { background: #1e40af; color: white; }
+.lb-r { background: #2563eb; color: white; }
+.lb-c { background: #bfdbfe; color: #1e40af; }
+.lb-i { background: rgba(148,163,184,0.2); color: var(--text-tertiary); }
+
+/* ── EDIT BAR ── */
+.raci-edit-bar {
+  display: flex; align-items: center; gap: 10px; margin-bottom: 28px;
+}
+.raci-edit-btn {
+  display: flex; align-items: center; gap: 6px; padding: 8px 16px;
+  border-radius: 9px; border: 1px solid var(--silver); background: var(--card);
+  color: var(--text-secondary); font-size: 12px; font-weight: 600;
+  font-family: inherit; cursor: pointer; transition: all 0.18s;
+}
+.raci-edit-btn:hover { border-color: var(--accent); color: var(--accent); }
+.raci-edit-btn.active { background: var(--accent); color: white; border-color: var(--accent); }
+.raci-edit-hint {
+  font-size: 11.5px; color: var(--text-tertiary); display: none;
+  font-style: italic;
+}
+.raci-edit-hint.visible { display: block; }
+.raci-save-btn {
+  display: none; align-items: center; gap: 6px; padding: 8px 16px;
+  border-radius: 9px; border: 1px solid var(--green); background: rgba(16,185,129,0.08);
+  color: var(--green); font-size: 12px; font-weight: 600;
+  font-family: inherit; cursor: pointer; transition: all 0.18s; margin-left: auto;
+}
+.raci-save-btn.visible { display: flex; }
+.raci-save-btn:hover { background: rgba(16,185,129,0.15); }
+
+/* ── SECTION ── */
+.raci-section { margin-bottom: 36px; }
+.raci-section-title {
+  font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 1px;
+  color: var(--text-tertiary); margin-bottom: 12px; padding-bottom: 8px;
+  border-bottom: 1px solid var(--silver); display: flex; align-items: center; gap: 8px;
+}
+
+/* ── TABLE ── */
+.raci-table-wrap {
+  border-radius: 12px; border: 1px solid var(--silver); overflow: hidden; overflow-x: auto;
+}
+.raci-table { width: 100%; border-collapse: collapse; font-size: 12.5px; min-width: 560px; }
+.raci-table th {
+  background: var(--silver-light); padding: 9px 14px; text-align: left;
+  font-size: 10px; text-transform: uppercase; letter-spacing: 0.8px; font-weight: 600;
+  color: var(--text-tertiary); border-bottom: 1px solid var(--silver); white-space: nowrap;
+}
+.raci-table th:first-child { min-width: 240px; }
+.raci-table th:not(:first-child) { text-align: center; min-width: 90px; }
+.raci-table tr { border-bottom: 1px solid var(--silver-light); transition: background 0.12s; }
+.raci-table tr:last-child { border-bottom: none; }
+.raci-table tbody tr:hover { background: var(--silver-light); }
+.raci-table td { padding: 8px 14px; color: var(--text-secondary); vertical-align: middle; }
+.raci-table td:not(:first-child) { text-align: center; }
+
+/* ── CELL ── */
+.raci-cell {
+  display: inline-flex; align-items: center; justify-content: center; gap: 3px;
+  min-height: 32px; border-radius: 7px; padding: 2px 6px; cursor: default;
+}
+.edit-mode .raci-cell {
+  cursor: pointer; transition: all 0.15s;
+}
+.edit-mode .raci-cell:hover { outline: 2px dashed var(--accent); outline-offset: 1px; }
+.raci-badge {
+  display: inline-flex; align-items: center; justify-content: center;
+  width: 26px; height: 26px; border-radius: 7px;
+  font-size: 11px; font-weight: 700;
+}
+.rb-a { background: #1e40af; color: white; }
+.rb-r { background: #2563eb; color: white; }
+.rb-c { background: #bfdbfe; color: #1e40af; }
+.rb-i { background: rgba(148,163,184,0.2); color: var(--text-tertiary); }
+
+/* ── DARK MODE OVERRIDES ── */
+html[data-theme="dark"] .raci-table th { background: rgba(255,255,255,0.04); border-color: rgba(255,255,255,0.08); color: rgba(255,255,255,0.35); }
+html[data-theme="dark"] .raci-table tr { border-color: rgba(255,255,255,0.05); }
+html[data-theme="dark"] .raci-table tbody tr:hover { background: rgba(255,255,255,0.04); }
+html[data-theme="dark"] .raci-table td { color: var(--text-secondary); }
+html[data-theme="dark"] .raci-table-wrap { border-color: rgba(255,255,255,0.08); }
+html[data-theme="dark"] .raci-section-title { border-color: rgba(255,255,255,0.08); }
+html[data-theme="dark"] .rb-c { background: rgba(59,130,246,0.2); color: #93c5fd; }
+html[data-theme="dark"] .lb-c { background: rgba(59,130,246,0.2); color: #93c5fd; }
+html[data-theme="dark"] .lb-i { background: rgba(255,255,255,0.06); color: rgba(255,255,255,0.3); }
+html[data-theme="dark"] .rb-i { background: rgba(255,255,255,0.06); color: rgba(255,255,255,0.3); }
+html[data-theme="dark"] .raci-edit-btn { background: rgba(255,255,255,0.04); border-color: rgba(255,255,255,0.1); }
+</style>
+</head>
+<body class="mod-team">
+<div class="layout">
+  <div id="rail-mount"></div>
+  <div class="main">
+    <header class="topbar">
+      <div class="topbar-left">
+        <a href="/index.html" class="topbar-name">NorthPoint</a>
+        <div class="topbar-sep"></div>
+        <a href="/team/index.html" class="topbar-section" style="text-decoration:none;color:var(--text-secondary)">Team</a>
+        <div class="topbar-sep"></div>
+        <span class="topbar-section">RACI Matrix</span>
+      </div>
+      <div class="topbar-right">
+        <span class="topbar-date" id="currentDate"></span>
+        <div class="topbar-avatar" id="topbarAvatar">?</div>
+      </div>
+    </header>
+
+    <div class="content">
+      <div class="page-header animate-1">
+        <h1 class="page-title">RACI Matrix</h1>
+        <p class="page-subtitle">Accountability mapping · NACS IT</p>
+        <p class="page-desc">Responsibility, accountability, consultation, and information mapping across all IT domains — who owns what, who does the work, and who stays in the loop.</p>
+      </div>
+
+      <div class="raci-wrap animate-2" id="raciWrap">
+
+        <!-- Legend -->
+        <div class="raci-legend">
+          <div class="legend-item"><div class="legend-badge lb-a">A</div> <strong>Accountable</strong> — final decision-maker, owns outcome</div>
+          <div class="legend-item"><div class="legend-badge lb-r">R</div> <strong>Responsible</strong> — does the work</div>
+          <div class="legend-item"><div class="legend-badge lb-c">C</div> <strong>Consulted</strong> — input before action</div>
+          <div class="legend-item"><div class="legend-badge lb-i">I</div> <strong>Informed</strong> — kept in the loop</div>
+        </div>
+
+        <!-- Edit bar -->
+        <div class="raci-edit-bar" id="editBar" style="display:none;">
+          <button class="raci-edit-btn" id="editBtn" onclick="toggleEditMode()">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:14px;height:14px"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+            Edit Mode
+          </button>
+          <span class="raci-edit-hint" id="editHint">Click any cell to cycle: A → R → C → I → A,R → (empty). Changes auto-save to your browser.</span>
+          <button class="raci-save-btn" id="saveBtn" onclick="resetToDefault()">Reset to Default</button>
+        </div>
+
+        <!-- Tables rendered by JS -->
+        <div id="raciSections"></div>
+
+      </div>
+    </div>
+  </div>
+</div>
+
+<script src="/nav.js"></script>
+<script>
+// ── DATA ──
+const PEOPLE_RACI = ['Anthony', 'Geremia', 'Francis', 'Tom', 'Rogi'];
+const STORAGE_KEY = 'np-raci-v1';
+
+const RACI_DEFAULT = [
+  {
+    title: '1. Strategy, Governance & Financial Alignment',
+    rows: [
+      { domain: 'IT Strategy & Roadmap',           cells: ['A',   'C',    'I',    'I',   'C']   },
+      { domain: '"30 by 30" Alignment',             cells: ['A',   'C',    'I',    'I',   'C']   },
+      { domain: 'Budget Planning & Forecasting',    cells: ['A',   'C',    'I',    'I',   'I']   },
+      { domain: 'Vendor Strategy & Contracts',      cells: ['A',   'C',    'I',    'I',   'I']   },
+      { domain: 'Software Asset Management (SAM)',  cells: ['A',   'C',    '',     'C',   'C']   },
+      { domain: 'Policy & Standards',               cells: ['A',   'R',    'C',    'C',   'C']   },
+    ]
+  },
+  {
+    title: '2. Infrastructure, Security & Platforms',
+    rows: [
+      { domain: 'Network Architecture (SD-WAN)',    cells: ['I',   'A,R',  '',     'C',   '']    },
+      { domain: 'Server & Virtualization',          cells: ['I',   'A,R',  '',     'C',   '']    },
+      { domain: 'Data Center / Cloud Strategy',     cells: ['A',   'R',    '',     '',    '']    },
+      { domain: 'Cybersecurity Architecture',       cells: ['A',   'R',    '',     '',    '']    },
+      { domain: 'Security Operations (NDR / Hardening)', cells: ['I','A,R', '',    'C',   '']    },
+      { domain: 'Disaster Recovery & BCP',          cells: ['A',   'R',    '',     '',    '']    },
+    ]
+  },
+  {
+    title: '3. Service Delivery & End-User Experience',
+    rows: [
+      { domain: 'Service Desk Operations',          cells: ['I',   '',     'A,R',  'C',   'C']   },
+      { domain: 'ITIL / Process Design',            cells: ['I',   '',     'A,R',  'C',   '']    },
+      { domain: 'AI Tier-0 Helpdesk',               cells: ['C',   'C',    'A,R',  '',    '']    },
+      { domain: 'End-User Satisfaction & Metrics',  cells: ['I',   '',     'A,R',  '',    '']    },
+      { domain: 'Change Adoption & Training',       cells: ['I',   '',     'A',    'C',   'R']   },
+    ]
+  },
+  {
+    title: '4. Systems, Hardware & Facilities',
+    rows: [
+      { domain: 'Hardware Standards',               cells: ['A',   '',     '',     'R',   '']    },
+      { domain: 'Network Closets & Access Points',  cells: ['',    'C',    '',     'A,R', '']    },
+      { domain: 'Patch & Update Cycles',            cells: ['',    'C',    '',     'A,R', '']    },
+      { domain: 'After-Hours Maintenance',          cells: ['I',   'I',    '',     'A,R', '']    },
+      { domain: 'E-Waste & Asset Recovery',         cells: ['I',   '',     '',     'A,R', '']    },
+      { domain: 'Identity & Access Management',     cells: ['A',   'C',    '',     'R',   '']    },
+      { domain: 'Mobile Device Management (MDM)',   cells: ['C',   '',     'A',    'R',   '']    },
+      { domain: 'Telecom & Phone Systems',          cells: ['C',   '',     'C',    'A',   '']    },
+    ]
+  },
+  {
+    title: '5. Clinical Systems & Workflow Enablement',
+    rows: [
+      { domain: 'EHR Ownership (PCC)',              cells: ['I',   '',     '',     '',    'A,R'] },
+      { domain: 'Clinical SaaS Integrations',       cells: ['C',   'C',    '',     '',    'A,R'] },
+      { domain: 'Clinical Workflow Optimization',   cells: ['',    '',     'C',    '',    'A,R'] },
+      { domain: 'Clinical Training & Documentation',cells: ['',    '',     'C',    '',    'A,R'] },
+      { domain: 'PCC → Billing Integrations',       cells: ['',    'C',    '',     '',    'A,R'] },
+      { domain: 'Compliance Documentation (HIPAA)', cells: ['A',   'C',    '',     '',    'R']   },
+    ]
+  }
+];
+
+// ── STATE ──
+let editMode = false;
+let overrides = {}; // key: 'sIdx-rIdx-pIdx' → value string
+
+const CYCLE = ['', 'A', 'R', 'C', 'I', 'A,R'];
+
+function loadOverrides() {
+  try { overrides = JSON.parse(localStorage.getItem(STORAGE_KEY)) || {}; } catch { overrides = {}; }
+}
+function saveOverrides() {
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(overrides));
+}
+function resetToDefault() {
+  if (!confirm('Reset all edits to the default RACI assignments?')) return;
+  overrides = {};
+  saveOverrides();
+  render();
+}
+function getCellValue(sIdx, rIdx, pIdx) {
+  const key = `${sIdx}-${rIdx}-${pIdx}`;
+  return key in overrides ? overrides[key] : RACI_DEFAULT[sIdx].rows[rIdx].cells[pIdx];
+}
+function cycleCell(sIdx, rIdx, pIdx) {
+  const cur = getCellValue(sIdx, rIdx, pIdx);
+  const idx = CYCLE.indexOf(cur);
+  const next = CYCLE[(idx + 1) % CYCLE.length];
+  const key = `${sIdx}-${rIdx}-${pIdx}`;
+  const def = RACI_DEFAULT[sIdx].rows[rIdx].cells[pIdx];
+  if (next === def) { delete overrides[key]; } else { overrides[key] = next; }
+  saveOverrides();
+  renderCell(sIdx, rIdx, pIdx);
+}
+
+function renderBadge(val) {
+  if (!val) return '';
+  const parts = val.split(',').filter(Boolean);
+  return parts.map(v => {
+    const cls = `rb-${v.toLowerCase().trim()}`;
+    return `<div class="raci-badge ${cls}">${v.trim()}</div>`;
+  }).join('');
+}
+
+function renderCell(sIdx, rIdx, pIdx) {
+  const cell = document.getElementById(`cell-${sIdx}-${rIdx}-${pIdx}`);
+  if (!cell) return;
+  const val = getCellValue(sIdx, rIdx, pIdx);
+  cell.innerHTML = renderBadge(val);
+}
+
+function render() {
+  const container = document.getElementById('raciSections');
+  container.innerHTML = '';
+
+  RACI_DEFAULT.forEach((section, sIdx) => {
+    const sec = document.createElement('div');
+    sec.className = 'raci-section';
+
+    const titleEl = document.createElement('div');
+    titleEl.className = 'raci-section-title';
+    titleEl.textContent = section.title;
+    sec.appendChild(titleEl);
+
+    const wrap = document.createElement('div');
+    wrap.className = 'raci-table-wrap';
+
+    const table = document.createElement('table');
+    table.className = 'raci-table';
+
+    // Header
+    const thead = document.createElement('thead');
+    const hRow = document.createElement('tr');
+    const domainTh = document.createElement('th');
+    domainTh.textContent = 'Domain / Activity';
+    hRow.appendChild(domainTh);
+    PEOPLE_RACI.forEach(name => {
+      const th = document.createElement('th');
+      th.textContent = name;
+      hRow.appendChild(th);
+    });
+    thead.appendChild(hRow);
+    table.appendChild(thead);
+
+    // Body
+    const tbody = document.createElement('tbody');
+    section.rows.forEach((row, rIdx) => {
+      const tr = document.createElement('tr');
+      const domainTd = document.createElement('td');
+      domainTd.textContent = row.domain;
+      tr.appendChild(domainTd);
+
+      PEOPLE_RACI.forEach((_, pIdx) => {
+        const td = document.createElement('td');
+        const cell = document.createElement('div');
+        cell.className = 'raci-cell';
+        cell.id = `cell-${sIdx}-${rIdx}-${pIdx}`;
+        cell.innerHTML = renderBadge(getCellValue(sIdx, rIdx, pIdx));
+        cell.addEventListener('click', () => { if (editMode) cycleCell(sIdx, rIdx, pIdx); });
+        td.appendChild(cell);
+        tr.appendChild(td);
+      });
+
+      tbody.appendChild(tr);
+    });
+    table.appendChild(tbody);
+    wrap.appendChild(table);
+    sec.appendChild(wrap);
+    container.appendChild(sec);
+  });
+}
+
+function toggleEditMode() {
+  editMode = !editMode;
+  const btn = document.getElementById('editBtn');
+  const hint = document.getElementById('editHint');
+  const wrap = document.getElementById('raciWrap');
+
+  btn.textContent = editMode ? '✓ Edit Mode Active' : '';
+  btn.innerHTML = editMode
+    ? `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:14px;height:14px"><polyline points="20 6 9 17 4 12"/></svg> Edit Mode Active`
+    : `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:14px;height:14px"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg> Edit Mode`;
+
+  btn.className = 'raci-edit-btn' + (editMode ? ' active' : '');
+  hint.className = 'raci-edit-hint' + (editMode ? ' visible' : '');
+  document.getElementById('saveBtn').className = 'raci-save-btn' + (editMode ? ' visible' : '');
+  if (editMode) wrap.classList.add('edit-mode');
+  else wrap.classList.remove('edit-mode');
+}
+
+// ── INIT ──
+npInit('team').then(session => {
+  if (!session) return;
+  npPopulateTopbar();
+  renderNav('team');
+  document.getElementById('topbarAvatar').textContent = npGetInitials();
+  document.getElementById('currentDate').textContent = new Date().toLocaleDateString('en-US',{weekday:'short',month:'short',day:'numeric',year:'numeric'});
+
+  // Show edit bar for admin/exec/director
+  const role = npGetRole();
+  if (role === 'admin' || role === 'exec' || role === 'director') {
+    document.getElementById('editBar').style.display = 'flex';
+  }
+
+  loadOverrides();
+  render();
+});
+</script>
+</body>
+</html>
