@@ -1,0 +1,556 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Service Ownership — NorthPoint</title>
+<link rel="stylesheet" href="/northpoint.css">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="/auth.js"></script>
+<style>
+/* ── LAYOUT ── */
+.so-wrap { padding: 32px; overflow-y: auto; flex: 1; }
+.so-header { margin-bottom: 32px; }
+.so-header h1 { font-family: 'DM Serif Display', serif; font-size: 32px; color: var(--text-primary); font-weight: 400; margin-bottom: 6px; }
+.so-header p { font-size: 13.5px; color: var(--text-secondary); line-height: 1.65; max-width: 640px; }
+
+/* ── FILTERS ── */
+.so-filter-bar { display: flex; align-items: center; gap: 8px; margin-bottom: 28px; flex-wrap: wrap; }
+.so-filter-btn {
+  padding: 6px 14px; border-radius: 20px; border: 1px solid var(--silver);
+  background: var(--card); color: var(--text-secondary); font-size: 12px;
+  font-weight: 500; font-family: inherit; cursor: pointer; transition: all 0.15s;
+}
+.so-filter-btn:hover { border-color: var(--accent); color: var(--accent); }
+.so-filter-btn.active { background: var(--accent); color: white; border-color: var(--accent); }
+.so-search {
+  padding: 6px 12px; border-radius: 8px; border: 1px solid var(--silver);
+  background: var(--card); color: var(--text-primary); font-size: 12px;
+  font-family: inherit; transition: border-color 0.2s; min-width: 200px;
+}
+.so-search:focus { outline: none; border-color: var(--accent); }
+.so-search::placeholder { color: var(--text-tertiary); }
+.so-filter-right { margin-left: auto; }
+
+/* ── SECTION ── */
+.so-section { margin-bottom: 36px; }
+.so-section-header {
+  display: flex; align-items: center; gap: 12px; margin-bottom: 14px;
+  padding-bottom: 10px; border-bottom: 1px solid var(--silver);
+}
+.so-section-icon { font-size: 18px; }
+.so-section-title { font-size: 12px; font-weight: 700; text-transform: uppercase; letter-spacing: 1px; color: var(--text-tertiary); }
+.so-section-count { font-size: 11px; color: var(--text-tertiary); background: var(--silver-light); padding: 2px 8px; border-radius: 20px; }
+
+/* ── TABLE ── */
+.so-table-wrap { border-radius: 12px; border: 1px solid var(--silver); overflow: hidden; overflow-x: auto; }
+.so-table { width: 100%; border-collapse: collapse; font-size: 12.5px; min-width: 700px; }
+.so-table th {
+  background: var(--silver-light); padding: 9px 14px; text-align: left;
+  font-size: 10px; text-transform: uppercase; letter-spacing: 0.8px; font-weight: 600;
+  color: var(--text-tertiary); border-bottom: 1px solid var(--silver); white-space: nowrap;
+}
+.so-table th:nth-child(1) { min-width: 240px; }
+.so-table th:nth-child(3),
+.so-table th:nth-child(4) { min-width: 120px; }
+.so-table tr { border-bottom: 1px solid var(--silver-light); transition: background 0.12s; }
+.so-table tr:last-child { border-bottom: none; }
+.so-table tbody tr:hover { background: var(--silver-light); }
+.so-table td { padding: 9px 14px; color: var(--text-secondary); vertical-align: middle; line-height: 1.4; }
+.so-table td:first-child { font-weight: 500; color: var(--text-primary); }
+
+/* ── OWNER CHIP ── */
+.owner-chip {
+  display: inline-flex; align-items: center; gap: 6px;
+  padding: 3px 8px; border-radius: 6px; font-size: 11.5px; font-weight: 600;
+  background: var(--silver-light); color: var(--text-secondary);
+}
+.owner-avatar {
+  width: 18px; height: 18px; border-radius: 5px; display: inline-flex;
+  align-items: center; justify-content: center; font-size: 8px; font-weight: 700; color: white;
+  flex-shrink: 0;
+}
+.backup-chip {
+  display: inline-flex; align-items: center; gap: 5px;
+  padding: 2px 7px; border-radius: 5px; font-size: 11px;
+  background: transparent; color: var(--text-tertiary); border: 1px solid var(--silver);
+}
+
+/* ── NOTE ── */
+.so-note { font-size: 11.5px; color: var(--text-tertiary); font-style: italic; }
+
+/* ── HIDDEN (filter) ── */
+.so-row-hidden { display: none; }
+
+/* ── DARK MODE ── */
+html[data-theme="dark"] .so-table th { background: rgba(255,255,255,0.04); border-color: rgba(255,255,255,0.08); color: rgba(255,255,255,0.35); }
+html[data-theme="dark"] .so-table tr { border-color: rgba(255,255,255,0.05); }
+html[data-theme="dark"] .so-table tbody tr:hover { background: rgba(255,255,255,0.04); }
+html[data-theme="dark"] .so-table td:first-child { color: var(--text-primary); }
+html[data-theme="dark"] .so-table-wrap { border-color: rgba(255,255,255,0.08); }
+html[data-theme="dark"] .so-section-header { border-color: rgba(255,255,255,0.08); }
+html[data-theme="dark"] .owner-chip { background: rgba(255,255,255,0.06); }
+html[data-theme="dark"] .backup-chip { border-color: rgba(255,255,255,0.1); }
+html[data-theme="dark"] .so-search { background: rgba(255,255,255,0.04); border-color: rgba(255,255,255,0.1); color: var(--text-primary); }
+html[data-theme="dark"] .so-filter-btn { background: rgba(255,255,255,0.04); border-color: rgba(255,255,255,0.1); }
+html[data-theme="dark"] .so-section-count { background: rgba(255,255,255,0.06); }
+</style>
+</head>
+<body class="mod-team">
+<div class="layout">
+  <div id="rail-mount"></div>
+  <div class="main">
+    <header class="topbar">
+      <div class="topbar-left">
+        <a href="/index.html" class="topbar-name">NorthPoint</a>
+        <div class="topbar-sep"></div>
+        <a href="/team/index.html" class="topbar-section" style="text-decoration:none;color:var(--text-secondary)">Team</a>
+        <div class="topbar-sep"></div>
+        <span class="topbar-section">Service Ownership</span>
+      </div>
+      <div class="topbar-right">
+        <span class="topbar-date" id="currentDate"></span>
+        <div class="topbar-avatar" id="topbarAvatar">?</div>
+      </div>
+    </header>
+
+    <div class="content">
+      <div class="so-wrap">
+        <div class="so-header animate-1">
+          <h1>Service &amp; Domain Ownership</h1>
+          <p>Reference map of who owns each system, process, and vendor relationship across NACS IT. Primary owner drives decisions and holds accountability. Backup owns escalation and coverage during absences.</p>
+        </div>
+
+        <!-- Filter bar -->
+        <div class="so-filter-bar animate-2">
+          <button class="so-filter-btn active" data-filter="all" onclick="setFilter('all', this)">All</button>
+          <button class="so-filter-btn" data-filter="applications" onclick="setFilter('applications', this)">Applications</button>
+          <button class="so-filter-btn" data-filter="infrastructure" onclick="setFilter('infrastructure', this)">Infrastructure</button>
+          <button class="so-filter-btn" data-filter="processes" onclick="setFilter('processes', this)">Processes</button>
+          <button class="so-filter-btn" data-filter="vendors" onclick="setFilter('vendors', this)">Vendors</button>
+          <div class="so-filter-right">
+            <input type="text" class="so-search" id="soSearch" placeholder="Search systems…" oninput="filterSearch(this.value)">
+          </div>
+        </div>
+
+        <!-- Applications -->
+        <div class="so-section animate-3" data-category="applications">
+          <div class="so-section-header">
+            <span class="so-section-icon">🧩</span>
+            <span class="so-section-title">Applications</span>
+            <span class="so-section-count" id="count-applications">12 items</span>
+          </div>
+          <div class="so-table-wrap">
+            <table class="so-table" id="table-applications">
+              <thead>
+                <tr>
+                  <th>System / Platform</th>
+                  <th>Function</th>
+                  <th>Primary Owner</th>
+                  <th>Backup</th>
+                  <th>Notes</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td>PointClickCare (PCC)</td>
+                  <td>Electronic Health Record (EHR)</td>
+                  <td><span class="owner-chip"><span class="owner-avatar" style="background:linear-gradient(135deg,#f59e0b,#10b981)">RP</span>Rogi</span></td>
+                  <td><span class="backup-chip">Anthony</span></td>
+                  <td class="so-note">Primary clinical system across all facilities</td>
+                </tr>
+                <tr>
+                  <td>GP / Dynamics 365</td>
+                  <td>Enterprise Resource Planning (ERP)</td>
+                  <td><span class="owner-chip"><span class="owner-avatar" style="background:linear-gradient(135deg,#6366f1,#8b5cf6)">JA</span>Jon</span></td>
+                  <td><span class="backup-chip">Anthony</span></td>
+                  <td class="so-note">Finance and operations backbone</td>
+                </tr>
+                <tr>
+                  <td>DocLink</td>
+                  <td>Document Management</td>
+                  <td><span class="owner-chip"><span class="owner-avatar" style="background:linear-gradient(135deg,#6366f1,#8b5cf6)">JA</span>Jon</span></td>
+                  <td><span class="backup-chip">Francis</span></td>
+                  <td class="so-note">Integrated with GP for AP document workflows</td>
+                </tr>
+                <tr>
+                  <td>Google Workspace</td>
+                  <td>Email, Calendar, Collaboration</td>
+                  <td><span class="owner-chip"><span class="owner-avatar" style="background:linear-gradient(135deg,#3b82f6,#8b5cf6)">AT</span>Anthony</span></td>
+                  <td><span class="backup-chip">Geremia</span></td>
+                  <td class="so-note">Licensing, Groups, shared drives, security</td>
+                </tr>
+                <tr>
+                  <td>FreeScout</td>
+                  <td>IT Help Desk / Ticketing</td>
+                  <td><span class="owner-chip"><span class="owner-avatar" style="background:linear-gradient(135deg,#f97316,#ef4444)">FF</span>Francis</span></td>
+                  <td><span class="backup-chip">Anthony</span></td>
+                  <td class="so-note">Ticket routing, SLAs, mailbox integrations</td>
+                </tr>
+                <tr>
+                  <td>NinjaOne (RMM)</td>
+                  <td>Remote Monitoring &amp; Management</td>
+                  <td><span class="owner-chip"><span class="owner-avatar" style="background:linear-gradient(135deg,#10b981,#3b82f6)">GD</span>Geremia</span></td>
+                  <td><span class="backup-chip">Tom</span></td>
+                  <td class="so-note">Endpoint monitoring, patch management</td>
+                </tr>
+                <tr>
+                  <td>Jamf / MaaS360 (MDM)</td>
+                  <td>Mobile Device Management</td>
+                  <td><span class="owner-chip"><span class="owner-avatar" style="background:linear-gradient(135deg,#8b5cf6,#06b6d4)">TJ</span>Tom</span></td>
+                  <td><span class="backup-chip">Anthony</span></td>
+                  <td class="so-note">Apple Business Manager, policy enforcement</td>
+                </tr>
+                <tr>
+                  <td>UKG (Kronos)</td>
+                  <td>HR &amp; Payroll</td>
+                  <td><span class="owner-chip"><span class="owner-avatar" style="background:linear-gradient(135deg,#3b82f6,#8b5cf6)">AT</span>Anthony</span></td>
+                  <td><span class="backup-chip">Francis</span></td>
+                  <td class="so-note">HR data source for IAM provisioning</td>
+                </tr>
+                <tr>
+                  <td>Veeam</td>
+                  <td>Backup &amp; Recovery</td>
+                  <td><span class="owner-chip"><span class="owner-avatar" style="background:linear-gradient(135deg,#10b981,#3b82f6)">GD</span>Geremia</span></td>
+                  <td><span class="backup-chip">Tom</span></td>
+                  <td class="so-note">Backup schedules, verification, DR testing</td>
+                </tr>
+                <tr>
+                  <td>Cisco Umbrella</td>
+                  <td>DNS Security &amp; Web Filtering</td>
+                  <td><span class="owner-chip"><span class="owner-avatar" style="background:linear-gradient(135deg,#10b981,#3b82f6)">GD</span>Geremia</span></td>
+                  <td><span class="backup-chip">Anthony</span></td>
+                  <td class="so-note">Policy management, reporting, exceptions</td>
+                </tr>
+                <tr>
+                  <td>Commonspace</td>
+                  <td>Internal Intranet</td>
+                  <td><span class="owner-chip"><span class="owner-avatar" style="background:linear-gradient(135deg,#3b82f6,#8b5cf6)">AT</span>Anthony</span></td>
+                  <td><span class="backup-chip">Francis</span></td>
+                  <td class="so-note">Content, forms, IT knowledge base</td>
+                </tr>
+                <tr>
+                  <td>NorthPoint</td>
+                  <td>IT Operations Platform</td>
+                  <td><span class="owner-chip"><span class="owner-avatar" style="background:linear-gradient(135deg,#3b82f6,#8b5cf6)">AT</span>Anthony</span></td>
+                  <td><span class="backup-chip">—</span></td>
+                  <td class="so-note">Internal IT analytics and planning tools</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- Infrastructure -->
+        <div class="so-section animate-3" data-category="infrastructure">
+          <div class="so-section-header">
+            <span class="so-section-icon">🖧</span>
+            <span class="so-section-title">Infrastructure</span>
+            <span class="so-section-count" id="count-infrastructure">9 items</span>
+          </div>
+          <div class="so-table-wrap">
+            <table class="so-table" id="table-infrastructure">
+              <thead>
+                <tr>
+                  <th>System / Domain</th>
+                  <th>Function</th>
+                  <th>Primary Owner</th>
+                  <th>Backup</th>
+                  <th>Notes</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td>Network (SD-WAN, LAN, Wi-Fi)</td>
+                  <td>Enterprise Connectivity</td>
+                  <td><span class="owner-chip"><span class="owner-avatar" style="background:linear-gradient(135deg,#10b981,#3b82f6)">GD</span>Geremia</span></td>
+                  <td><span class="backup-chip">Tom</span></td>
+                  <td class="so-note">Velocloud SD-WAN, switching, AP config</td>
+                </tr>
+                <tr>
+                  <td>Firewall &amp; Perimeter Security</td>
+                  <td>Network Security</td>
+                  <td><span class="owner-chip"><span class="owner-avatar" style="background:linear-gradient(135deg,#10b981,#3b82f6)">GD</span>Geremia</span></td>
+                  <td><span class="backup-chip">Anthony</span></td>
+                  <td class="so-note">Rule management, documentation, audits</td>
+                </tr>
+                <tr>
+                  <td>Server &amp; Virtualization (Nutanix)</td>
+                  <td>Compute Infrastructure</td>
+                  <td><span class="owner-chip"><span class="owner-avatar" style="background:linear-gradient(135deg,#10b981,#3b82f6)">GD</span>Geremia</span></td>
+                  <td><span class="backup-chip">Anthony</span></td>
+                  <td class="so-note">VM lifecycle, resource monitoring</td>
+                </tr>
+                <tr>
+                  <td>VPN &amp; Remote Access</td>
+                  <td>Secure Remote Connectivity</td>
+                  <td><span class="owner-chip"><span class="owner-avatar" style="background:linear-gradient(135deg,#10b981,#3b82f6)">GD</span>Geremia</span></td>
+                  <td><span class="backup-chip">Tom</span></td>
+                  <td class="so-note">Access policies, troubleshooting</td>
+                </tr>
+                <tr>
+                  <td>Physical Security (Cameras)</td>
+                  <td>Facility Safety Technology</td>
+                  <td><span class="owner-chip"><span class="owner-avatar" style="background:linear-gradient(135deg,#10b981,#3b82f6)">GD</span>Geremia</span></td>
+                  <td><span class="backup-chip">Tom</span></td>
+                  <td class="so-note">Clearview-standardized camera systems</td>
+                </tr>
+                <tr>
+                  <td>UPS &amp; Power Protection</td>
+                  <td>Facility Power Management</td>
+                  <td><span class="owner-chip"><span class="owner-avatar" style="background:linear-gradient(135deg,#10b981,#3b82f6)">GD</span>Geremia</span></td>
+                  <td><span class="backup-chip">Tom</span></td>
+                  <td class="so-note">Battery health, runtime monitoring</td>
+                </tr>
+                <tr>
+                  <td>Network Monitoring</td>
+                  <td>Observability &amp; Alerting</td>
+                  <td><span class="owner-chip"><span class="owner-avatar" style="background:linear-gradient(135deg,#10b981,#3b82f6)">GD</span>Geremia</span></td>
+                  <td><span class="backup-chip">Tom</span></td>
+                  <td class="so-note">Alert thresholds, performance baselines</td>
+                </tr>
+                <tr>
+                  <td>End-User Hardware</td>
+                  <td>Laptops, Desktops, Peripherals</td>
+                  <td><span class="owner-chip"><span class="owner-avatar" style="background:linear-gradient(135deg,#8b5cf6,#06b6d4)">TJ</span>Tom</span></td>
+                  <td><span class="backup-chip">Francis</span></td>
+                  <td class="so-note">Procurement, imaging, refresh cycles</td>
+                </tr>
+                <tr>
+                  <td>Printers &amp; Copiers</td>
+                  <td>Print Infrastructure</td>
+                  <td><span class="owner-chip"><span class="owner-avatar" style="background:linear-gradient(135deg,#f97316,#ef4444)">FF</span>Francis</span></td>
+                  <td><span class="backup-chip">Tom</span></td>
+                  <td class="so-note">Fleet management, lease tracking</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- Processes -->
+        <div class="so-section animate-3" data-category="processes">
+          <div class="so-section-header">
+            <span class="so-section-icon">⚙️</span>
+            <span class="so-section-title">Processes</span>
+            <span class="so-section-count" id="count-processes">10 items</span>
+          </div>
+          <div class="so-table-wrap">
+            <table class="so-table" id="table-processes">
+              <thead>
+                <tr>
+                  <th>Process</th>
+                  <th>Scope</th>
+                  <th>Primary Owner</th>
+                  <th>Backup</th>
+                  <th>Notes</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td>IT Service Desk</td>
+                  <td>Tier 1–2 Support</td>
+                  <td><span class="owner-chip"><span class="owner-avatar" style="background:linear-gradient(135deg,#f97316,#ef4444)">FF</span>Francis</span></td>
+                  <td><span class="backup-chip">Anthony</span></td>
+                  <td class="so-note">Ticket routing, SLAs, escalation paths</td>
+                </tr>
+                <tr>
+                  <td>User Onboarding &amp; Offboarding</td>
+                  <td>Identity Lifecycle</td>
+                  <td><span class="owner-chip"><span class="owner-avatar" style="background:linear-gradient(135deg,#8b5cf6,#06b6d4)">TJ</span>Tom</span></td>
+                  <td><span class="backup-chip">Francis</span></td>
+                  <td class="so-note">Account provisioning, HR data reconciliation</td>
+                </tr>
+                <tr>
+                  <td>Hardware Procurement</td>
+                  <td>Asset Acquisition</td>
+                  <td><span class="owner-chip"><span class="owner-avatar" style="background:linear-gradient(135deg,#f97316,#ef4444)">FF</span>Francis</span></td>
+                  <td><span class="backup-chip">Tom</span></td>
+                  <td class="so-note">ERF/CER workflow, vendor coordination</td>
+                </tr>
+                <tr>
+                  <td>Change Management</td>
+                  <td>Change Advisory &amp; Approval</td>
+                  <td><span class="owner-chip"><span class="owner-avatar" style="background:linear-gradient(135deg,#3b82f6,#8b5cf6)">AT</span>Anthony</span></td>
+                  <td><span class="backup-chip">Francis</span></td>
+                  <td class="so-note">Change windows, stakeholder communication</td>
+                </tr>
+                <tr>
+                  <td>Vendor &amp; Contract Management</td>
+                  <td>Vendor Relationships</td>
+                  <td><span class="owner-chip"><span class="owner-avatar" style="background:linear-gradient(135deg,#3b82f6,#8b5cf6)">AT</span>Anthony</span></td>
+                  <td><span class="backup-chip">Geremia</span></td>
+                  <td class="so-note">Contract renewals, spend tracking, negotiations</td>
+                </tr>
+                <tr>
+                  <td>Security Incident Response</td>
+                  <td>Incident Handling</td>
+                  <td><span class="owner-chip"><span class="owner-avatar" style="background:linear-gradient(135deg,#10b981,#3b82f6)">GD</span>Geremia</span></td>
+                  <td><span class="backup-chip">Anthony</span></td>
+                  <td class="so-note">Containment, remediation, post-incident review</td>
+                </tr>
+                <tr>
+                  <td>Software License Management</td>
+                  <td>SaaS Governance</td>
+                  <td><span class="owner-chip"><span class="owner-avatar" style="background:linear-gradient(135deg,#3b82f6,#8b5cf6)">AT</span>Anthony</span></td>
+                  <td><span class="backup-chip">Geremia</span></td>
+                  <td class="so-note">License audits, renewal tracking, shadow IT</td>
+                </tr>
+                <tr>
+                  <td>HIPAA Compliance Documentation</td>
+                  <td>Regulatory Compliance</td>
+                  <td><span class="owner-chip"><span class="owner-avatar" style="background:linear-gradient(135deg,#f59e0b,#10b981)">RP</span>Rogi</span></td>
+                  <td><span class="backup-chip">Geremia</span></td>
+                  <td class="so-note">Audit evidence, clinical system compliance</td>
+                </tr>
+                <tr>
+                  <td>IT Project Management</td>
+                  <td>Project Delivery</td>
+                  <td><span class="owner-chip"><span class="owner-avatar" style="background:linear-gradient(135deg,#3b82f6,#8b5cf6)">AT</span>Anthony</span></td>
+                  <td><span class="backup-chip">Francis</span></td>
+                  <td class="so-note">Intake, prioritization, cross-team coordination</td>
+                </tr>
+                <tr>
+                  <td>Patch &amp; Update Management</td>
+                  <td>System Currency</td>
+                  <td><span class="owner-chip"><span class="owner-avatar" style="background:linear-gradient(135deg,#8b5cf6,#06b6d4)">TJ</span>Tom</span></td>
+                  <td><span class="backup-chip">Geremia</span></td>
+                  <td class="so-note">Maintenance windows, rollback procedures</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- Vendors -->
+        <div class="so-section animate-3" data-category="vendors">
+          <div class="so-section-header">
+            <span class="so-section-icon">🤝</span>
+            <span class="so-section-title">Vendor Relationships</span>
+            <span class="so-section-count" id="count-vendors">8 items</span>
+          </div>
+          <div class="so-table-wrap">
+            <table class="so-table" id="table-vendors">
+              <thead>
+                <tr>
+                  <th>Vendor</th>
+                  <th>Product / Service</th>
+                  <th>Relationship Owner</th>
+                  <th>Backup</th>
+                  <th>Notes</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td>Cisco / Meraki</td>
+                  <td>Networking &amp; Security</td>
+                  <td><span class="owner-chip"><span class="owner-avatar" style="background:linear-gradient(135deg,#10b981,#3b82f6)">GD</span>Geremia</span></td>
+                  <td><span class="backup-chip">Anthony</span></td>
+                  <td class="so-note">SD-WAN, Umbrella, switches, APs</td>
+                </tr>
+                <tr>
+                  <td>Nutanix</td>
+                  <td>HCI / Virtualization</td>
+                  <td><span class="owner-chip"><span class="owner-avatar" style="background:linear-gradient(135deg,#10b981,#3b82f6)">GD</span>Geremia</span></td>
+                  <td><span class="backup-chip">Anthony</span></td>
+                  <td class="so-note">Licensing, support, infrastructure planning</td>
+                </tr>
+                <tr>
+                  <td>Matrix Networks</td>
+                  <td>ISP / Connectivity</td>
+                  <td><span class="owner-chip"><span class="owner-avatar" style="background:linear-gradient(135deg,#10b981,#3b82f6)">GD</span>Geremia</span></td>
+                  <td><span class="backup-chip">Anthony</span></td>
+                  <td class="so-note">Circuit management, outage escalation</td>
+                </tr>
+                <tr>
+                  <td>PointClickCare</td>
+                  <td>EHR Platform</td>
+                  <td><span class="owner-chip"><span class="owner-avatar" style="background:linear-gradient(135deg,#f59e0b,#10b981)">RP</span>Rogi</span></td>
+                  <td><span class="backup-chip">Anthony</span></td>
+                  <td class="so-note">Support tickets, training, renewals</td>
+                </tr>
+                <tr>
+                  <td>SHI / CDW</td>
+                  <td>Hardware &amp; Software Procurement</td>
+                  <td><span class="owner-chip"><span class="owner-avatar" style="background:linear-gradient(135deg,#3b82f6,#8b5cf6)">AT</span>Anthony</span></td>
+                  <td><span class="backup-chip">Francis</span></td>
+                  <td class="so-note">Preferred reseller for devices and licensing</td>
+                </tr>
+                <tr>
+                  <td>HP / Dell</td>
+                  <td>End-User Hardware</td>
+                  <td><span class="owner-chip"><span class="owner-avatar" style="background:linear-gradient(135deg,#f97316,#ef4444)">FF</span>Francis</span></td>
+                  <td><span class="backup-chip">Tom</span></td>
+                  <td class="so-note">Device standards, warranty management</td>
+                </tr>
+                <tr>
+                  <td>Google (Workspace)</td>
+                  <td>Productivity Suite</td>
+                  <td><span class="owner-chip"><span class="owner-avatar" style="background:linear-gradient(135deg,#3b82f6,#8b5cf6)">AT</span>Anthony</span></td>
+                  <td><span class="backup-chip">Geremia</span></td>
+                  <td class="so-note">License renewals, admin console</td>
+                </tr>
+                <tr>
+                  <td>Fireside UCx</td>
+                  <td>Unified Communications / VoIP</td>
+                  <td><span class="owner-chip"><span class="owner-avatar" style="background:linear-gradient(135deg,#8b5cf6,#06b6d4)">TJ</span>Tom</span></td>
+                  <td><span class="backup-chip">Anthony</span></td>
+                  <td class="so-note">Phone system provisioning and support</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </div>
+</div>
+
+<script src="/nav.js"></script>
+<script>
+let activeFilter = 'all';
+let activeSearch = '';
+
+function setFilter(cat, btn) {
+  activeFilter = cat;
+  document.querySelectorAll('.so-filter-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  applyFilters();
+}
+
+function filterSearch(val) {
+  activeSearch = val.toLowerCase();
+  applyFilters();
+}
+
+function applyFilters() {
+  document.querySelectorAll('.so-section').forEach(section => {
+    const cat = section.dataset.category;
+    const catMatch = activeFilter === 'all' || activeFilter === cat;
+    section.style.display = catMatch ? '' : 'none';
+    if (!catMatch) return;
+
+    // Row-level search filter
+    const rows = section.querySelectorAll('tbody tr');
+    let visible = 0;
+    rows.forEach(row => {
+      const text = row.textContent.toLowerCase();
+      const show = !activeSearch || text.includes(activeSearch);
+      row.style.display = show ? '' : 'none';
+      if (show) visible++;
+    });
+    const countEl = section.querySelector('.so-section-count');
+    if (countEl) countEl.textContent = visible + (visible === 1 ? ' item' : ' items');
+  });
+}
+
+npInit('team').then(session => {
+  if (!session) return;
+  npPopulateTopbar();
+  renderNav('team');
+  document.getElementById('topbarAvatar').textContent = npGetInitials();
+});
+</script>
+</body>
+</html>

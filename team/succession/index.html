@@ -1,0 +1,287 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Succession Plan — NorthPoint</title>
+<link rel="stylesheet" href="/northpoint.css">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="/auth.js"></script>
+<style>
+.sp-wrap { padding: 32px; overflow-y: auto; flex: 1; }
+
+/* ── ALERT BANNER ── */
+.sp-alert {
+  display: flex; align-items: flex-start; gap: 12px;
+  background: rgba(220,38,38,0.07); border: 1px solid rgba(220,38,38,0.2);
+  border-radius: 12px; padding: 14px 18px; margin-bottom: 28px; max-width: 860px;
+}
+.sp-alert-icon { font-size: 16px; flex-shrink: 0; margin-top: 1px; }
+.sp-alert-text { font-size: 13px; color: var(--text-secondary); line-height: 1.6; }
+.sp-alert-text strong { color: #dc2626; }
+
+/* ── GRID ── */
+.sp-grid { display: flex; flex-direction: column; gap: 14px; max-width: 860px; }
+
+/* ── CARD ── */
+.sp-card {
+  background: var(--card); border: 1px solid var(--silver);
+  border-radius: 14px; overflow: hidden;
+}
+.sp-card.gap-critical { border-color: rgba(220,38,38,0.35); }
+.sp-card.gap-high     { border-color: rgba(249,115,22,0.35); }
+.sp-card.gap-low      { border-color: rgba(16,185,129,0.25); }
+
+.sp-card-header {
+  display: flex; align-items: center; gap: 14px; padding: 16px 20px;
+  border-bottom: 1px solid var(--silver);
+}
+.sp-card.gap-critical .sp-card-header { background: rgba(220,38,38,0.04); border-color: rgba(220,38,38,0.15); }
+.sp-card.gap-high .sp-card-header     { background: rgba(249,115,22,0.04); border-color: rgba(249,115,22,0.15); }
+.sp-card.gap-low .sp-card-header      { background: rgba(16,185,129,0.04); border-color: rgba(16,185,129,0.15); }
+
+.sp-avatar {
+  width: 44px; height: 44px; border-radius: 12px; flex-shrink: 0;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 13px; font-weight: 700; color: white;
+}
+.sp-header-info { flex: 1; }
+.sp-name { font-size: 15px; font-weight: 700; color: var(--text-primary); margin-bottom: 2px; }
+.sp-title { font-size: 12px; color: var(--text-tertiary); }
+.sp-gap-badge {
+  display: flex; align-items: center; gap: 5px; padding: 4px 10px;
+  border-radius: 20px; font-size: 11px; font-weight: 700; flex-shrink: 0;
+}
+.gap-critical .sp-gap-badge { background: rgba(220,38,38,0.1); color: #dc2626; }
+.gap-high .sp-gap-badge     { background: rgba(249,115,22,0.1); color: #f97316; }
+.gap-low .sp-gap-badge      { background: rgba(16,185,129,0.1); color: #10b981; }
+
+.sp-card-body { padding: 16px 20px; display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+
+.sp-section-label {
+  font-size: 9.5px; font-weight: 700; text-transform: uppercase;
+  letter-spacing: 1px; color: var(--text-tertiary); margin-bottom: 8px;
+}
+.sp-backup-row { display: flex; align-items: center; gap: 8px; margin-bottom: 6px; }
+.sp-backup-chip {
+  display: flex; align-items: center; gap: 6px; padding: 4px 10px;
+  border-radius: 7px; border: 1px solid var(--silver); background: var(--silver-light);
+  font-size: 12px; font-weight: 500; color: var(--text-secondary);
+}
+.sp-backup-dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
+.sp-backup-rank { font-size: 9.5px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; color: var(--text-tertiary); }
+.sp-no-backup { font-size: 12px; color: #dc2626; font-style: italic; }
+
+.sp-gap-text { font-size: 12.5px; color: var(--text-secondary); line-height: 1.55; grid-column: 1 / -1; }
+.sp-gap-text strong { color: var(--text-primary); font-weight: 600; }
+
+/* ── EXPORT ── */
+.sp-export-bar { display: flex; margin-bottom: 20px; }
+.sp-export-btn {
+  display: flex; align-items: center; gap: 6px; padding: 7px 14px;
+  border-radius: 8px; border: 1px solid var(--silver); background: var(--card);
+  color: var(--text-secondary); font-size: 12px; font-weight: 600;
+  font-family: inherit; cursor: pointer; transition: all 0.18s;
+}
+.sp-export-btn:hover { border-color: var(--green); color: var(--green); }
+
+/* ── DARK MODE ── */
+html[data-theme="dark"] .sp-card-header { border-color: rgba(255,255,255,0.07); }
+html[data-theme="dark"] .sp-backup-chip { background: rgba(255,255,255,0.04); border-color: rgba(255,255,255,0.08); }
+html[data-theme="dark"] .sp-alert { background: rgba(220,38,38,0.1); border-color: rgba(220,38,38,0.25); }
+</style>
+</head>
+<body class="mod-team">
+<div class="layout">
+  <div id="rail-mount"></div>
+  <div class="main">
+    <header class="topbar">
+      <div class="topbar-left">
+        <a href="/index.html" class="topbar-name">NorthPoint</a>
+        <div class="topbar-sep"></div>
+        <a href="/team/index.html" class="topbar-section" style="text-decoration:none;color:var(--text-secondary)">Team</a>
+        <div class="topbar-sep"></div>
+        <span class="topbar-section">Succession Plan</span>
+      </div>
+      <div class="topbar-right">
+        <span class="topbar-date" id="currentDate"></span>
+        <div class="topbar-avatar" id="topbarAvatar">?</div>
+      </div>
+    </header>
+
+    <div class="content">
+      <div class="sp-wrap">
+
+        <div class="page-header animate-1">
+          <h1 class="page-title">IT Succession Plan</h1>
+          <p class="page-subtitle">Continuity planning · NACS IT</p>
+          <p class="page-desc">Identifies backup coverage and knowledge gaps for each IT role. Gaps rated Critical (no documented backup), High (partial coverage), or Covered.</p>
+        </div>
+
+        <div class="sp-alert animate-2">
+          <span class="sp-alert-icon">⚠</span>
+          <div class="sp-alert-text">
+            <strong>3 of 6 roles have no identified successor.</strong> The current team structure concentrates critical knowledge in individuals without documented backup coverage. This is an active risk (see Risk Register #9) compounded by below-benchmark headcount. The proposed VP-level hire and team expansion directly address this gap.
+          </div>
+        </div>
+
+        <div class="sp-export-bar animate-2">
+          <button class="sp-export-btn" onclick="exportToExcel()">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:14px;height:14px"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+            Export Excel
+          </button>
+        </div>
+
+        <div class="sp-grid animate-3" id="spGrid"></div>
+
+      </div>
+    </div>
+  </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/xlsx/dist/xlsx.full.min.js"></script>
+<script src="/nav.js"></script>
+<script>
+const SUCCESSION = [
+  {
+    name: 'Anthony Trujillo',
+    title: 'IT Director / VP-Level Lead',
+    color: 'linear-gradient(135deg,#3b82f6,#8b5cf6)',
+    initials: 'AT',
+    gap: 'critical',
+    gapLabel: 'Critical Gap',
+    backups: [],
+    gapText: '<strong>No identified successor.</strong> Anthony holds all strategic decision-making, vendor relationships, financial oversight, and executive communication for IT. His departure would leave no internal coverage for budget governance, vendor contracts, or executive advisory functions. The VP hire is the long-term solution; interim mitigation requires documenting all active vendor agreements and escalation contacts.'
+  },
+  {
+    name: 'Geremia Doan',
+    title: 'Infrastructure & Security Lead',
+    color: 'linear-gradient(135deg,#10b981,#3b82f6)',
+    initials: 'GD',
+    gap: 'critical',
+    gapLabel: 'Critical Gap',
+    backups: [
+      { name: 'Anthony', rank: 'Primary (Limited)', color: 'linear-gradient(135deg,#3b82f6,#8b5cf6)' },
+    ],
+    gapText: '<strong>Deep technical knowledge is not documented.</strong> Geremia holds exclusive expertise in SD-WAN configuration, Nutanix administration, firewall management, and network architecture decisions. Anthony can handle escalation coordination and vendor calls but cannot independently manage infrastructure. Mitigation: begin runbook documentation for all critical systems.'
+  },
+  {
+    name: 'Rogi Poblete',
+    title: 'Clinical Systems Specialist',
+    color: 'linear-gradient(135deg,#f59e0b,#10b981)',
+    initials: 'RP',
+    gap: 'critical',
+    gapLabel: 'Critical Gap',
+    backups: [
+      { name: 'Anthony', rank: 'Primary (Very Limited)', color: 'linear-gradient(135deg,#3b82f6,#8b5cf6)' },
+    ],
+    gapText: '<strong>PCC expertise is highly concentrated.</strong> Rogi is the sole person with deep PointClickCare configuration, workflow, and clinical SaaS integration knowledge. An unplanned absence during a clinical system issue would directly impact patient care operations. Mitigation: cross-training documentation and a PCC SME contact list for vendor-direct escalation.'
+  },
+  {
+    name: 'Jon Andrews',
+    title: 'Database Administrator',
+    color: 'linear-gradient(135deg,#6366f1,#8b5cf6)',
+    initials: 'JA',
+    gap: 'high',
+    gapLabel: 'High Gap',
+    backups: [
+      { name: 'Geremia', rank: 'Primary (Limited)', color: 'linear-gradient(135deg,#10b981,#3b82f6)' },
+    ],
+    gapText: '<strong>ERP and database procedures are not documented.</strong> Jon manages GP/Dynamics and DocLink database operations. Geremia can assist with server-level access but cannot independently manage ERP logic or DocLink workflows. The GP vendor (Microsoft/partner) provides a backstop for critical failures. Priority: document all scheduled jobs, maintenance procedures, and recovery steps.'
+  },
+  {
+    name: 'Francis Ferma',
+    title: 'Service Delivery Manager',
+    color: 'linear-gradient(135deg,#f97316,#ef4444)',
+    initials: 'FF',
+    gap: 'low',
+    gapLabel: 'Covered',
+    backups: [
+      { name: 'Anthony', rank: 'Primary', color: 'linear-gradient(135deg,#3b82f6,#8b5cf6)' },
+      { name: 'Tom', rank: 'Secondary', color: 'linear-gradient(135deg,#8b5cf6,#06b6d4)' },
+    ],
+    gapText: 'Coverage adequate for short-term absences. Ticket routing and escalation paths are documented in FreeScout. Anthony can manage the service desk queue and escalations. Tom can handle hardware and field support requests. <strong>Risk: service desk queue may grow during extended absence</strong> without a dedicated manager.'
+  },
+  {
+    name: 'Tom Jarrell',
+    title: 'Systems Administrator',
+    color: 'linear-gradient(135deg,#8b5cf6,#06b6d4)',
+    initials: 'TJ',
+    gap: 'low',
+    gapLabel: 'Covered',
+    backups: [
+      { name: 'Francis', rank: 'Primary', color: 'linear-gradient(135deg,#f97316,#ef4444)' },
+      { name: 'Geremia', rank: 'Secondary', color: 'linear-gradient(135deg,#10b981,#3b82f6)' },
+    ],
+    gapText: 'Hardware procurement and deployment procedures are partially documented. Francis can handle basic hardware requests and deployments. Geremia can assist with IAM and MDM system administration. <strong>After-hours maintenance windows are a gap</strong> — Tom is currently the sole resource for scheduled off-hours work.'
+  },
+];
+
+function render() {
+  const grid = document.getElementById('spGrid');
+  grid.innerHTML = '';
+
+  SUCCESSION.forEach(person => {
+    const card = document.createElement('div');
+    card.className = `sp-card gap-${person.gap}`;
+
+    const backupsHtml = person.backups.length
+      ? person.backups.map(b => `
+          <div class="sp-backup-row">
+            <span class="sp-backup-chip">
+              <span class="sp-backup-dot" style="background:${b.color}"></span>
+              ${b.name}
+            </span>
+            <span class="sp-backup-rank">${b.rank}</span>
+          </div>`).join('')
+      : `<div class="sp-no-backup">No backup identified</div>`;
+
+    card.innerHTML = `
+      <div class="sp-card-header">
+        <div class="sp-avatar" style="background:${person.color}">${person.initials}</div>
+        <div class="sp-header-info">
+          <div class="sp-name">${person.name}</div>
+          <div class="sp-title">${person.title}</div>
+        </div>
+        <div class="sp-gap-badge">${person.gapLabel}</div>
+      </div>
+      <div class="sp-card-body">
+        <div>
+          <div class="sp-section-label">Backup Coverage</div>
+          ${backupsHtml}
+        </div>
+        <div>
+          <div class="sp-section-label">Gap Assessment</div>
+          <div class="sp-gap-text">${person.gapText}</div>
+        </div>
+      </div>`;
+
+    grid.appendChild(card);
+  });
+}
+
+function exportToExcel() {
+  if (typeof XLSX === 'undefined') { alert('Excel library not loaded'); return; }
+  const rows = [['Name','Title','Gap Rating','Primary Backup','Secondary Backup','Gap Assessment']];
+  SUCCESSION.forEach(p => {
+    const b1 = p.backups[0]?.name || 'None';
+    const b2 = p.backups[1]?.name || '—';
+    rows.push([p.name, p.title, p.gapLabel, b1, b2, p.gapText.replace(/<[^>]+>/g,'')]);
+  });
+  const ws = XLSX.utils.aoa_to_sheet(rows);
+  ws['!cols'] = [{wch:20},{wch:28},{wch:14},{wch:22},{wch:16},{wch:60}];
+  const wb = XLSX.utils.book_new();
+  XLSX.utils.book_append_sheet(wb, ws, 'Succession Plan');
+  XLSX.writeFile(wb, 'NACS-IT-Succession-Plan.xlsx');
+}
+
+npInit('succession').then(session => {
+  if (!session) return;
+  npPopulateTopbar();
+  renderNav('team');
+  document.getElementById('topbarAvatar').textContent = npGetInitials();
+  render();
+});
+</script>
+</body>
+</html>
