@@ -346,6 +346,50 @@
             font-size: 9px !important;
         }
         .leaflet-control-attribution a { color: #475569 !important; }
+
+        /* ── Light mode ── */
+        html:not([data-theme="dark"]) #map { background: #e8edf2; }
+        html:not([data-theme="dark"]) #map-loading { background: #eef2f7; }
+        html:not([data-theme="dark"]) .loading-spinner { border-color: #dde3ea; border-top-color: #3b82f6; }
+        html:not([data-theme="dark"]) .loading-label { color: #64748b; }
+        html:not([data-theme="dark"]) #map-legend {
+            background: rgba(255,255,255,0.92);
+            border-color: #dde3ea;
+        }
+        html:not([data-theme="dark"]) .legend-item { color: #475569; }
+        html:not([data-theme="dark"]) #facility-panel {
+            background: rgba(255,255,255,0.96);
+            border-color: #dde3ea;
+        }
+        html:not([data-theme="dark"]) .panel-close { background: #f1f5f9; color: #64748b; }
+        html:not([data-theme="dark"]) .panel-close:hover { background: #e2e8f0; color: #1e293b; }
+        html:not([data-theme="dark"]) .panel-photo-col { background: #f1f5f9; }
+        html:not([data-theme="dark"]) .panel-photo-placeholder { background: linear-gradient(135deg, #f1f5f9 0%, #e2e8f0 100%); }
+        html:not([data-theme="dark"]) .panel-detail-col { border-left-color: #e2e8f0; }
+        html:not([data-theme="dark"]) .panel-region { color: #94a3b8; }
+        html:not([data-theme="dark"]) .panel-name { color: #0f172a; }
+        html:not([data-theme="dark"]) .panel-row-label { color: #94a3b8; }
+        html:not([data-theme="dark"]) .panel-row-value { color: #374151; }
+        html:not([data-theme="dark"]) .panel-stats-col { border-left-color: #e2e8f0; }
+        html:not([data-theme="dark"]) .panel-stat-label { color: #94a3b8; }
+        html:not([data-theme="dark"]) .panel-stat-value { color: #1e293b; }
+        html:not([data-theme="dark"]) .panel-btn-secondary { color: #64748b; border-color: #e2e8f0; }
+        html:not([data-theme="dark"]) .panel-btn-secondary:hover { background: #f1f5f9; color: #374151; }
+        html:not([data-theme="dark"]) .psb-incoming { background: #f1f5f9; border-color: #e2e8f0; }
+        html:not([data-theme="dark"]) .leaflet-control-zoom a {
+            background: rgba(255,255,255,0.92) !important;
+            border-color: #e2e8f0 !important;
+            color: #64748b !important;
+        }
+        html:not([data-theme="dark"]) .leaflet-control-zoom a:hover {
+            background: #f1f5f9 !important;
+            color: #1e293b !important;
+        }
+        html:not([data-theme="dark"]) .leaflet-control-attribution {
+            background: rgba(255,255,255,0.8) !important;
+            color: #94a3b8 !important;
+        }
+        html:not([data-theme="dark"]) .leaflet-control-attribution a { color: #64748b !important; }
     </style>
 </head>
 <body class="mod-facilities">
@@ -457,7 +501,19 @@ npInit(null).then(session => {
 
 // ── Map ──────────────────────────────────────────────────────────────────────
 let _map = null;
+let _tileLayer = null;
 let _openFacilityId = null;
+
+function getTileUrl() {
+    return document.documentElement.getAttribute('data-theme') === 'dark'
+        ? 'https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png'
+        : 'https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png';
+}
+
+// Swap tile layer when theme toggles
+new MutationObserver(() => {
+    if (_tileLayer) _tileLayer.setUrl(getTileUrl());
+}).observe(document.documentElement, { attributes: true, attributeFilter: ['data-theme'] });
 
 async function loadMap() {
     // Init Leaflet
@@ -477,8 +533,8 @@ async function loadMap() {
     // Re-center once after layout fully settles (prevents init drift)
     setTimeout(() => _map.setView([36.8, -119.4], 7, { animate: false }), 400);
 
-    // CARTO dark tiles
-    L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', {
+    // CARTO tiles — theme-aware
+    _tileLayer = L.tileLayer(getTileUrl(), {
         attribution: '&copy; <a href="https://carto.com/">CARTO</a>',
         subdomains: 'abcd',
         maxZoom: 19,
