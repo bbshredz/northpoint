@@ -549,7 +549,7 @@ function populatePanel(f) {
     document.getElementById('panel-admin').textContent = f.admin_name || '—';
     document.getElementById('panel-emp').textContent = f.emp_count || '—';
 
-    // Photo — try facility-specific image, fall back to placeholder
+    // Photo — rename files in Finder to {facility_number}.jpg to match
     const photoImg = document.getElementById('panel-photo');
     const photoPlaceholder = document.getElementById('panel-photo-placeholder');
     document.getElementById('panel-photo-num').textContent = `Facility ${String(f.facility_number).padStart(2, '0')}`;

@@ -239,6 +239,112 @@
         .assumptions-body li { margin-bottom: 4px; }
         .assumptions-section { margin-bottom: 12px; }
         .assumptions-section strong { color: #0a1628; }
+
+        /* ── Dark mode overrides ── */
+        html[data-theme="dark"] .content { background: #080f1a; }
+
+        html[data-theme="dark"] .pg-title  { color: #e2e8f0; }
+        html[data-theme="dark"] .pg-desc   { color: #8a95a8; }
+
+        html[data-theme="dark"] .input-panel {
+            background: rgba(255,255,255,0.04);
+            border-color: rgba(255,255,255,0.08);
+        }
+        html[data-theme="dark"] .input-label     { color: #94a3b8; }
+        html[data-theme="dark"] .input-label-val { color: #e2e8f0; }
+
+        html[data-theme="dark"] input[type="text"].input-field {
+            background: rgba(255,255,255,0.06);
+            border-color: rgba(255,255,255,0.10);
+            color: #e2e8f0;
+        }
+        html[data-theme="dark"] input[type="text"].input-field:focus {
+            background: rgba(255,255,255,0.08);
+            border-color: #8b5cf6;
+        }
+        html[data-theme="dark"] input[type="range"] { background: rgba(255,255,255,0.10); }
+
+        html[data-theme="dark"] .stepper-btn {
+            background: rgba(255,255,255,0.06);
+            border-color: rgba(255,255,255,0.10);
+            color: #94a3b8;
+        }
+        html[data-theme="dark"] .stepper-btn:hover {
+            background: rgba(255,255,255,0.10);
+            color: #e2e8f0;
+        }
+        html[data-theme="dark"] .stepper-num { color: #e2e8f0; }
+
+        html[data-theme="dark"] .toggle-row  { border-top-color: rgba(255,255,255,0.06); }
+        html[data-theme="dark"] .toggle-label { color: #e2e8f0; }
+        html[data-theme="dark"] .toggle-slider { background: rgba(255,255,255,0.15); }
+        html[data-theme="dark"] .toggle-slider::before { background: #e2e8f0; }
+
+        html[data-theme="dark"] .sum-card {
+            background: rgba(255,255,255,0.04);
+            border-color: rgba(255,255,255,0.08);
+        }
+        html[data-theme="dark"] .sum-value { color: #e2e8f0; }
+        html[data-theme="dark"] .sum-card.sum-highlight {
+            background: rgba(139,92,246,0.18);
+            border-color: rgba(139,92,246,0.35);
+        }
+        html[data-theme="dark"] .sum-highlight .sum-value { color: #e2e8f0; }
+        html[data-theme="dark"] .sum-highlight .sum-label { color: #a78bfa; }
+        html[data-theme="dark"] .sum-highlight .sum-sub   { color: #7c6fa8; }
+
+        html[data-theme="dark"] .breakdown-card {
+            background: rgba(255,255,255,0.04);
+            border-color: rgba(255,255,255,0.08);
+        }
+        html[data-theme="dark"] .breakdown-header { border-bottom-color: rgba(255,255,255,0.08); }
+        html[data-theme="dark"] .breakdown-title  { color: #94a3b8; }
+        html[data-theme="dark"] .breakdown-total  { color: #e2e8f0; }
+
+        html[data-theme="dark"] .bd-table th {
+            background: rgba(255,255,255,0.03);
+            border-bottom-color: rgba(255,255,255,0.08);
+            color: #64748b;
+        }
+        html[data-theme="dark"] .bd-table td { border-bottom-color: rgba(255,255,255,0.05); }
+        html[data-theme="dark"] .bd-table tr:hover td { background: rgba(255,255,255,0.03); }
+        html[data-theme="dark"] .bd-table tr.bd-total td {
+            background: rgba(255,255,255,0.04);
+            border-top-color: rgba(255,255,255,0.10);
+        }
+        html[data-theme="dark"] .bd-cat    { color: #e2e8f0; }
+        html[data-theme="dark"] .bd-bar    { background: rgba(255,255,255,0.08); }
+        html[data-theme="dark"] td.onetime { color: #e2e8f0; }
+        html[data-theme="dark"] td.annual  { color: #64748b; }
+        html[data-theme="dark"] td.total   { color: #e2e8f0; }
+
+        html[data-theme="dark"] .timeline-card {
+            background: rgba(255,255,255,0.04);
+            border-color: rgba(255,255,255,0.08);
+        }
+        html[data-theme="dark"] .timeline-title  { color: #94a3b8; }
+        html[data-theme="dark"] .phase-label     { color: #cbd5e1; }
+        html[data-theme="dark"] .phase-track     { background: rgba(255,255,255,0.08); }
+        html[data-theme="dark"] .phase-duration  { color: #64748b; }
+        html[data-theme="dark"] .week-label      { color: #334155; }
+
+        html[data-theme="dark"] .incoming-card {
+            background: rgba(255,255,255,0.04);
+            border-color: rgba(255,255,255,0.08);
+        }
+        html[data-theme="dark"] .incoming-header { border-bottom-color: rgba(255,255,255,0.08); }
+        html[data-theme="dark"] .incoming-title  { color: #94a3b8; }
+        html[data-theme="dark"] .inc-name        { color: #e2e8f0; }
+        html[data-theme="dark"] .inc-num-val     { color: #e2e8f0; }
+        html[data-theme="dark"] .inc-row         { border-bottom-color: rgba(255,255,255,0.05); }
+        html[data-theme="dark"] .inc-badge       { background: rgba(139,92,246,0.18); color: #a78bfa; }
+
+        html[data-theme="dark"] .assumptions-body {
+            background: rgba(255,255,255,0.04);
+            border-color: rgba(255,255,255,0.08);
+            color: #8a95a8;
+        }
+        html[data-theme="dark"] .assumptions-section strong { color: #e2e8f0; }
     </style>
 </head>
 <body class="mod-facilities">

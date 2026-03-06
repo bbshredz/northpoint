@@ -390,6 +390,27 @@
                     <tbody id="responses-tbody"></tbody>
                 </table>
             </div>
+
+            <!-- Related tool -->
+            <div class="section-header" style="margin-top:36px">
+                <span class="section-title">Mass Intake</span>
+                <div class="section-line"></div>
+            </div>
+            <div class="tools-grid" style="margin-top:12px;grid-template-columns:repeat(auto-fill,minmax(280px,1fr))">
+                <a href="/team/pain-points/index.html" class="tool-card clickable">
+                    <div class="card-top">
+                        <div class="card-icon">📋</div>
+                        <span class="card-status status-live">Live</span>
+                    </div>
+                    <div class="card-title">Leadership Pain Points</div>
+                    <div class="card-desc">Quick-capture form for pain points from all dept heads, directors, and VPs. Use this when you need broad coverage fast — stakeholder interviews are for depth.</div>
+                    <div class="card-footer">
+                        <div class="card-tags"><span class="card-tag">All Departments</span><span class="card-tag">Quick Capture</span></div>
+                        <span class="card-arrow">→</span>
+                    </div>
+                </a>
+            </div>
+
         </div>
     </div>
 </div>
@@ -405,13 +426,15 @@
             <!-- Guide -->
             <div class="modal-guide">
                 <div class="guide-title">Interview Guide</div>
-                <div class="guide-q"><span class="guide-num">1.</span>How would you describe your current experience with IT support?</div>
-                <div class="guide-q"><span class="guide-num">2.</span>What are the biggest pain points or frustrations with IT?</div>
-                <div class="guide-q"><span class="guide-num">3.</span>What do you need from IT that you're not currently getting?</div>
-                <div class="guide-q"><span class="guide-num">4.</span>If you could change one thing about how IT operates, what would it be?</div>
-                <div class="guide-q"><span class="guide-num">5.</span>Any upcoming projects or changes IT should know about?</div>
-                <div class="guide-q"><span class="guide-num">6.</span>Concerns about staffing, response times, or IT capabilities?</div>
-                <div class="guide-q"><span class="guide-num">7.</span>What does a high-performing IT department look like to you?</div>
+                <div class="guide-q"><span class="guide-num">1.</span>What's working well? What have you relied on IT for successfully?</div>
+                <div class="guide-q"><span class="guide-num">2.</span>How would you describe your current experience with IT support overall?</div>
+                <div class="guide-q"><span class="guide-num">3.</span>What are the biggest pain points or frustrations with IT?</div>
+                <div class="guide-q"><span class="guide-num">4.</span>What do you need from IT that you're not currently getting?</div>
+                <div class="guide-q"><span class="guide-num">5.</span>What systems do you use most day-to-day?</div>
+                <div class="guide-q"><span class="guide-num">6.</span>If you could change one thing about how IT operates, what would it be?</div>
+                <div class="guide-q"><span class="guide-num">7.</span>Any upcoming projects or changes IT should know about?</div>
+                <div class="guide-q"><span class="guide-num">8.</span>Do you know how to submit a ticket or reach IT when you need help?</div>
+                <div class="guide-q"><span class="guide-num">9.</span>What does a high-performing IT department look like to you?</div>
             </div>
             <!-- Form -->
             <div class="modal-form">
@@ -456,8 +479,28 @@
                     <textarea class="form-textarea" id="f-experience" placeholder="How have they described working with IT so far?"></textarea>
                 </div>
                 <div class="form-group">
+                    <label class="form-label">IT Positives / What's Working Well</label>
+                    <textarea class="form-textarea" id="f-positives" placeholder="What do they value about IT? What's going right?"></textarea>
+                </div>
+                <div class="form-group">
                     <label class="form-label">Pain Points</label>
                     <textarea class="form-textarea" id="f-pain" placeholder="What specific problems, delays, or frustrations did they mention?"></textarea>
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label class="form-label">Primary Systems Used Daily</label>
+                        <input type="text" class="form-input" id="f-systems" placeholder="e.g. PCC, Great Plains, Relias…">
+                    </div>
+                    <div class="form-group" style="flex:0 0 200px">
+                        <label class="form-label">Ticket Submission Awareness</label>
+                        <select class="form-select" id="f-ticket-awareness">
+                            <option value="">— select —</option>
+                            <option value="Aware">Aware — knows the process</option>
+                            <option value="Somewhat">Somewhat — vague idea</option>
+                            <option value="Unaware">Unaware — doesn't know</option>
+                            <option value="Not asked">Didn't ask</option>
+                        </select>
+                    </div>
                 </div>
                 <div class="form-group">
                     <label class="form-label">Expectations</label>
@@ -623,8 +666,11 @@ function openForm(id) {
             document.getElementById('f-facility').value    = r.facility || '';
             document.getElementById('f-region').value      = r.region || '';
             document.getElementById('f-date').value        = r.date_contacted || '';
-            document.getElementById('f-experience').value  = r.it_experience || '';
-            document.getElementById('f-pain').value        = r.pain_points || '';
+            document.getElementById('f-experience').value         = r.it_experience || '';
+            document.getElementById('f-positives').value          = r.it_positives || '';
+            document.getElementById('f-pain').value               = r.pain_points || '';
+            document.getElementById('f-systems').value            = r.systems_used || '';
+            document.getElementById('f-ticket-awareness').value   = r.ticket_awareness || '';
             document.getElementById('f-expectations').value= r.expectations || '';
             document.getElementById('f-shared').value      = r.what_you_shared || '';
             document.getElementById('f-strategic').value   = r.strategic_notes || '';
@@ -632,13 +678,14 @@ function openForm(id) {
             document.getElementById('f-followup').checked  = r.follow_up || false;
         }
     } else {
-        ['f-name','f-title','f-facility','f-region','f-experience','f-pain',
-         'f-expectations','f-shared','f-strategic','f-notes'].forEach(id => {
+        ['f-name','f-title','f-facility','f-region','f-experience','f-positives',
+         'f-pain','f-systems','f-expectations','f-shared','f-strategic','f-notes'].forEach(id => {
             const el = document.getElementById(id);
             el.tagName === 'SELECT' ? el.value = '' : el.value = '';
         });
-        document.getElementById('f-date').value     = new Date().toISOString().split('T')[0];
-        document.getElementById('f-followup').checked = false;
+        document.getElementById('f-date').value              = new Date().toISOString().split('T')[0];
+        document.getElementById('f-ticket-awareness').value  = '';
+        document.getElementById('f-followup').checked        = false;
     }
     document.getElementById('response-modal').classList.add('open');
 }
@@ -658,8 +705,11 @@ async function saveResponse() {
         facility:        document.getElementById('f-facility').value.trim()    || null,
         region:          document.getElementById('f-region').value             || null,
         date_contacted:  document.getElementById('f-date').value               || null,
-        it_experience:   document.getElementById('f-experience').value.trim()  || null,
-        pain_points:     document.getElementById('f-pain').value.trim()        || null,
+        it_experience:   document.getElementById('f-experience').value.trim()        || null,
+        it_positives:    document.getElementById('f-positives').value.trim()        || null,
+        pain_points:     document.getElementById('f-pain').value.trim()             || null,
+        systems_used:    document.getElementById('f-systems').value.trim()          || null,
+        ticket_awareness:document.getElementById('f-ticket-awareness').value        || null,
         expectations:    document.getElementById('f-expectations').value.trim()|| null,
         what_you_shared: document.getElementById('f-shared').value.trim()      || null,
         strategic_notes: document.getElementById('f-strategic').value.trim()   || null,
@@ -691,12 +741,15 @@ function openDetail(id) {
         .filter(Boolean).join(' · ');
 
     const fields = [
-        { label: 'Current IT Experience',  value: r.it_experience   },
-        { label: 'Pain Points',            value: r.pain_points     },
-        { label: 'Expectations',           value: r.expectations    },
-        { label: 'What You Shared',        value: r.what_you_shared },
-        { label: 'Strategic Notes',        value: r.strategic_notes },
-        { label: 'Additional Notes',       value: r.notes           },
+        { label: 'Current IT Experience',     value: r.it_experience   },
+        { label: 'IT Positives / What Works', value: r.it_positives    },
+        { label: 'Pain Points',               value: r.pain_points     },
+        { label: 'Primary Systems Used',      value: r.systems_used    },
+        { label: 'Ticket Awareness',          value: r.ticket_awareness},
+        { label: 'Expectations',              value: r.expectations    },
+        { label: 'What You Shared',           value: r.what_you_shared },
+        { label: 'Strategic Notes',           value: r.strategic_notes },
+        { label: 'Additional Notes',          value: r.notes           },
     ].filter(f => f.value);
 
     document.getElementById('detail-body').innerHTML =

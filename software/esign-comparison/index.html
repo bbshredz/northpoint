@@ -8,11 +8,8 @@
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script src="/auth.js"></script>
     <script>(function(){
-      // Use local override if set, otherwise inherit site-wide np-theme (dark = no light class, light = add light class)
-      var local = localStorage.getItem('esign-theme');
-      var site  = localStorage.getItem('np-theme');
-      var isLight = local ? local === 'light' : site !== 'dark';
-      if (isLight) document.body.classList.add('light');
+      // Inherit site-wide np-theme before first paint
+      if (localStorage.getItem('np-theme') !== 'dark') document.body.classList.add('light');
     }());</script>
     <script src="https://unpkg.com/react@18/umd/react.production.min.js" crossorigin></script>
     <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js" crossorigin></script>
@@ -916,6 +913,81 @@
         body.light .discovery-leadin strong { color: #0f172a; }
         body.light .success-title { color: #0f172a; }
         body.light .success-desc { color: #64748b; }
+
+        /* ── Battle arena header ── */
+        .battle-arena {
+            position: relative;
+            border-radius: 16px;
+            overflow: hidden;
+            margin-bottom: 32px;
+            background: #07101e;
+            border: 1px solid rgba(255,255,255,0.06);
+        }
+        .battle-glow-left {
+            position: absolute; left: 0; top: 0; bottom: 0; width: 55%;
+            background: radial-gradient(ellipse at 0% 50%, rgba(227,66,52,0.10) 0%, transparent 70%);
+            pointer-events: none;
+        }
+        .battle-glow-right {
+            position: absolute; right: 0; top: 0; bottom: 0; width: 55%;
+            background: radial-gradient(ellipse at 100% 50%, rgba(75,100,210,0.10) 0%, transparent 70%);
+            pointer-events: none;
+        }
+        .battle-divider-line {
+            position: absolute; left: 50%; top: 0; bottom: 0; width: 1px;
+            background: linear-gradient(to bottom, transparent, rgba(255,255,255,0.05) 30%, rgba(255,255,255,0.05) 70%, transparent);
+            pointer-events: none;
+        }
+        .battle-row {
+            position: relative; z-index: 1;
+            display: flex; align-items: center;
+            padding: 24px 32px;
+        }
+        .battle-contestant {
+            flex: 1; display: flex; align-items: center; gap: 14px;
+        }
+        .battle-contestant.right {
+            justify-content: flex-end; flex-direction: row-reverse;
+        }
+        .battle-logo {
+            width: 42px; height: 42px; border-radius: 10px;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 18px; font-weight: 900; flex-shrink: 0;
+        }
+        .battle-logo.adobe   { background: rgba(227,66,52,0.12); border: 1px solid rgba(227,66,52,0.25); color: #e34234; }
+        .battle-logo.docusign{ background: rgba(75,100,210,0.12); border: 1px solid rgba(75,100,210,0.25); color: #6b7fe8; }
+        .battle-name { font-size: 18px; font-weight: 800; letter-spacing: -0.01em; }
+        .battle-name.adobe   { color: #e34234; }
+        .battle-name.docusign{ color: #6b7fe8; }
+        .battle-tagline { font-size: 11px; color: #334155; margin-top: 3px; }
+        .battle-contestant.right .battle-tagline { text-align: right; }
+        .battle-vs {
+            display: flex; flex-direction: column; align-items: center;
+            gap: 4px; padding: 0 24px; flex-shrink: 0;
+        }
+        .vs-badge {
+            width: 44px; height: 44px; border-radius: 50%;
+            background: #0d1525;
+            border: 1.5px solid rgba(255,255,255,0.10);
+            display: flex; align-items: center; justify-content: center;
+            font-size: 11px; font-weight: 900; color: #94a3b8;
+            letter-spacing: 0.06em;
+        }
+        .battle-footer {
+            border-top: 1px solid rgba(255,255,255,0.04);
+            padding: 10px 32px;
+            font-size: 12px; color: #334155;
+            display: flex; align-items: center; gap: 10px;
+            background: rgba(0,0,0,0.20);
+        }
+        .battle-decision-badge {
+            display: inline-flex; align-items: center; gap: 5px;
+            padding: 2px 10px; border-radius: 20px;
+            font-size: 10px; font-weight: 700; letter-spacing: 0.06em; text-transform: uppercase;
+            background: rgba(239,68,68,0.08);
+            border: 1px solid rgba(239,68,68,0.20);
+            color: #ef4444;
+        }
     </style>
 </head>
 <body class="mod-software">
@@ -1879,28 +1951,50 @@ function RecBanner() {
 
 function App({ prefillName, isGuest }) {
     const [lightMode, setLightMode] = useState(() =>
-        localStorage.getItem('esign-theme') === 'light'
+        localStorage.getItem('np-theme') !== 'dark'
     );
+    // Sync body.light with site-wide np-theme. Watch for nav toggle changes via MutationObserver.
     useEffect(() => {
         document.body.classList.toggle('light', lightMode);
-        localStorage.setItem('esign-theme', lightMode ? 'light' : 'dark');
-        localStorage.setItem('np-theme', lightMode ? 'light' : 'dark');
-        document.documentElement[lightMode ? 'removeAttribute' : 'setAttribute']('data-theme', 'dark');
+        const observer = new MutationObserver(() => {
+            const isDark = document.documentElement.getAttribute('data-theme') === 'dark';
+            setLightMode(!isDark);
+        });
+        observer.observe(document.documentElement, { attributes: true, attributeFilter: ['data-theme'] });
+        return () => observer.disconnect();
+    }, []);
+    useEffect(() => {
+        document.body.classList.toggle('light', lightMode);
     }, [lightMode]);
 
     return (
         <div className="es-wrap">
-            <div className="es-page-header">
-                <div style={{display:'flex', justifyContent:'space-between', alignItems:'flex-start'}}>
-                    <div>
-                        <div className="es-page-title">Adobe Sign vs. DocuSign</div>
-                        <div className="es-page-sub">eSignature governance · March 2026 renewal decision</div>
+            <div className="battle-arena">
+                <div className="battle-glow-left" />
+                <div className="battle-glow-right" />
+                <div className="battle-divider-line" />
+                <div className="battle-row">
+                    <div className="battle-contestant">
+                        <div className="battle-logo adobe">A</div>
+                        <div>
+                            <div className="battle-name adobe">Adobe Sign</div>
+                            <div className="battle-tagline">Seat-based · PDF-native · M365</div>
+                        </div>
                     </div>
-                    <button
-                        className="theme-toggle"
-                        onClick={() => setLightMode(m => !m)}
-                        title={lightMode ? 'Dark mode' : 'Light mode'}
-                    >{lightMode ? '☾' : '☀'}</button>
+                    <div className="battle-vs">
+                        <div className="vs-badge">VS</div>
+                    </div>
+                    <div className="battle-contestant right">
+                        <div className="battle-logo docusign">D</div>
+                        <div>
+                            <div className="battle-name docusign">DocuSign</div>
+                            <div className="battle-tagline">Incumbent · PCC-native · Volume risk</div>
+                        </div>
+                    </div>
+                </div>
+                <div className="battle-footer">
+                    <span className="battle-decision-badge">Decision Required</span>
+                    <span>eSignature governance &nbsp;·&nbsp; March 2026 renewal</span>
                 </div>
             </div>
 

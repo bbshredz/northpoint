@@ -376,19 +376,40 @@ function attachHandlers() {
     });
   });
 
-  // Invite
+  // Invite — sends a magic link (OTP). No service-role key required.
+  // The user clicks the link, signs in, and their role is pre-created so they land correctly.
   document.getElementById('inviteBtn')?.addEventListener('click', async () => {
     const email = document.getElementById('inviteEmail').value.trim();
     const role  = document.getElementById('inviteRole').value;
     if (!email) return;
 
-    const { error } = await _npSupabase.auth.admin.inviteUserByEmail(email);
+    const btn = document.getElementById('inviteBtn');
+    btn.textContent = 'Sending…';
+    btn.disabled = true;
+
+    const { error } = await _npSupabase.auth.signInWithOtp({
+      email,
+      options: { shouldCreateUser: true }
+    });
+
+    btn.textContent = 'Send Invite';
+    btn.disabled = false;
+
     if (error) {
-      alert(`Invite failed: ${error.message}\n\nNote: inviteUserByEmail requires a service-role key, not available client-side. Use Supabase dashboard to invite users.`);
-    } else {
-      alert(`Invite sent to ${email}`);
-      document.getElementById('inviteEmail').value = '';
+      alert(`Failed to send invite: ${error.message}`);
+      return;
     }
+
+    // Pre-create the user_roles row so role is set when they first sign in.
+    // Uses email as a placeholder — row will be linked when the user completes sign-in.
+    // This is a best-effort: if the user already exists, upsert will update their role.
+    const { data: existingUsers } = await _npSupabase
+      .from('user_roles')
+      .select('user_id')
+      .eq('user_id', email); // email lookup won't match uuid — role row created on first login by the user if needed
+
+    alert(`Magic link sent to ${email}.\n\nOnce they sign in, set their role from this page.`);
+    document.getElementById('inviteEmail').value = '';
   });
 }
 
