@@ -7,6 +7,75 @@
     <link rel="stylesheet" href="/northpoint.css">
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script src="/auth.js"></script>
+    <style>
+        .article-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 14px;
+            margin-bottom: 36px;
+        }
+        .article-card {
+            background: var(--card);
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            padding: 18px 20px;
+            text-decoration: none;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            transition: border-color 0.15s, box-shadow 0.15s;
+            position: relative;
+        }
+        .article-card:hover {
+            border-color: var(--accent);
+            box-shadow: 0 2px 12px rgba(139,92,246,0.10);
+        }
+        .article-card.coming-soon {
+            opacity: 0.5;
+            cursor: default;
+            pointer-events: none;
+        }
+        .article-tag {
+            font-size: 10px; font-weight: 700; letter-spacing: 0.1em;
+            text-transform: uppercase; display: flex; align-items: center; gap: 8px;
+        }
+        .atag {
+            padding: 2px 7px; border-radius: 99px; font-size: 10px; font-weight: 700;
+        }
+        .atag-network  { background: #eff6ff; color: #2563eb; }
+        .atag-device   { background: #fef3c7; color: #d97706; }
+        .atag-identity { background: #fdf4ff; color: #9333ea; }
+        .atag-runbook  { background: #f0fdf4; color: #15803d; }
+        .atag-critical { background: #fef2f2; color: #dc2626; }
+        .atag-soon     { background: #f1f5f9; color: #94a3b8; }
+
+        html[data-theme="dark"] .atag-network  { background: rgba(37,99,235,0.15); color: #60a5fa; }
+        html[data-theme="dark"] .atag-device   { background: rgba(217,119,6,0.15); color: #fbbf24; }
+        html[data-theme="dark"] .atag-identity { background: rgba(147,51,234,0.15); color: #c084fc; }
+        html[data-theme="dark"] .atag-runbook  { background: rgba(21,128,61,0.15); color: #4ade80; }
+        html[data-theme="dark"] .atag-critical { background: rgba(220,38,38,0.12); color: #f87171; }
+        html[data-theme="dark"] .atag-soon     { background: rgba(255,255,255,0.06); color: #475569; }
+
+        .article-title {
+            font-size: 14px; font-weight: 700; color: var(--text-primary);
+            line-height: 1.3;
+        }
+        .article-desc {
+            font-size: 12px; color: var(--text-secondary); line-height: 1.5; flex: 1;
+        }
+        .article-meta {
+            font-size: 11px; color: var(--text-tertiary);
+            display: flex; justify-content: space-between; align-items: center;
+        }
+        .article-arrow { font-size: 14px; color: var(--accent); }
+        .cs-badge {
+            position: absolute; top: 14px; right: 14px;
+            font-size: 9px; font-weight: 700; letter-spacing: 0.08em;
+            text-transform: uppercase; background: #f1f5f9; color: #94a3b8;
+            padding: 2px 6px; border-radius: 99px;
+        }
+        html[data-theme="dark"] .cs-badge { background: rgba(255,255,255,0.06); color: #475569; }
+    </style>
 </head>
 <body class="mod-field-guide">
 <div class="layout">
@@ -20,21 +89,106 @@
             </div>
             <div class="topbar-right">
                 <span class="topbar-date" id="currentDate"></span>
-                <div class="topbar-avatar">AT</div>
+                <span class="topbar-role" id="topbarRole"></span>
             </div>
         </header>
         <div class="content">
             <div class="page-header animate-1">
                 <h1 class="page-title">IT Field Guide</h1>
-                <p class="page-subtitle">Operational knowledge base · Field technicians</p>
-                <p class="page-desc">Runbooks, SOPs, escalation paths, and facility-specific reference sheets for NACS IT staff.</p>
+                <p class="page-subtitle">Runbooks · SOPs · Reference</p>
+                <p class="page-desc">Operational knowledge base for NACS IT staff. Runbooks, escalation paths, and facility-specific procedures.</p>
             </div>
-            <div class="uc-page animate-2">
-                <div class="uc-icon">📖</div>
-                <div class="uc-title">In Development</div>
-                <p class="uc-desc">Runbooks, facility SOPs, and the IT knowledge base are being compiled and structured.</p>
-                <div class="uc-pill">Coming Soon</div>
+
+            <div class="section-header animate-2">
+                <span class="section-title">Network</span>
+                <div class="section-line"></div>
             </div>
+            <div class="article-grid animate-2">
+                <a href="/field-guide/network-outage/index.html" class="article-card">
+                    <div class="article-tag">
+                        <span class="atag atag-runbook">Runbook</span>
+                        <span class="atag atag-critical">Critical</span>
+                        <span class="atag atag-network">Network</span>
+                    </div>
+                    <div class="article-title">Network Outage Response</div>
+                    <div class="article-desc">Step-by-step response for facility-wide connectivity loss — hardware triage, ISP escalation, downtime mitigation, and recovery.</div>
+                    <div class="article-meta">
+                        <span>March 2026 · 7 steps</span>
+                        <span class="article-arrow">→</span>
+                    </div>
+                </a>
+                <div class="article-card coming-soon">
+                    <div class="cs-badge">Coming Soon</div>
+                    <div class="article-tag"><span class="atag atag-soon">Runbook</span></div>
+                    <div class="article-title">AP Offline / Wireless Dead Zone</div>
+                    <div class="article-desc">Diagnosing and resolving wireless coverage gaps, AP reboots, and controller disconnects.</div>
+                    <div class="article-meta"><span>Network</span></div>
+                </div>
+                <div class="article-card coming-soon">
+                    <div class="cs-badge">Coming Soon</div>
+                    <div class="article-tag"><span class="atag atag-soon">Runbook</span></div>
+                    <div class="article-title">VLAN & Segmentation Reference</div>
+                    <div class="article-desc">Standard NACS VLAN layout — Staff, Clinical, Guest, Camera/IoT — with port assignments and policy notes.</div>
+                    <div class="article-meta"><span>Network</span></div>
+                </div>
+            </div>
+
+            <div class="section-header animate-3">
+                <span class="section-title">Devices & Endpoints</span>
+                <div class="section-line"></div>
+            </div>
+            <div class="article-grid animate-3">
+                <div class="article-card coming-soon">
+                    <div class="cs-badge">Coming Soon</div>
+                    <div class="article-tag"><span class="atag atag-soon">SOP</span></div>
+                    <div class="article-title">Printer Troubleshooting</div>
+                    <div class="article-desc">Most common helpdesk call at SNFs. Offline printers, driver reinstall, IP conflicts, and label printer resets.</div>
+                    <div class="article-meta"><span>Devices</span></div>
+                </div>
+                <div class="article-card coming-soon">
+                    <div class="cs-badge">Coming Soon</div>
+                    <div class="article-tag"><span class="atag atag-soon">SOP</span></div>
+                    <div class="article-title">NinjaOne Quick Reference</div>
+                    <div class="article-desc">Initiating remote sessions, running scripts, checking agent health, and reading device alerts.</div>
+                    <div class="article-meta"><span>Devices</span></div>
+                </div>
+                <div class="article-card coming-soon">
+                    <div class="cs-badge">Coming Soon</div>
+                    <div class="article-tag"><span class="atag atag-soon">SOP</span></div>
+                    <div class="article-title">New Device Enrollment (MDM)</div>
+                    <div class="article-desc">Jamf and MaaS360 enrollment steps for new workstations, tablets, and mobile devices joining the NACS fleet.</div>
+                    <div class="article-meta"><span>Devices</span></div>
+                </div>
+            </div>
+
+            <div class="section-header animate-4">
+                <span class="section-title">Identity & Access</span>
+                <div class="section-line"></div>
+            </div>
+            <div class="article-grid animate-4">
+                <div class="article-card coming-soon">
+                    <div class="cs-badge">Coming Soon</div>
+                    <div class="article-tag"><span class="atag atag-soon">SOP</span></div>
+                    <div class="article-title">New Staff IT Onboarding</div>
+                    <div class="article-desc">Account creation, MFA enrollment, MDM provisioning, and first-day IT checklist for new hires.</div>
+                    <div class="article-meta"><span>Identity</span></div>
+                </div>
+                <div class="article-card coming-soon">
+                    <div class="cs-badge">Coming Soon</div>
+                    <div class="article-tag"><span class="atag atag-soon">SOP</span></div>
+                    <div class="article-title">Password Reset & MFA</div>
+                    <div class="article-desc">Self-service password reset flow, MFA re-enrollment, and Google Workspace account recovery steps.</div>
+                    <div class="article-meta"><span>Identity</span></div>
+                </div>
+                <div class="article-card coming-soon">
+                    <div class="cs-badge">Coming Soon</div>
+                    <div class="article-tag"><span class="atag atag-soon">SOP</span></div>
+                    <div class="article-title">Staff Offboarding Checklist</div>
+                    <div class="article-desc">Account suspension, device retrieval, access revocation, and license reclaim process for departing staff.</div>
+                    <div class="article-meta"><span>Identity</span></div>
+                </div>
+            </div>
+
         </div>
     </div>
 </div>
