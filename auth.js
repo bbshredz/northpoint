@@ -2,10 +2,12 @@
 // Shared session + role management
 // Include on every protected page BEFORE nav.js
 
-// FOUC prevention — apply saved theme before first paint
+// FOUC prevention — apply saved theme + hide until auth resolves
 (function(){
   var t = localStorage.getItem('np-theme');
   if (t === 'dark') document.documentElement.setAttribute('data-theme', 'dark');
+  document.documentElement.style.opacity = '0';
+  document.documentElement.style.transition = 'opacity 0.12s ease';
 }());
 
 const SUPABASE_URL = 'https://vpxlgtgavjmftbdsajtk.supabase.co';
@@ -50,6 +52,7 @@ async function npInit(requireModule = null) {
     }
   }
 
+  document.documentElement.style.opacity = '';
   return { user: _npUser, role: _npRole, modules: _npModules };
 }
 

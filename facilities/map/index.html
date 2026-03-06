@@ -549,15 +549,26 @@ function populatePanel(f) {
     document.getElementById('panel-admin').textContent = f.admin_name || '—';
     document.getElementById('panel-emp').textContent = f.emp_count || '—';
 
-    // Photo — rename files in Finder to {facility_number}.jpg to match
+    // Photo — files named {padded_number}.jpg|png|jpeg
     const photoImg = document.getElementById('panel-photo');
     const photoPlaceholder = document.getElementById('panel-photo-placeholder');
     document.getElementById('panel-photo-num').textContent = `Facility ${String(f.facility_number).padStart(2, '0')}`;
     photoImg.style.display = 'none';
     photoPlaceholder.style.display = 'flex';
+    const photoNum  = String(f.facility_number).padStart(2, '0');
+    const photoExts = ['jpg', 'png', 'jpeg'];
+    let   photoExt  = 0;
     photoImg.onload = () => { photoImg.style.display = 'block'; photoPlaceholder.style.display = 'none'; };
-    photoImg.onerror = () => { photoImg.style.display = 'none'; photoPlaceholder.style.display = 'flex'; };
-    photoImg.src = `/facilities/photos/${f.facility_number}.jpg`;
+    photoImg.onerror = () => {
+      photoExt++;
+      if (photoExt < photoExts.length) {
+        photoImg.src = `/facilities/photos/${photoNum}.${photoExts[photoExt]}`;
+      } else {
+        photoImg.style.display = 'none';
+        photoPlaceholder.style.display = 'flex';
+      }
+    };
+    photoImg.src = `/facilities/photos/${photoNum}.${photoExts[0]}`;
 
     document.getElementById('panel-maps-btn').href = mapsUrl;
     const ticketsBtn = document.getElementById('panel-tickets-btn');
