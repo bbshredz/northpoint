@@ -1664,7 +1664,7 @@ function OverageCalculator() {
                 <div className="cost-card" style={{borderTop:'2px solid #3b82f6'}}>
                     <div className="cost-eyebrow">Current</div>
                     <div className="cost-vendor" style={{color:'#60a5fa'}}>DocuSign</div>
-                    <div className={`cost-amount${isDanger ? ' danger' : dsAnnual === cheapest ? ' safe' : ''}`}>{fmt(dsAnnual)}/yr</div>
+                    <div className={`cost-amount${!isDanger && dsAnnual === cheapest ? ' safe' : ''}`}>{fmt(dsAnnual)}/yr</div>
                     <div className="cost-detail">
                         Base: $19,800/yr (20K envelopes)<br />
                         {isDanger ? <span style={{color:'#ef4444'}}>+{fmt(overage * DS_OVER * 12)}/yr overage</span> : 'No overage at this volume'}
@@ -1720,7 +1720,7 @@ function OverageCalculator() {
                     <div style={{fontWeight:600, color:'var(--text-muted)', marginBottom:'4px', fontSize:'11px'}}>
                         AT {monthly.toLocaleString()} ENVELOPES/MO
                     </div>
-                    <span style={{color:'#60a5fa'}}>DocuSign:</span> <span style={{color: isDanger ? '#ef4444' : 'var(--text-primary)', fontWeight:600}}>{fmt(dsAnnual)}/yr</span>{isDanger && <span style={{color:'#ef4444', fontSize:'11px'}}> ⚠ overage</span>}<br />
+                    <span style={{color:'#60a5fa'}}>DocuSign:</span> <span style={{color:'var(--text-primary)', fontWeight:600}}>{fmt(dsAnnual)}/yr</span>{isDanger && <span style={{color:'#ef4444', fontSize:'11px'}}> ⚠ overage</span>}<br />
                     <span style={{color:'#f87171'}}>Adobe</span> <span style={{color:'var(--text-muted)', fontSize:'11px'}}>({abSeats} seats):</span> <span style={{color:'var(--text-primary)', fontWeight:600}}>{fmt(abAnnual)}/yr</span><br />
                     <span style={{color:'#c084fc'}}>PandaDoc</span> <span style={{color:'var(--text-muted)', fontSize:'11px'}}>({pdSeats} seats):</span> <span style={{color:'var(--text-primary)', fontWeight:600}}>{fmt(pdAnnual)}/yr</span><br />
                     <span style={{color:'#0d9488', fontSize:'11px', marginTop:'4px', display:'inline-block'}}>

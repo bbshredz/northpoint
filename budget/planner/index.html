@@ -255,6 +255,37 @@
         html[data-theme="dark"] .cost-input:hover { background: rgba(255,255,255,0.06); }
         html[data-theme="dark"] .wf-bar-track { background: rgba(255,255,255,0.07); }
         html[data-theme="dark"] .section-lbl::after { background: rgba(255,255,255,0.08); }
+        /* Cards with hardcoded light backgrounds */
+        html[data-theme="dark"] .bench-card { background: rgba(255,255,255,0.04); border-color: rgba(255,255,255,0.08); }
+        html[data-theme="dark"] .bench-title { color: #94a3b8; }
+        html[data-theme="dark"] .bench-name  { color: #94a3b8; }
+        html[data-theme="dark"] .bench-name.nacs { color: #e2e8f0; }
+        html[data-theme="dark"] .bench-val   { color: #e2e8f0; }
+        html[data-theme="dark"] .bench-dollar { color: #64748b; }
+        html[data-theme="dark"] .bench-dollar.nacs-amt { color: #e2e8f0; }
+        html[data-theme="dark"] .bench-track  { background: rgba(255,255,255,0.08); }
+        html[data-theme="dark"] .bench-ref    { color: #64748b; }
+        html[data-theme="dark"] .excl-card    { background: rgba(245,158,11,0.08); border-color: rgba(245,158,11,0.20); }
+        html[data-theme="dark"] .excl-title   { color: #fbbf24; }
+        html[data-theme="dark"] .excl-dept-name { color: #d97706; }
+        html[data-theme="dark"] .excl-body    { color: #e2e8f0; }
+        html[data-theme="dark"] .excl-footer  { border-top-color: rgba(245,158,11,0.20); }
+        html[data-theme="dark"] .excl-footer-label { color: #94a3b8; }
+        html[data-theme="dark"] .excl-footer-total { color: #fbbf24; }
+        html[data-theme="dark"] .sum-card.warn { background: rgba(245,158,11,0.10); border-color: rgba(245,158,11,0.25); }
+        html[data-theme="dark"] .warn .sum-label { color: #d97706; }
+        html[data-theme="dark"] .warn .sum-value { color: #fbbf24; }
+        html[data-theme="dark"] .warn .sum-sub   { color: #92400e; }
+        html[data-theme="dark"] .sum-bench-label { color: #fbbf24; }
+        html[data-theme="dark"] .ctx-card-dept { background: rgba(245,158,11,0.08); border-color: rgba(245,158,11,0.20); }
+        html[data-theme="dark"] .ctx-card-personnel { background: rgba(14,165,233,0.08); border-color: rgba(14,165,233,0.20); }
+        html[data-theme="dark"] .ctx-person-name { color: #e2e8f0; }
+        html[data-theme="dark"] .ctx-person-change { color: #64748b; }
+        html[data-theme="dark"] .ctx-person-note  { color: #38bdf8; }
+        html[data-theme="dark"] .ctx-coverage-footer { background: rgba(14,165,233,0.10); color: #38bdf8; }
+        html[data-theme="dark"] .ctx-person-row { border-bottom-color: rgba(255,255,255,0.07); }
+        html[data-theme="dark"] .mkt-sources { background: rgba(255,255,255,0.02); border-top-color: rgba(255,255,255,0.06); color: #475569; }
+        html[data-theme="dark"] .comp-slider-prop { color: #e2e8f0; }
     </style>
 </head>
 <body class="mod-budget">
@@ -1037,9 +1068,9 @@ function renderPersonnelDetail() {
         <thead><tr>
             <th>Team Member</th>
             <th style="text-align:right;">Current Base</th>
-            <th style="text-align:center;">FY2026 Proposed</th>
-            <th style="text-align:right;">All-In Cost</th>
-            <th style="text-align:right;">Δ</th>
+            <th style="text-align:center;">FY2026 Proposed Base</th>
+            <th style="text-align:right;">Proposed Base</th>
+            <th style="text-align:right;">Δ Base</th>
         </tr></thead>
         <tbody>`;
 
@@ -1090,7 +1121,7 @@ function renderPersonnelDetail() {
             <td style="text-align:right;" id="allin-${p.id}">
                 ${dissolved
                     ? '<span style="color:#bec6d3;">—</span>'
-                    : `<span class="li-cost">${fmtFull(allIn)}</span><br><span class="burden-note">incl. 25% burden</span>`}
+                    : `<span class="li-cost">${fmtFull(propBase)}</span><br><span class="burden-note">all-in est. ${fmtFull(allIn)}</span>`}
             </td>
             <td style="text-align:right;white-space:nowrap;" id="delta-${p.id}">
                 ${dissolved
@@ -1102,21 +1133,22 @@ function renderPersonnelDetail() {
         </tr>`;
     });
 
-    const propTotal = personTotal('proposed');
-    const propDelta = propTotal - currentTotal;
+    const propBaseTotal    = PEOPLE.reduce((s, p) => (p.id === 'jon' && _jonDissolved) ? s : s + (_proposed[p.id] || p.base), 0);
+    const currentBaseTotal = PEOPLE.reduce((s, p) => s + p.base, 0);
+    const propBaseDelta    = propBaseTotal - currentBaseTotal;
     html += `</tbody>
         <tbody><tr class="li-total">
             <td colspan="2">Personnel Total</td>
             <td></td>
-            <td style="text-align:right;" id="pers-total-allin">${fmtFull(propTotal)}</td>
+            <td style="text-align:right;" id="pers-total-allin">${fmtFull(propBaseTotal)}</td>
             <td style="text-align:right;white-space:nowrap;" id="pers-total-delta">
-                ${propDelta === 0 ? '—' : `<span class="${propDelta > 0 ? 'comp-delta-pos' : 'comp-delta-neg'}">${propDelta > 0 ? '+' : ''}${fmtFull(propDelta)}</span>`}
+                ${propBaseDelta === 0 ? '—' : `<span class="${propBaseDelta > 0 ? 'comp-delta-pos' : 'comp-delta-neg'}">${propBaseDelta > 0 ? '+' : ''}${fmtFull(propBaseDelta)}</span>`}
             </td>
         </tr></tbody>
     </table>
     <div class="mkt-sources">
         Market ranges: Salary.com · CompTIA State of the Industry · HIMSS Compensation Survey · Robert Half Technology 2025 · BLS OES
-        &nbsp;· All-in = base × 1.25 + $500 bonus
+        &nbsp;· All-in est. = base × 1.25 + $500 shown as subscript per row
     </div>`;
 
     document.getElementById('d-body').innerHTML = html;
@@ -1138,16 +1170,17 @@ function updatePerson(id, val) {
     if (deltaEl)   deltaEl.innerHTML = delta === 0
         ? '<span class="comp-delta-nil">—</span>'
         : `<span class="${delta > 0 ? 'comp-delta-pos' : 'comp-delta-neg'}">${delta > 0 ? '+' : ''}${fmtFull(delta)}</span>`;
-    if (allInEl)   allInEl.innerHTML = `<span class="li-cost">${fmtFull(burden(val))}</span><br><span class="burden-note">incl. 25% burden</span>`;
+    if (allInEl)   allInEl.innerHTML = `<span class="li-cost">${fmtFull(val)}</span><br><span class="burden-note">all-in est. ${fmtFull(burden(val))}</span>`;
     if (sliderEl)  sliderEl.style.background = buildSliderGradient(pm, p.base, val);
 
-    const propTotal = personTotal('proposed');
-    const propDelta = propTotal - personTotal('current');
+    const propBaseTotal    = PEOPLE.reduce((s, p) => (p.id === 'jon' && _jonDissolved) ? s : s + (_proposed[p.id] || p.base), 0);
+    const currentBaseTotal = PEOPLE.reduce((s, p) => s + p.base, 0);
+    const propBaseDelta    = propBaseTotal - currentBaseTotal;
     const totEl   = document.getElementById('pers-total-allin');
     const totDEl  = document.getElementById('pers-total-delta');
-    if (totEl)  totEl.textContent = fmtFull(propTotal);
-    if (totDEl) totDEl.innerHTML  = propDelta === 0 ? '—'
-        : `<span class="${propDelta > 0 ? 'comp-delta-pos' : 'comp-delta-neg'}">${propDelta > 0 ? '+' : ''}${fmtFull(propDelta)}</span>`;
+    if (totEl)  totEl.textContent = fmtFull(propBaseTotal);
+    if (totDEl) totDEl.innerHTML  = propBaseDelta === 0 ? '—'
+        : `<span class="${propBaseDelta > 0 ? 'comp-delta-pos' : 'comp-delta-neg'}">${propBaseDelta > 0 ? '+' : ''}${fmtFull(propBaseDelta)}</span>`;
 
     renderSummary();
     renderCatGrid();
