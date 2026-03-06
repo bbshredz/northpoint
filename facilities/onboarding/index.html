@@ -409,6 +409,17 @@
                         </div>
                     </div>
 
+                    <div class="input-group">
+                        <div class="input-label">
+                            <span>Device-to-Staff Ratio</span>
+                            <span class="input-label-val" id="device-ratio-display">0.35</span>
+                        </div>
+                        <input type="range" id="device-ratio-slider" min="0.1" max="1.0" value="0.35" step="0.05" />
+                        <div style="font-size:11px;color:#8a95a8;margin-top:6px;" id="device-ratio-hint">
+                            ~<span id="device-count">42</span> devices for <span id="device-staff-ref">120</span> staff — SNFs use shared workstations
+                        </div>
+                    </div>
+
                     <div class="toggle-row">
                         <div>
                             <div class="toggle-label">Internal-Led</div>
@@ -435,6 +446,56 @@
 
                 <!-- ── Results Panel ── -->
                 <div class="results-panel">
+
+                    <!-- Assumptions (top) -->
+                    <div>
+                        <div class="assumptions-toggle" onclick="this.nextElementSibling.classList.toggle('open')">
+                            ▸ Cost assumptions & methodology
+                        </div>
+                        <div class="assumptions-body">
+                            <div class="assumptions-section">
+                                <strong>Hardware</strong>
+                                <ul>
+                                    <li>Workstations/laptops: $1,200/device · shared model (SNF default: ~0.35 ratio, adjust slider) — nurses stations, charting carts, admin desks</li>
+                                    <li>Clinical/supervisor tablets: $800/device · ~25% of staff (not all staff get a dedicated device)</li>
+                                    <li>VOIP desk phones: $350/unit · ~15% of bed count (nurses stations)</li>
+                                    <li>Security cameras: $350/camera · ~1 per 4 beds + common areas fixed</li>
+                                </ul>
+                            </div>
+                            <div class="assumptions-section">
+                                <strong>Network & Connectivity</strong>
+                                <ul>
+                                    <li>Network infrastructure (switches, cabling, core): $45,000 base + $50/bed</li>
+                                    <li>Wireless (APs, controllers, site survey): $35,000 base + $100/bed</li>
+                                    <li>Annual connectivity: $18,000 base + $20/bed (ISP, WAN)</li>
+                                </ul>
+                            </div>
+                            <div class="assumptions-section">
+                                <strong>Software & Licensing</strong>
+                                <ul>
+                                    <li>Microsoft 365, MDM, productivity: $850/staff/year</li>
+                                    <li>Cybersecurity (EDR, email security, NinjaRMM): $180/endpoint/year + $8,000 base</li>
+                                    <li>Clinical systems (PointClickCare): $15,000 setup + $180/bed/year</li>
+                                </ul>
+                            </div>
+                            <div class="assumptions-section">
+                                <strong>Labor</strong>
+                                <ul>
+                                    <li>Internal-led: $40,000 base + $80/bed (AT + team travel, configuration, testing)</li>
+                                    <li>External consultant: 2.0–2.5× internal labor estimate · industry standard markup</li>
+                                    <li>Timeline scales with facility size: +1 week per 50 beds above 100-bed baseline</li>
+                                </ul>
+                            </div>
+                            <div class="assumptions-section">
+                                <strong>Exclusions</strong>
+                                <ul>
+                                    <li>Building cabling infrastructure (pre-existing assumed adequate)</li>
+                                    <li>Clinical hardware beyond IT scope (nurse call systems, medical devices)</li>
+                                    <li>Staff training beyond IT system orientation</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
 
                     <!-- Summary -->
                     <div class="summary-strip">
@@ -499,56 +560,6 @@
                         </div>
                     </div>
 
-                    <!-- Assumptions -->
-                    <div>
-                        <div class="assumptions-toggle" onclick="this.nextElementSibling.classList.toggle('open')">
-                            ▸ View cost assumptions & methodology
-                        </div>
-                        <div class="assumptions-body" id="assumptions-body">
-                            <div class="assumptions-section">
-                                <strong>Hardware</strong>
-                                <ul>
-                                    <li>Workstations/laptops: $1,200/device · 1 device per staff member</li>
-                                    <li>Mobile devices (tablets/phones): $800/device · ~40% of staff</li>
-                                    <li>VOIP desk phones: $350/unit · ~15% of bed count (nurses stations)</li>
-                                    <li>Security cameras: $350/camera · ~1 per 4 beds + common areas fixed</li>
-                                </ul>
-                            </div>
-                            <div class="assumptions-section">
-                                <strong>Network & Connectivity</strong>
-                                <ul>
-                                    <li>Network infrastructure (switches, cabling, core): $45,000 base + $50/bed</li>
-                                    <li>Wireless (APs, controllers, site survey): $35,000 base + $100/bed</li>
-                                    <li>Annual connectivity: $18,000 base + $20/bed (ISP, WAN)</li>
-                                </ul>
-                            </div>
-                            <div class="assumptions-section">
-                                <strong>Software & Licensing</strong>
-                                <ul>
-                                    <li>Microsoft 365, MDM, productivity: $850/staff/year</li>
-                                    <li>Cybersecurity (EDR, email security, NinjaRMM): $180/endpoint/year + $8,000 base</li>
-                                    <li>Clinical systems (PointClickCare): $15,000 setup + $180/bed/year</li>
-                                </ul>
-                            </div>
-                            <div class="assumptions-section">
-                                <strong>Labor</strong>
-                                <ul>
-                                    <li>Internal-led: $40,000 base + $80/bed (AT + team travel, configuration, testing)</li>
-                                    <li>External consultant: 2.0–2.5× internal labor estimate · industry standard markup</li>
-                                    <li>Timeline scales with facility size: +1 week per 50 beds above 100-bed baseline</li>
-                                </ul>
-                            </div>
-                            <div class="assumptions-section">
-                                <strong>Exclusions</strong>
-                                <ul>
-                                    <li>Building cabling infrastructure (pre-existing assumed adequate)</li>
-                                    <li>Clinical hardware beyond IT scope (nurse call systems, medical devices)</li>
-                                    <li>Staff training beyond IT system orientation</li>
-                                </ul>
-                            </div>
-                        </div>
-                    </div>
-
                 </div><!-- /results-panel -->
             </div><!-- /calc-layout -->
 
@@ -563,12 +574,14 @@
 let _beds = 120;
 let _staff = 84;
 let _autoStaff = true;
+let _deviceRatio = 0.35;  // SNF default: ~1 device per 3 staff (shared workstations)
 
 // ── Init ───────────────────────────────────────────────────────────────────
 npInit(null).then(session => {
     if (!session) return;
     npPopulateTopbar();
     renderNav('facilities');
+    syncDeviceRatioUI();
     calculate();
     loadIncoming();
     wireInputs();
@@ -594,11 +607,25 @@ function wireInputs() {
         calculate();
     });
 
+    document.getElementById('device-ratio-slider').addEventListener('input', () => {
+        _deviceRatio = parseFloat(document.getElementById('device-ratio-slider').value);
+        syncDeviceRatioUI();
+        calculate();
+    });
+
     document.getElementById('internal-toggle').addEventListener('change', calculate);
     document.getElementById('clinical-toggle').addEventListener('change', calculate);
 }
 
 function autoStaff(beds) { return Math.round(beds * 0.7); }
+
+function syncDeviceRatioUI() {
+    const devices = Math.round(_staff * _deviceRatio);
+    document.getElementById('device-ratio-display').textContent = _deviceRatio.toFixed(2);
+    document.getElementById('device-count').textContent = devices;
+    document.getElementById('device-staff-ref').textContent = _staff;
+    document.getElementById('device-ratio-slider').value = _deviceRatio;
+}
 
 function step(type, delta) {
     if (type === 'bed') {
@@ -622,13 +649,16 @@ function syncUI() {
     document.getElementById('staff-num').textContent    = _staff;
     document.getElementById('bed-slider').value         = _beds;
     document.getElementById('staff-slider').value       = _staff;
+    syncDeviceRatioUI();
 }
 
 // ── Cost model ────────────────────────────────────────────────────────────
-function computeCosts(beds, staff, includeClinical) {
+function computeCosts(beds, staff, includeClinical, deviceRatio) {
+    const ratio   = deviceRatio !== undefined ? deviceRatio : _deviceRatio;
+    const devices = Math.max(1, Math.round(staff * ratio));
     const cameras = Math.round(8 + beds / 4);  // base 8 + 1 per 4 beds
     const voip    = Math.round(beds * 0.15);
-    const mobile  = Math.round(staff * 0.4);
+    const mobile  = Math.round(staff * 0.25);  // tablets for clinical/supervisor roles
 
     return [
         {
@@ -650,15 +680,15 @@ function computeCosts(beds, staff, includeClinical) {
         {
             id: 'endpoints',
             cat: 'Workstations & Laptops',
-            desc: `${staff} devices @ $1,200 ea`,
-            onetime: staff * 1200,
-            annual:  staff * 180,
+            desc: `${devices} shared devices @ $1,200 ea (${Math.round(ratio * 100)}% ratio — SNF shared model)`,
+            onetime: devices * 1200,
+            annual:  devices * 180,
             color: '#7c3aed',
         },
         {
             id: 'mobile',
-            cat: 'Mobile Devices',
-            desc: `${mobile} tablets/phones @ $800 ea (40% of staff)`,
+            cat: 'Mobile / Clinical Tablets',
+            desc: `${mobile} tablets @ $800 ea (clinical & supervisory roles)`,
             onetime: mobile * 800,
             annual:  mobile * 300,
             color: '#6d28d9',
@@ -836,11 +866,12 @@ async function loadIncoming() {
         return;
     }
 
-    el.innerHTML = data.map(f => {
+    // Build rows from Supabase data
+    const rows = data.map(f => {
         // Use emp_count as proxy: beds ≈ emp_count * 1.35 for SNF context
         const estBeds  = f.emp_count ? Math.round(f.emp_count * 1.35) : 120;
         const estStaff = Math.round(estBeds * 0.7);
-        const items    = computeCosts(estBeds, estStaff, true);
+        const items    = computeCosts(estBeds, estStaff, true, 0.35);
         const onetime  = items.reduce((s, i) => s + i.onetime, 0);
         const annual   = items.reduce((s, i) => s + i.annual,  0);
 
@@ -865,7 +896,35 @@ async function loadIncoming() {
             </div>
             <span class="inc-badge">Incoming</span>
         </div>`;
-    }).join('');
+    });
+
+    // 4 anticipated placeholder facilities (details TBD)
+    const baseline = computeCosts(120, 84, true, 0.35);
+    const bOnetime = baseline.reduce((s, i) => s + i.onetime, 0);
+    const bAnnual  = baseline.reduce((s, i) => s + i.annual,  0);
+    const placeholders = [1, 2, 3, 4].map(n => `<div class="inc-row" style="opacity:0.5;">
+        <div>
+            <div class="inc-name">Anticipated Facility #${n}</div>
+            <div class="inc-region">Details TBD · ~120 beds baseline est.</div>
+        </div>
+        <div class="inc-nums">
+            <div class="inc-num">
+                <div class="inc-num-val">${fmt(bOnetime)}</div>
+                <div class="inc-num-label">One-Time</div>
+            </div>
+            <div class="inc-num">
+                <div class="inc-num-val">${fmt(bAnnual)}</div>
+                <div class="inc-num-label">Annual</div>
+            </div>
+            <div class="inc-num">
+                <div class="inc-num-val">${fmt(bOnetime + bAnnual)}</div>
+                <div class="inc-num-label">Year-1</div>
+            </div>
+        </div>
+        <span class="inc-badge" style="background:#f0f4ff;color:#6366f1;">Anticipated</span>
+    </div>`);
+
+    el.innerHTML = [...rows, ...placeholders].join('');
 }
 
 // ── Utilities ──────────────────────────────────────────────────────────────

@@ -2047,6 +2047,7 @@ function App({ prefillName, isGuest }) {
         if (av) { av.textContent = npGetInitials(); av.style.display = 'flex'; }
     }
 
+    document.documentElement.style.opacity = '';
     const root = ReactDOM.createRoot(document.getElementById('app-root'));
     root.render(<App prefillName={prefillName} isGuest={isGuest} />);
 })();
