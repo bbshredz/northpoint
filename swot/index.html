@@ -615,6 +615,7 @@ function App({ canEdit }) {
 
 (async () => {
     const { data: { session } } = await _npSupabase.auth.getSession();
+    document.documentElement.style.opacity = '';
     if (!session) { window.location.href = '/login.html'; return; }
     _npUser = session.user;
     const { data: roleData } = await _npSupabase

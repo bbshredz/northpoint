@@ -745,6 +745,7 @@ document.addEventListener('click', e => {
 // ── INIT ──
 async function init() {
   const { data: { session } } = await db.auth.getSession();
+  document.documentElement.style.opacity = '';
   document.getElementById('loadingOverlay').style.display = 'none';
   if (session?.user) { currentUser = session.user; showApp(); }
   else document.getElementById('authScreen').style.display = 'flex';
