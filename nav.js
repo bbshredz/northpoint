@@ -163,19 +163,39 @@ function renderNav(active) {
   }
   syncThemeBtn();
 
-  if (themeBtn) {
-    themeBtn.addEventListener('click', () => {
-      const isDark = document.documentElement.getAttribute('data-theme') === 'dark';
-      if (isDark) {
-        document.documentElement.removeAttribute('data-theme');
-        localStorage.setItem('np-theme', 'light');
-      } else {
-        document.documentElement.setAttribute('data-theme', 'dark');
-        localStorage.setItem('np-theme', 'dark');
-      }
-      syncThemeBtn();
-    });
+  function toggleTheme() {
+    const isDark = document.documentElement.getAttribute('data-theme') === 'dark';
+    if (isDark) {
+      document.documentElement.removeAttribute('data-theme');
+      localStorage.setItem('np-theme', 'light');
+    } else {
+      document.documentElement.setAttribute('data-theme', 'dark');
+      localStorage.setItem('np-theme', 'dark');
+    }
+    syncThemeBtn();
+    syncTopbarThemeBtn();
   }
+
+  if (themeBtn) themeBtn.addEventListener('click', toggleTheme);
+
+  // Inject theme toggle into topbar right
+  const topbarRight = document.querySelector('.topbar-right');
+  if (topbarRight) {
+    const tbBtn = document.createElement('button');
+    tbBtn.id        = 'topbar-theme-btn';
+    tbBtn.className = 'topbar-theme-btn';
+    tbBtn.title     = 'Toggle theme';
+    tbBtn.innerHTML = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" id="topbar-theme-icon"></svg>`;
+    topbarRight.insertBefore(tbBtn, topbarRight.firstChild);
+    tbBtn.addEventListener('click', toggleTheme);
+  }
+
+  function syncTopbarThemeBtn() {
+    const dark = document.documentElement.getAttribute('data-theme') === 'dark';
+    const icon = document.getElementById('topbar-theme-icon');
+    if (icon) icon.innerHTML = dark ? moonSvg : sunSvg;
+  }
+  syncTopbarThemeBtn();
 
   const dateEl = document.getElementById('currentDate');
   if (dateEl) dateEl.textContent = new Date().toLocaleDateString('en-US', {

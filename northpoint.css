@@ -1333,4 +1333,24 @@ html[data-theme="dark"] .module-card.tile-locked::after {
     transition: opacity 0.15s 0.06s;
 }
 .rail.is-open .rail-theme-btn { width: 100%; }
+
+/* ── Topbar theme toggle ── */
+.topbar-theme-btn {
+    background: transparent;
+    border: none;
+    cursor: pointer;
+    color: var(--text-tertiary);
+    padding: 5px;
+    border-radius: 6px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: color 0.15s, background 0.15s;
+    flex-shrink: 0;
+}
+.topbar-theme-btn:hover {
+    color: var(--text-secondary);
+    background: var(--border);
+}
+.topbar-theme-btn svg { width: 15px; height: 15px; }
 .rail.is-open .rail-theme-label { opacity: 1; }
