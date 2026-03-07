@@ -1,0 +1,611 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Vendor Catalog — NorthPoint</title>
+<link rel="stylesheet" href="/northpoint.css">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="/auth.js"></script>
+<style>
+.vc-wrap { padding: 32px; overflow-y: auto; flex: 1; }
+
+/* ── SUMMARY CARDS ── */
+.vc-summary { display: flex; gap: 12px; margin-bottom: 32px; flex-wrap: wrap; }
+.vc-stat {
+  flex: 1; min-width: 130px; background: var(--card); border: 1px solid var(--silver);
+  border-radius: 12px; padding: 16px 18px;
+}
+.vc-stat-label { font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 1px; color: var(--text-tertiary); margin-bottom: 6px; }
+.vc-stat-value { font-size: 28px; font-weight: 700; color: var(--text-primary); line-height: 1; margin-bottom: 4px; }
+.vc-stat-sub { font-size: 11px; color: var(--text-tertiary); }
+
+/* ── CONTROLS ── */
+.vc-controls { display: flex; align-items: center; gap: 8px; margin-bottom: 20px; flex-wrap: wrap; }
+.vc-search {
+  flex: 1; min-width: 200px; background: var(--card); border: 1px solid var(--silver);
+  border-radius: 8px; padding: 8px 14px; font-size: 13px; color: var(--text-primary);
+  font-family: inherit; outline: none; transition: border-color 0.18s;
+}
+.vc-search:focus { border-color: var(--accent); }
+.vc-search::placeholder { color: var(--text-tertiary); }
+.vc-filter-btn {
+  padding: 6px 14px; border-radius: 20px; border: 1px solid var(--silver);
+  background: var(--card); color: var(--text-secondary); font-size: 12px;
+  font-weight: 500; font-family: inherit; cursor: pointer; transition: all 0.15s;
+}
+.vc-filter-btn:hover { border-color: var(--accent); color: var(--accent); }
+.vc-filter-btn.active { background: var(--accent); color: white; border-color: var(--accent); }
+.vc-right { margin-left: auto; display: flex; gap: 8px; align-items: center; }
+.vc-saving { font-size: 11px; color: var(--text-tertiary); opacity: 0; transition: opacity 0.2s; }
+.vc-saving.show { opacity: 1; }
+.vc-add-btn {
+  display: flex; align-items: center; gap: 6px; padding: 7px 14px;
+  border-radius: 8px; border: 1px solid var(--accent); background: transparent;
+  color: var(--accent); font-size: 12px; font-weight: 600;
+  font-family: inherit; cursor: pointer; transition: all 0.18s;
+}
+.vc-add-btn:hover { background: var(--accent); color: white; }
+.vc-export-btn {
+  display: flex; align-items: center; gap: 6px; padding: 7px 14px;
+  border-radius: 8px; border: 1px solid var(--silver); background: var(--card);
+  color: var(--text-secondary); font-size: 12px; font-weight: 600;
+  font-family: inherit; cursor: pointer; transition: all 0.18s;
+}
+.vc-export-btn:hover { border-color: var(--green); color: var(--green); }
+
+/* ── TABLE ── */
+.vc-table-wrap { border-radius: 14px; border: 1px solid var(--silver); overflow: hidden; overflow-x: auto; }
+.vc-table { width: 100%; border-collapse: collapse; font-size: 12.5px; min-width: 900px; }
+.vc-table th {
+  background: var(--silver-light); padding: 10px 14px; text-align: left;
+  font-size: 10px; text-transform: uppercase; letter-spacing: 0.8px;
+  font-weight: 600; color: var(--text-tertiary); border-bottom: 1px solid var(--silver);
+  white-space: nowrap;
+}
+.vc-table tr { border-bottom: 1px solid var(--silver-light); transition: background 0.12s; }
+.vc-table tr:last-child { border-bottom: none; }
+.vc-table tbody tr:hover { background: var(--silver-light); }
+.vc-table td { padding: 10px 14px; color: var(--text-secondary); vertical-align: middle; line-height: 1.45; }
+.vc-table td:last-child { width: 28px; text-align: center; padding: 10px 4px; }
+
+/* ── CATEGORY TAG ── */
+.vc-cat {
+  display: inline-block; padding: 2px 8px; border-radius: 5px;
+  font-size: 10.5px; font-weight: 600; background: var(--silver-light); color: var(--text-tertiary);
+}
+.vc-cat.cat-clinical { background: rgba(16,185,129,0.1); color: #059669; }
+.vc-cat.cat-infrastructure { background: rgba(59,130,246,0.1); color: #3b82f6; }
+.vc-cat.cat-security { background: rgba(220,38,38,0.1); color: #dc2626; }
+.vc-cat.cat-productivity { background: rgba(139,92,246,0.1); color: #7c3aed; }
+.vc-cat.cat-telecom { background: rgba(249,115,22,0.1); color: #ea580c; }
+.vc-cat.cat-finance { background: rgba(245,158,11,0.1); color: #d97706; }
+
+/* ── CONTRACT TYPE ── */
+.vc-contract {
+  display: inline-block; padding: 2px 7px; border-radius: 5px;
+  font-size: 10.5px; font-weight: 600; background: rgba(100,116,139,0.1); color: var(--text-tertiary);
+}
+
+/* ── RENEWAL ── */
+.vc-renewal { font-size: 12px; }
+.vc-renewal.soon { color: #f97316; font-weight: 600; }
+.vc-renewal.overdue { color: #dc2626; font-weight: 600; }
+
+/* ── SOFTWARE COUNT CHIP ── */
+.vc-sw-count {
+  display: inline-flex; align-items: center; gap: 4px;
+  padding: 2px 8px; border-radius: 20px;
+  font-size: 10.5px; font-weight: 600;
+  background: rgba(59,130,246,0.08); color: #3b82f6;
+  cursor: pointer; transition: background 0.15s;
+  text-decoration: none;
+}
+.vc-sw-count:hover { background: rgba(59,130,246,0.16); }
+.vc-sw-count.zero { background: var(--silver-light); color: var(--text-tertiary); cursor: default; }
+
+/* ── SPEND ── */
+.vc-spend { font-size: 12px; font-weight: 600; color: var(--text-primary); }
+.vc-spend.zero { color: var(--text-tertiary); font-weight: 400; }
+
+/* ── WEBSITE LINK ── */
+.vc-link { font-size: 12px; color: var(--accent); text-decoration: none; }
+.vc-link:hover { text-decoration: underline; }
+
+/* ── INLINE EDIT ── */
+.vc-table td.editable { cursor: pointer; }
+.vc-table td.editable:hover:not([data-editing]) { outline: 1px dashed var(--silver); outline-offset: -2px; border-radius: 4px; }
+.vc-table td[data-editing] { padding: 4px 8px; }
+.vc-table td[data-editing] input,
+.vc-table td[data-editing] textarea,
+.vc-table td[data-editing] select {
+  width: 100%; background: var(--card); border: 1.5px solid var(--accent);
+  border-radius: 6px; padding: 5px 8px; font: inherit; font-size: 12px;
+  color: var(--text-primary); outline: none; box-sizing: border-box;
+}
+.vc-table td[data-editing] textarea { resize: vertical; min-height: 52px; }
+
+/* ── DELETE BTN ── */
+.vc-del-btn {
+  opacity: 0; cursor: pointer; background: none; border: none;
+  color: #dc2626; font-size: 16px; line-height: 1; padding: 2px 4px;
+  border-radius: 4px; transition: opacity 0.15s, background 0.15s;
+}
+.vc-table tr:hover .vc-del-btn { opacity: 0.45; }
+.vc-del-btn:hover { opacity: 1 !important; background: rgba(220,38,38,0.08); }
+
+/* ── DARK MODE ── */
+html[data-theme="dark"] .vc-table th { background: rgba(255,255,255,0.04); border-color: rgba(255,255,255,0.08); color: rgba(255,255,255,0.35); }
+html[data-theme="dark"] .vc-table tr { border-color: rgba(255,255,255,0.05); }
+html[data-theme="dark"] .vc-table tbody tr:hover { background: rgba(255,255,255,0.04); }
+html[data-theme="dark"] .vc-table-wrap { border-color: rgba(255,255,255,0.08); }
+html[data-theme="dark"] .vc-cat { background: rgba(255,255,255,0.06); }
+html[data-theme="dark"] .vc-filter-btn { background: rgba(255,255,255,0.04); border-color: rgba(255,255,255,0.1); }
+html[data-theme="dark"] .vc-export-btn { background: rgba(255,255,255,0.04); border-color: rgba(255,255,255,0.1); }
+html[data-theme="dark"] .vc-table td[data-editing] input,
+html[data-theme="dark"] .vc-table td[data-editing] textarea,
+html[data-theme="dark"] .vc-table td[data-editing] select { background: rgba(255,255,255,0.06); }
+</style>
+</head>
+<body class="mod-software">
+<div class="layout">
+  <div id="rail-mount"></div>
+  <div class="main">
+    <header class="topbar">
+      <div class="topbar-left">
+        <a href="/index.html" class="topbar-name">NorthPoint</a>
+        <div class="topbar-sep"></div>
+        <a href="/software/index.html" class="topbar-section" style="text-decoration:none;color:inherit;">Software &amp; Vendors</a>
+        <div class="topbar-sep"></div>
+        <span class="topbar-section">Vendor Catalog</span>
+      </div>
+      <div class="topbar-right">
+        <span class="topbar-date" id="currentDate"></span>
+        <div class="topbar-avatar" id="topbarAvatar">?</div>
+      </div>
+    </header>
+
+    <div class="content">
+      <div class="vc-wrap">
+
+        <div class="page-header animate-1">
+          <h1 class="page-title">Vendor Catalog</h1>
+          <p class="page-subtitle">Vendor governance · NACS IT</p>
+          <p class="page-desc">All vendor relationships — contact info, contract type, renewal dates, and linked software. Click any cell to edit.</p>
+        </div>
+
+        <div class="vc-summary animate-2" id="vcSummary"></div>
+
+        <div class="vc-controls animate-2">
+          <input type="text" class="vc-search" id="vcSearch" placeholder="Search vendors, contacts, notes…">
+          <button class="vc-filter-btn active" data-filter="all" onclick="setFilter('all',this)">All</button>
+          <button class="vc-filter-btn" data-filter="Clinical" onclick="setFilter('Clinical',this)">Clinical</button>
+          <button class="vc-filter-btn" data-filter="Infrastructure" onclick="setFilter('Infrastructure',this)">Infrastructure</button>
+          <button class="vc-filter-btn" data-filter="Security" onclick="setFilter('Security',this)">Security</button>
+          <button class="vc-filter-btn" data-filter="Productivity" onclick="setFilter('Productivity',this)">Productivity</button>
+          <button class="vc-filter-btn" data-filter="Telecom" onclick="setFilter('Telecom',this)">Telecom</button>
+          <div class="vc-right">
+            <span class="vc-saving" id="vcSaving">Saved</span>
+            <button class="vc-add-btn" onclick="addVendor()">+ Add Vendor</button>
+            <button class="vc-export-btn" onclick="exportToExcel()">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:14px;height:14px"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+              Export
+            </button>
+          </div>
+        </div>
+
+        <div class="vc-table-wrap animate-3">
+          <table class="vc-table">
+            <thead>
+              <tr>
+                <th>Vendor</th>
+                <th>Category</th>
+                <th>Website</th>
+                <th>Contact</th>
+                <th>Contract</th>
+                <th>Renewal</th>
+                <th>Annual Spend</th>
+                <th>Software</th>
+                <th>Notes</th>
+                <th></th>
+              </tr>
+            </thead>
+            <tbody id="vcBody"></tbody>
+          </table>
+        </div>
+
+      </div>
+    </div>
+  </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/xlsx/dist/xlsx.full.min.js"></script>
+<script src="/nav.js"></script>
+<script>
+const CATEGORIES     = ['Software','Clinical','Infrastructure','Security','Productivity','Telecom','Finance','Hardware','Staffing','Other'];
+const CONTRACT_TYPES = ['SaaS','Perpetual','Support','MSA','Subscription','Per-seat','Usage-based','Other'];
+
+let VENDORS  = [];
+let SW_COUNTS = {};  // vendor name (lowercase) → count
+let activeFilter = 'all';
+let searchQ = '';
+
+// ── DATA ────────────────────────────────────────────
+
+async function loadData() {
+  const [vendorRes, swRes] = await Promise.all([
+    _npSupabase.from('vendors').select('*').order('name'),
+    _npSupabase.from('software_assets').select('vendor')
+  ]);
+
+  if (vendorRes.error) { console.error(vendorRes.error); return; }
+  VENDORS = vendorRes.data || [];
+
+  // Build soft-join count map
+  SW_COUNTS = {};
+  (swRes.data || []).forEach(r => {
+    if (!r.vendor) return;
+    const k = r.vendor.toLowerCase().trim();
+    SW_COUNTS[k] = (SW_COUNTS[k] || 0) + 1;
+  });
+
+  render();
+}
+
+async function saveVendor(v) {
+  showSaving(true);
+  v.updated_at = new Date().toISOString();
+  const { error } = await _npSupabase
+    .from('vendors')
+    .upsert({ ...v }, { onConflict: 'id' });
+  if (error) console.error('Save error:', error);
+  showSaving(false);
+}
+
+async function addVendor() {
+  showSaving(true);
+  const { data, error } = await _npSupabase
+    .from('vendors')
+    .insert({ name: 'New Vendor', category: 'Software', contract_type: 'SaaS' })
+    .select().single();
+  if (error) { console.error(error); showSaving(false); return; }
+  showSaving(false);
+  VENDORS.push(data);
+  render();
+  setTimeout(() => {
+    const row = document.querySelector(`tr[data-id="${data.id}"]`);
+    if (row) row.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+  }, 50);
+}
+
+async function deleteVendor(id) {
+  if (!confirm('Delete this vendor?')) return;
+  const { error } = await _npSupabase.from('vendors').delete().eq('id', id);
+  if (error) { console.error(error); return; }
+  VENDORS = VENDORS.filter(v => v.id !== id);
+  render();
+}
+
+// ── SAVING INDICATOR ────────────────────────────────
+
+let _saveTimer;
+function showSaving(on) {
+  const el = document.getElementById('vcSaving');
+  if (!el) return;
+  clearTimeout(_saveTimer);
+  el.textContent = on ? 'Saving…' : 'Saved';
+  el.classList.add('show');
+  if (!on) _saveTimer = setTimeout(() => el.classList.remove('show'), 1600);
+}
+
+// ── INLINE EDITING ───────────────────────────────────
+
+function editText(td, vendor, field, multiline) {
+  if (td.hasAttribute('data-editing')) return;
+  td.setAttribute('data-editing', '1');
+
+  const el = multiline ? document.createElement('textarea') : document.createElement('input');
+  el.value = vendor[field] || '';
+  td.innerHTML = '';
+  td.appendChild(el);
+  el.focus();
+  if (!multiline) el.select();
+
+  const commit = async () => {
+    const val = el.value.trim();
+    vendor[field] = val || null;
+    td.removeAttribute('data-editing');
+    refreshCell(td, vendor, field);
+    await saveVendor(vendor);
+    updateSummary();
+  };
+
+  el.addEventListener('blur', commit);
+  el.addEventListener('keydown', e => {
+    if (e.key === 'Escape') { td.removeAttribute('data-editing'); refreshCell(td, vendor, field); }
+    if (e.key === 'Enter' && !multiline) { e.preventDefault(); el.blur(); }
+  });
+}
+
+function editSelect(td, vendor, field, options) {
+  if (td.hasAttribute('data-editing')) return;
+  td.setAttribute('data-editing', '1');
+
+  const sel = document.createElement('select');
+  options.forEach(o => {
+    const opt = document.createElement('option');
+    opt.value = o; opt.textContent = o;
+    if (o === vendor[field]) opt.selected = true;
+    sel.appendChild(opt);
+  });
+  td.innerHTML = '';
+  td.appendChild(sel);
+  sel.focus();
+
+  const commit = async () => {
+    const changed = sel.value !== vendor[field];
+    vendor[field] = sel.value;
+    td.removeAttribute('data-editing');
+    refreshCell(td, vendor, field);
+    if (changed) await saveVendor(vendor);
+  };
+
+  sel.addEventListener('blur', commit);
+  sel.addEventListener('change', () => sel.blur());
+  sel.addEventListener('keydown', e => { if (e.key === 'Escape') { td.removeAttribute('data-editing'); refreshCell(td, vendor, field); } });
+}
+
+function editDate(td, vendor, field) {
+  if (td.hasAttribute('data-editing')) return;
+  td.setAttribute('data-editing', '1');
+
+  const el = document.createElement('input');
+  el.type = 'date';
+  el.value = vendor[field] || '';
+  td.innerHTML = '';
+  td.appendChild(el);
+  el.focus();
+
+  const commit = async () => {
+    const changed = el.value !== (vendor[field] || '');
+    vendor[field] = el.value || null;
+    td.removeAttribute('data-editing');
+    refreshCell(td, vendor, field);
+    if (changed) await saveVendor(vendor);
+    updateSummary();
+  };
+
+  el.addEventListener('blur', commit);
+  el.addEventListener('keydown', e => { if (e.key === 'Escape') { td.removeAttribute('data-editing'); refreshCell(td, vendor, field); } if (e.key === 'Enter') { e.preventDefault(); el.blur(); } });
+}
+
+function editNumber(td, vendor, field) {
+  if (td.hasAttribute('data-editing')) return;
+  td.setAttribute('data-editing', '1');
+
+  const el = document.createElement('input');
+  el.type = 'number';
+  el.min = '0';
+  el.step = '0.01';
+  el.value = vendor[field] || '';
+  el.placeholder = '0.00';
+  td.innerHTML = '';
+  td.appendChild(el);
+  el.focus();
+  el.select();
+
+  const commit = async () => {
+    const val = parseFloat(el.value) || null;
+    const changed = val !== vendor[field];
+    vendor[field] = val;
+    td.removeAttribute('data-editing');
+    refreshCell(td, vendor, field);
+    if (changed) await saveVendor(vendor);
+    updateSummary();
+  };
+
+  el.addEventListener('blur', commit);
+  el.addEventListener('keydown', e => { if (e.key === 'Escape') { td.removeAttribute('data-editing'); refreshCell(td, vendor, field); } if (e.key === 'Enter') { e.preventDefault(); el.blur(); } });
+}
+
+function refreshCell(td, vendor, field) {
+  switch (field) {
+    case 'name':
+      td.textContent = vendor.name || '';
+      break;
+    case 'category': {
+      const cls = (vendor.category || '').toLowerCase().replace(/[^a-z]/g, '');
+      td.innerHTML = `<span class="vc-cat cat-${cls}">${esc(vendor.category || '')}</span>`;
+      break;
+    }
+    case 'website':
+      td.innerHTML = vendor.website
+        ? `<a class="vc-link" href="${esc(vendor.website)}" target="_blank" rel="noopener">${esc(vendor.website.replace(/^https?:\/\//,''))}</a>`
+        : '<span style="color:var(--text-tertiary);font-size:11px">—</span>';
+      break;
+    case 'contact_name':
+    case 'contact_email':
+    case 'contact_phone': {
+      const name  = vendor.contact_name  || '';
+      const email = vendor.contact_email || '';
+      const phone = vendor.contact_phone || '';
+      if (field === 'contact_name') {
+        td.innerHTML = renderContact(name, email, phone);
+      }
+      break;
+    }
+    case 'contract_type':
+      td.innerHTML = vendor.contract_type
+        ? `<span class="vc-contract">${esc(vendor.contract_type)}</span>`
+        : '<span style="color:var(--text-tertiary);font-size:11px">—</span>';
+      break;
+    case 'renewal_date':
+      td.innerHTML = renderRenewal(vendor.renewal_date);
+      break;
+    case 'annual_spend':
+      td.innerHTML = vendor.annual_spend
+        ? `<span class="vc-spend">$${Number(vendor.annual_spend).toLocaleString('en-US',{minimumFractionDigits:0,maximumFractionDigits:0})}</span>`
+        : '<span class="vc-spend zero">—</span>';
+      break;
+    case 'notes':
+      td.textContent = vendor.notes || '';
+      break;
+  }
+}
+
+function renderContact(name, email, phone) {
+  if (!name && !email && !phone) return '<span style="color:var(--text-tertiary);font-size:11px">—</span>';
+  let html = '';
+  if (name) html += `<div style="font-size:12px;color:var(--text-primary)">${esc(name)}</div>`;
+  if (email) html += `<div style="font-size:11px;color:var(--text-tertiary)">${esc(email)}</div>`;
+  if (phone) html += `<div style="font-size:11px;color:var(--text-tertiary)">${esc(phone)}</div>`;
+  return html;
+}
+
+function renderRenewal(date) {
+  if (!date) return '<span style="color:var(--text-tertiary);font-size:11px">—</span>';
+  const d = new Date(date);
+  const now = new Date();
+  const days = Math.ceil((d - now) / 86400000);
+  const fmt = d.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+  if (days < 0)   return `<span class="vc-renewal overdue">${fmt}</span>`;
+  if (days <= 90) return `<span class="vc-renewal soon">${fmt} <span style="font-size:10px">(${days}d)</span></span>`;
+  return `<span class="vc-renewal">${fmt}</span>`;
+}
+
+function swCountHtml(vendorName) {
+  const k = (vendorName || '').toLowerCase().trim();
+  const count = SW_COUNTS[k] || 0;
+  if (!count) return `<span class="vc-sw-count zero">0</span>`;
+  const url = `/software/sam/index.html?vendor=${encodeURIComponent(vendorName)}`;
+  return `<a class="vc-sw-count" href="${url}">${count} <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" style="width:9px;height:9px"><path d="M7 17L17 7M17 7H7M17 7v10"/></svg></a>`;
+}
+
+// ── RENDER ───────────────────────────────────────────
+
+function render() {
+  const body = document.getElementById('vcBody');
+  body.innerHTML = '';
+
+  const filtered = VENDORS.filter(v => {
+    if (activeFilter !== 'all' && v.category !== activeFilter) return false;
+    if (searchQ) {
+      const q = searchQ.toLowerCase();
+      return [v.name, v.contact_name, v.contact_email, v.notes, v.category].some(f => (f||'').toLowerCase().includes(q));
+    }
+    return true;
+  });
+
+  if (!filtered.length) {
+    body.innerHTML = `<tr><td colspan="10" style="padding:40px;text-align:center;color:var(--text-tertiary);font-size:13px;">No vendors found.</td></tr>`;
+    updateSummary();
+    return;
+  }
+
+  filtered.forEach(v => {
+    const catCls = (v.category || '').toLowerCase().replace(/[^a-z]/g, '');
+    const tr = document.createElement('tr');
+    tr.dataset.id = v.id;
+
+    tr.innerHTML = `
+      <td class="editable" data-field="name" style="font-weight:600;color:var(--text-primary);min-width:140px;">${esc(v.name)}</td>
+      <td class="editable" data-field="category"><span class="vc-cat cat-${catCls}">${esc(v.category||'')}</span></td>
+      <td class="editable" data-field="website" style="min-width:120px;">${v.website ? `<a class="vc-link" href="${esc(v.website)}" target="_blank" rel="noopener">${esc(v.website.replace(/^https?:\/\//,''))}</a>` : '<span style="color:var(--text-tertiary);font-size:11px">—</span>'}</td>
+      <td class="editable" data-field="contact_name" style="min-width:130px;">${renderContact(v.contact_name||'', v.contact_email||'', v.contact_phone||'')}</td>
+      <td class="editable" data-field="contract_type">${v.contract_type ? `<span class="vc-contract">${esc(v.contract_type)}</span>` : '<span style="color:var(--text-tertiary);font-size:11px">—</span>'}</td>
+      <td class="editable" data-field="renewal_date">${renderRenewal(v.renewal_date)}</td>
+      <td class="editable" data-field="annual_spend">${v.annual_spend ? `<span class="vc-spend">$${Number(v.annual_spend).toLocaleString('en-US',{minimumFractionDigits:0,maximumFractionDigits:0})}</span>` : '<span class="vc-spend zero">—</span>'}</td>
+      <td>${swCountHtml(v.name)}</td>
+      <td class="editable" data-field="notes" style="max-width:200px;font-size:12px;color:var(--text-tertiary);">${esc(v.notes||'')}</td>
+      <td><button class="vc-del-btn" title="Delete vendor">×</button></td>
+    `;
+
+    // Click handlers — contact cell cycles through sub-fields
+    let contactFieldIdx = 0;
+    const contactFields = ['contact_name', 'contact_email', 'contact_phone'];
+
+    tr.querySelectorAll('td.editable').forEach(td => {
+      td.addEventListener('click', () => {
+        const f = td.dataset.field;
+        if (f === 'name' || f === 'notes') editText(td, v, f, f === 'notes');
+        else if (f === 'website') editText(td, v, f, false);
+        else if (f === 'category') editSelect(td, v, f, CATEGORIES);
+        else if (f === 'contract_type') editSelect(td, v, f, CONTRACT_TYPES);
+        else if (f === 'renewal_date') editDate(td, v, f);
+        else if (f === 'annual_spend') editNumber(td, v, f);
+        else if (f === 'contact_name') {
+          // Cycle through contact sub-fields on repeated clicks
+          const field = contactFields[contactFieldIdx % 3];
+          contactFieldIdx++;
+          editText(td, v, field, false);
+        }
+      });
+    });
+
+    tr.querySelector('.vc-del-btn').addEventListener('click', () => deleteVendor(v.id));
+    body.appendChild(tr);
+  });
+
+  updateSummary();
+}
+
+function updateSummary() {
+  const el = document.getElementById('vcSummary');
+  const total    = VENDORS.length;
+  const upcoming = VENDORS.filter(v => {
+    if (!v.renewal_date) return false;
+    const d = new Date(v.renewal_date);
+    const days = Math.ceil((d - new Date()) / 86400000);
+    return days >= 0 && days <= 90;
+  }).length;
+  const totalSpend = VENDORS.reduce((s, v) => s + (parseFloat(v.annual_spend) || 0), 0);
+  const noContact  = VENDORS.filter(v => !v.contact_name && !v.contact_email).length;
+
+  el.innerHTML = `
+    <div class="vc-stat"><div class="vc-stat-label">Total Vendors</div><div class="vc-stat-value">${total}</div><div class="vc-stat-sub">Tracked relationships</div></div>
+    <div class="vc-stat"><div class="vc-stat-label">Annual Spend</div><div class="vc-stat-value" style="font-size:22px">${totalSpend ? '$'+totalSpend.toLocaleString('en-US',{maximumFractionDigits:0}) : '—'}</div><div class="vc-stat-sub">Where known</div></div>
+    <div class="vc-stat"><div class="vc-stat-label">Renewals ≤ 90 Days</div><div class="vc-stat-value" style="color:${upcoming?'#f97316':'var(--text-primary)'}">${upcoming}</div><div class="vc-stat-sub">Upcoming contracts</div></div>
+    <div class="vc-stat"><div class="vc-stat-label">No Contact</div><div class="vc-stat-value" style="color:${noContact?'#f59e0b':'var(--green)'}">${noContact}</div><div class="vc-stat-sub">Missing contact info</div></div>
+  `;
+}
+
+function setFilter(f, btn) {
+  activeFilter = f;
+  document.querySelectorAll('.vc-filter-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  render();
+}
+
+function esc(s) {
+  return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+}
+
+function exportToExcel() {
+  if (typeof XLSX === 'undefined') { alert('Excel library not loaded'); return; }
+  const rows = [['Vendor','Category','Website','Contact Name','Contact Email','Contact Phone','Contract Type','Renewal Date','Annual Spend','Notes']];
+  VENDORS.forEach(v => rows.push([v.name,v.category,v.website||'',v.contact_name||'',v.contact_email||'',v.contact_phone||'',v.contract_type||'',v.renewal_date||'',v.annual_spend||'',v.notes||'']));
+  const ws = XLSX.utils.aoa_to_sheet(rows);
+  ws['!cols'] = [{wch:22},{wch:14},{wch:24},{wch:18},{wch:26},{wch:16},{wch:14},{wch:14},{wch:14},{wch:30}];
+  const wb = XLSX.utils.book_new();
+  XLSX.utils.book_append_sheet(wb, ws, 'Vendor Catalog');
+  XLSX.writeFile(wb, 'NACS-Vendor-Catalog.xlsx');
+}
+
+// ── INIT ────────────────────────────────────────────
+
+npInit(null).then(session => {
+  if (!session) return;
+  npPopulateTopbar();
+  renderNav('software');
+  document.getElementById('topbarAvatar').textContent = npGetInitials();
+
+  document.getElementById('vcSearch').addEventListener('input', e => {
+    searchQ = e.target.value.trim();
+    render();
+  });
+
+  loadData();
+});
+</script>
+</body>
+</html>
