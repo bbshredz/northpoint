@@ -36,7 +36,16 @@
 .rr-filter-btn.f-critical.active { background: #dc2626; border-color: #dc2626; }
 .rr-filter-btn.f-high.active { background: #f97316; border-color: #f97316; }
 .rr-filter-btn.f-medium.active { background: #f59e0b; border-color: #f59e0b; }
-.rr-right { margin-left: auto; display: flex; gap: 8px; }
+.rr-right { margin-left: auto; display: flex; gap: 8px; align-items: center; }
+.rr-saving { font-size: 11px; color: var(--text-tertiary); opacity: 0; transition: opacity 0.2s; }
+.rr-saving.show { opacity: 1; }
+.rr-add-btn {
+  display: flex; align-items: center; gap: 6px; padding: 7px 14px;
+  border-radius: 8px; border: 1px solid var(--accent); background: transparent;
+  color: var(--accent); font-size: 12px; font-weight: 600;
+  font-family: inherit; cursor: pointer; transition: all 0.18s;
+}
+.rr-add-btn:hover { background: var(--accent); color: white; }
 .rr-export-btn {
   display: flex; align-items: center; gap: 6px; padding: 7px 14px;
   border-radius: 8px; border: 1px solid var(--silver); background: var(--card);
@@ -47,7 +56,7 @@
 
 /* ── TABLE ── */
 .rr-table-wrap { border-radius: 14px; border: 1px solid var(--silver); overflow: hidden; overflow-x: auto; }
-.rr-table { width: 100%; border-collapse: collapse; font-size: 12.5px; min-width: 900px; }
+.rr-table { width: 100%; border-collapse: collapse; font-size: 12.5px; min-width: 960px; }
 .rr-table th {
   background: var(--silver-light); padding: 10px 14px; text-align: left;
   font-size: 10px; text-transform: uppercase; letter-spacing: 0.8px;
@@ -59,6 +68,7 @@
 .rr-table tbody tr:hover { background: var(--silver-light); }
 .rr-table td { padding: 10px 14px; color: var(--text-secondary); vertical-align: top; line-height: 1.45; }
 .rr-table td:first-child { width: 36px; text-align: center; }
+.rr-table td:last-child { width: 28px; text-align: center; padding: 10px 4px; }
 
 /* ── TOP-3 HIGHLIGHT ── */
 .rr-table tr.top-risk { background: rgba(220,38,38,0.03); }
@@ -113,11 +123,30 @@
 }
 
 /* ── OWNER CHIP ── */
-.owner-sm {
-  display: inline-flex; align-items: center; gap: 5px;
-  font-size: 11.5px; color: var(--text-secondary);
-}
+.owner-sm { display: inline-flex; align-items: center; gap: 5px; font-size: 11.5px; color: var(--text-secondary); }
 .owner-dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
+
+/* ── INLINE EDIT ── */
+.rr-table td.editable { cursor: pointer; }
+.rr-table td.editable:hover:not([data-editing]) { outline: 1px dashed var(--silver); outline-offset: -2px; border-radius: 4px; }
+.rr-table td[data-editing] { padding: 4px 8px; }
+.rr-table td[data-editing] input,
+.rr-table td[data-editing] textarea,
+.rr-table td[data-editing] select {
+  width: 100%; background: var(--card); border: 1.5px solid var(--accent);
+  border-radius: 6px; padding: 5px 8px; font: inherit; font-size: 12px;
+  color: var(--text-primary); outline: none; box-sizing: border-box;
+}
+.rr-table td[data-editing] textarea { resize: vertical; min-height: 58px; }
+
+/* ── DELETE BTN ── */
+.rr-del-btn {
+  opacity: 0; cursor: pointer; background: none; border: none;
+  color: #dc2626; font-size: 16px; line-height: 1; padding: 2px 4px;
+  border-radius: 4px; transition: opacity 0.15s, background 0.15s;
+}
+.rr-table tr:hover .rr-del-btn { opacity: 0.45; }
+.rr-del-btn:hover { opacity: 1 !important; background: rgba(220,38,38,0.08); }
 
 /* ── DARK MODE ── */
 html[data-theme="dark"] .rr-table th { background: rgba(255,255,255,0.04); border-color: rgba(255,255,255,0.08); color: rgba(255,255,255,0.35); }
@@ -129,6 +158,9 @@ html[data-theme="dark"] .rr-table-wrap { border-color: rgba(255,255,255,0.08); }
 html[data-theme="dark"] .cat-tag { background: rgba(255,255,255,0.06); }
 html[data-theme="dark"] .rr-filter-btn { background: rgba(255,255,255,0.04); border-color: rgba(255,255,255,0.1); }
 html[data-theme="dark"] .rr-export-btn { background: rgba(255,255,255,0.04); border-color: rgba(255,255,255,0.1); }
+html[data-theme="dark"] .rr-table td[data-editing] input,
+html[data-theme="dark"] .rr-table td[data-editing] textarea,
+html[data-theme="dark"] .rr-table td[data-editing] select { background: rgba(255,255,255,0.06); }
 </style>
 </head>
 <body class="mod-team">
@@ -153,13 +185,11 @@ html[data-theme="dark"] .rr-export-btn { background: rgba(255,255,255,0.04); bor
         <div class="page-header animate-1">
           <h1 class="page-title">IT Risk Register</h1>
           <p class="page-subtitle">Risk management · NACS IT</p>
-          <p class="page-desc">Identified risks across all IT domains — scored by likelihood × impact. Top 3 critical risks are highlighted. Risk score = Likelihood (H=3, M=2, L=1) × Impact (H=3, M=2, L=1).</p>
+          <p class="page-desc">Identified risks across all IT domains — scored by likelihood × impact. Top 3 by score are highlighted. Click any cell to edit inline. Risk score = Likelihood (H=3, M=2, L=1) × Impact (H=3, M=2, L=1).</p>
         </div>
 
-        <!-- Summary -->
         <div class="rr-summary animate-2" id="rrSummary"></div>
 
-        <!-- Controls -->
         <div class="rr-controls animate-2">
           <button class="rr-filter-btn active" data-filter="all" onclick="setFilter('all',this)">All Risks</button>
           <button class="rr-filter-btn f-critical" data-filter="9" onclick="setFilter('9',this)">Critical (9)</button>
@@ -170,6 +200,8 @@ html[data-theme="dark"] .rr-export-btn { background: rgba(255,255,255,0.04); bor
           <button class="rr-filter-btn" data-filter="infrastructure" onclick="setFilter('infrastructure',this)">Infrastructure</button>
           <button class="rr-filter-btn" data-filter="clinical" onclick="setFilter('clinical',this)">Clinical</button>
           <div class="rr-right">
+            <span class="rr-saving" id="rrSaving">Saved</span>
+            <button class="rr-add-btn" onclick="addRisk()">+ Add Risk</button>
             <button class="rr-export-btn" onclick="exportToExcel()">
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:14px;height:14px"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
               Export Excel
@@ -177,7 +209,6 @@ html[data-theme="dark"] .rr-export-btn { background: rgba(255,255,255,0.04); bor
           </div>
         </div>
 
-        <!-- Table -->
         <div class="rr-table-wrap animate-3">
           <table class="rr-table" id="rrTable">
             <thead>
@@ -185,12 +216,13 @@ html[data-theme="dark"] .rr-export-btn { background: rgba(255,255,255,0.04); bor
                 <th>#</th>
                 <th>Risk Description</th>
                 <th>Category</th>
-                <th>Likelihood</th>
-                <th>Impact</th>
+                <th>L</th>
+                <th>I</th>
                 <th>Score</th>
                 <th>Mitigation</th>
                 <th>Owner</th>
                 <th>Status</th>
+                <th></th>
               </tr>
             </thead>
             <tbody id="rrBody"></tbody>
@@ -205,25 +237,14 @@ html[data-theme="dark"] .rr-export-btn { background: rgba(255,255,255,0.04); bor
 <script src="https://cdn.jsdelivr.net/npm/xlsx/dist/xlsx.full.min.js"></script>
 <script src="/nav.js"></script>
 <script>
-const RISKS = [
-  { id:1,  category:'Staffing',        risk:'IT team understaffed relative to facility count — 2.0 facilities/tech vs. 1.25 industry benchmark. Growth to 16 facilities is unsustainable at current headcount.', L:'H', I:'H', score:9, mitigation:'Business case in progress — VP-level leadership proposal and headcount justification submitted for executive review.', owner:'Anthony', status:'active' },
-  { id:2,  category:'Infrastructure',  risk:'No formally tested disaster recovery plan — RTO and RPO are undefined for critical systems including PCC, ERP, and network infrastructure.', L:'H', I:'H', score:9, mitigation:'DR assessment scoped; tabletop exercise to be scheduled Q2 2025.', owner:'Geremia', status:'active' },
-  { id:3,  category:'Clinical',        risk:'Single point of failure for PCC system administration — only one team member holds full clinical system expertise with no documented backup coverage.', L:'H', I:'H', score:9, mitigation:'Knowledge transfer and documentation initiative started. Succession plan identifies gap.', owner:'Rogi', status:'active' },
-  { id:4,  category:'Security',        risk:'HIPAA/PHI exposure risk from inconsistent endpoint security controls across facilities — not all endpoints enrolled in RMM or protected by EDR.', L:'M', I:'H', score:6, mitigation:'NDR deployed enterprise-wide. NinjaOne RMM rollout in progress for full endpoint coverage.', owner:'Geremia', status:'active' },
-  { id:5,  category:'Security',        risk:'Shadow IT proliferation — estimated 40+ unmanaged SaaS tools with access to PHI or sensitive business data, no visibility or control.', L:'H', I:'M', score:6, mitigation:'SAM program initiated. Software Asset Management audit underway with formal approval process being established.', owner:'Anthony', status:'active' },
-  { id:6,  category:'Infrastructure',  risk:'Network switching equipment at end-of-life at 3 facilities — unsupported hardware increases outage risk and limits security patching.', L:'M', I:'H', score:6, mitigation:'Equipment refresh scoped and budgeted for Q3 2025.', owner:'Geremia', status:'active' },
-  { id:7,  category:'Process',         risk:'No formal change management process — uncontrolled changes to production systems have caused service disruptions affecting clinical operations.', L:'H', I:'M', score:6, mitigation:'Change Advisory Board (CAB) process being defined. Draft policy in review.', owner:'Francis', status:'active' },
-  { id:8,  category:'Vendor',          risk:'Single ISP per facility with no failover — a single carrier outage at any location fully disrupts clinical operations and internet-dependent systems.', L:'M', I:'H', score:6, mitigation:'Dual-ISP feasibility evaluation underway. SD-WAN architecture supports failover when second circuit is available.', owner:'Geremia', status:'active' },
-  { id:9,  category:'Staffing',        risk:'Critical institutional knowledge concentrated in 1–2 individuals — departure of key staff would cause significant operational disruption with no documented succession.', L:'M', I:'H', score:6, mitigation:'Succession plan drafted. Documentation requirements being added to individual development plans.', owner:'Anthony', status:'active' },
-  { id:10, category:'Strategic',       risk:'Merger integration risk — 4 incoming facilities have unknown IT infrastructure state, requiring rapid assessment and standardization under resource constraints.', L:'M', I:'M', score:4, mitigation:'IT integration assessment template developed. Scheduling discovery sessions with incoming facilities.', owner:'Anthony', status:'identified' },
-  { id:11, category:'Clinical',        risk:'EHR workflow documentation gaps — PCC configurations and custom workflows undocumented, making onboarding, training, and audits difficult.', L:'M', I:'M', score:4, mitigation:'Documentation library initiative underway led by Rogi. Target: 40 resources by Q3 2025.', owner:'Rogi', status:'active' },
-  { id:12, category:'Financial',       risk:'Software license compliance gaps — no formal SAM process means potential exposure to vendor audit findings and undetected overages.', L:'M', I:'M', score:4, mitigation:'SAM audit in progress. Renewal calendar and license inventory being built.', owner:'Anthony', status:'active' },
-  { id:13, category:'Security',        risk:'Staff phishing susceptibility — security awareness training is inconsistent across facilities and not tied to any formal program or measurement.', L:'M', I:'M', score:4, mitigation:'Security awareness training program being scoped. Phishing simulation tool under evaluation.', owner:'Geremia', status:'identified' },
-  { id:14, category:'Strategic',       risk:'AI and automation adoption lag — competing healthcare operators are deploying AI tools that reduce administrative burden; delay increases productivity gap.', L:'L', I:'M', score:2, mitigation:'Enterprise AI strategy roadmap planned. AI-enabled Tier-0 helpdesk on future-state roadmap.', owner:'Anthony', status:'identified' },
-  { id:15, category:'Physical',        risk:'Physical security inconsistency across legacy facilities — camera systems and access controls not standardized prior to Clearview initiative.', L:'L', I:'M', score:2, mitigation:'Clearview project addresses camera standardization. Expected completion across all facilities by Q4 2025.', owner:'Geremia', status:'mitigated' },
-];
+const CATEGORIES = ['Staffing','Security','Infrastructure','Clinical','Process','Vendor','Strategic','Financial','Physical'];
+const OWNERS     = ['Anthony','Geremia','Francis','Tom','Rogi'];
+const STATUSES   = ['identified','active','mitigated','accepted'];
+const LI_VAL     = { H:3, M:2, L:1 };
 
-const OWNER_COLORS = {
+const STATUS_LABELS = { identified:'Identified', active:'Active', mitigated:'Mitigated', accepted:'Accepted' };
+const STATUS_CLS    = { identified:'st-identified', active:'st-active', mitigated:'st-mitigated', accepted:'st-accepted' };
+const OWNER_COLORS  = {
   Anthony: 'linear-gradient(135deg,#3b82f6,#8b5cf6)',
   Geremia: 'linear-gradient(135deg,#10b981,#3b82f6)',
   Francis: 'linear-gradient(135deg,#f97316,#ef4444)',
@@ -231,61 +252,241 @@ const OWNER_COLORS = {
   Rogi:    'linear-gradient(135deg,#f59e0b,#10b981)',
 };
 
-const STATUS_LABELS = { identified:'Identified', active:'Active', mitigated:'Mitigated', accepted:'Accepted' };
-const STATUS_CLS    = { identified:'st-identified', active:'st-active', mitigated:'st-mitigated', accepted:'st-accepted' };
-
+let RISKS = [];
 let activeFilter = 'all';
 
-function scoreClass(s) {
-  if (s >= 9) return 'score-9';
-  if (s >= 6) return 'score-6';
-  if (s >= 4) return 'score-4';
-  return 'score-2';
+// ── DATA ────────────────────────────────────────────
+
+async function loadRisks() {
+  const { data, error } = await _npSupabase
+    .from('risk_register')
+    .select('*')
+    .order('score', { ascending: false })
+    .order('id');
+  if (error) { console.error('Load error:', error); return; }
+  RISKS = data || [];
+  render();
+}
+
+async function saveRisk(risk) {
+  showSaving(true);
+  risk.score = LI_VAL[risk.likelihood] * LI_VAL[risk.impact];
+  risk.updated_at = new Date().toISOString();
+  const { error } = await _npSupabase
+    .from('risk_register')
+    .upsert({ ...risk }, { onConflict: 'id' });
+  if (error) console.error('Save error:', error);
+  showSaving(false);
+}
+
+async function addRisk() {
+  const newRisk = {
+    category:'Staffing', risk:'New risk — click to edit.',
+    likelihood:'M', impact:'M', score:4,
+    mitigation:'', owner:'Anthony', status:'identified'
+  };
+  showSaving(true);
+  const { data, error } = await _npSupabase
+    .from('risk_register').insert(newRisk).select().single();
+  if (error) { console.error('Insert error:', error); showSaving(false); return; }
+  showSaving(false);
+  RISKS.push(data);
+  render();
+  // scroll new row into view
+  setTimeout(() => {
+    const row = document.querySelector(`tr[data-id="${data.id}"]`);
+    if (row) row.scrollIntoView({ behavior:'smooth', block:'nearest' });
+  }, 50);
+}
+
+async function deleteRisk(id) {
+  if (!confirm('Delete this risk?')) return;
+  const { error } = await _npSupabase.from('risk_register').delete().eq('id', id);
+  if (error) { console.error('Delete error:', error); return; }
+  RISKS = RISKS.filter(r => r.id !== id);
+  render();
+}
+
+// ── SAVING INDICATOR ────────────────────────────────
+
+let _saveTimer;
+function showSaving(on) {
+  const el = document.getElementById('rrSaving');
+  if (!el) return;
+  clearTimeout(_saveTimer);
+  el.textContent = on ? 'Saving…' : 'Saved';
+  el.classList.add('show');
+  if (!on) _saveTimer = setTimeout(() => el.classList.remove('show'), 1600);
+}
+
+// ── INLINE EDITING ───────────────────────────────────
+
+function editText(td, risk, field, multiline) {
+  if (td.hasAttribute('data-editing')) return;
+  td.setAttribute('data-editing', '1');
+
+  const el = multiline ? document.createElement('textarea') : document.createElement('input');
+  el.value = risk[field] || '';
+  if (multiline) {
+    el.style.height = Math.max(58, el.scrollHeight) + 'px';
+  }
+  td.innerHTML = '';
+  td.appendChild(el);
+  el.focus();
+  if (!multiline) el.select();
+
+  const commit = async () => {
+    const val = el.value.trim();
+    if (val === (risk[field] || '')) {
+      td.removeAttribute('data-editing');
+      refreshCell(td, risk, field);
+      return;
+    }
+    risk[field] = val;
+    td.removeAttribute('data-editing');
+    refreshCell(td, risk, field);
+    await saveRisk(risk);
+    updateSummary();
+    // re-sort if score-related (not applicable here but keeps it clean)
+  };
+
+  el.addEventListener('blur', commit);
+  el.addEventListener('keydown', e => {
+    if (e.key === 'Escape') {
+      td.removeAttribute('data-editing');
+      refreshCell(td, risk, field);
+    }
+    if (e.key === 'Enter' && !multiline) { e.preventDefault(); el.blur(); }
+  });
+}
+
+function editSelect(td, risk, field, options, labels) {
+  if (td.hasAttribute('data-editing')) return;
+  td.setAttribute('data-editing', '1');
+
+  const sel = document.createElement('select');
+  options.forEach(o => {
+    const opt = document.createElement('option');
+    opt.value = o;
+    opt.textContent = (labels && labels[o]) || o;
+    if (o === risk[field]) opt.selected = true;
+    sel.appendChild(opt);
+  });
+  td.innerHTML = '';
+  td.appendChild(sel);
+  sel.focus();
+
+  const commit = async () => {
+    const val = sel.value;
+    const changed = val !== risk[field];
+    risk[field] = val;
+    if (field === 'likelihood' || field === 'impact') {
+      risk.score = LI_VAL[risk.likelihood] * LI_VAL[risk.impact];
+    }
+    td.removeAttribute('data-editing');
+    refreshCell(td, risk, field);
+
+    if (field === 'likelihood' || field === 'impact') {
+      const row = td.closest('tr');
+      if (row) {
+        const scoreTd = row.querySelector('[data-field="score"]');
+        if (scoreTd) refreshCell(scoreTd, risk, 'score');
+        // update top-risk class
+        const topIds = getTopIds();
+        if (topIds.includes(risk.id)) row.classList.add('top-risk');
+        else row.classList.remove('top-risk');
+      }
+    }
+
+    if (changed) {
+      await saveRisk(risk);
+      updateSummary();
+    }
+  };
+
+  sel.addEventListener('blur', commit);
+  sel.addEventListener('change', () => sel.blur());
+  sel.addEventListener('keydown', e => { if (e.key === 'Escape') { td.removeAttribute('data-editing'); refreshCell(td, risk, field); } });
+}
+
+function refreshCell(td, risk, field) {
+  switch (field) {
+    case 'category':
+      td.innerHTML = `<span class="cat-tag">${esc(risk.category)}</span>`; break;
+    case 'likelihood':
+      td.innerHTML = `<span class="li-badge li-${risk.likelihood.toLowerCase()}">${risk.likelihood}</span>`; break;
+    case 'impact':
+      td.innerHTML = `<span class="li-badge li-${risk.impact.toLowerCase()}">${risk.impact}</span>`; break;
+    case 'score':
+      td.innerHTML = `<span class="score-badge ${scoreClass(risk.score)}">${risk.score}</span>`; break;
+    case 'status':
+      td.innerHTML = `<span class="status-badge ${STATUS_CLS[risk.status]||'st-identified'}">${STATUS_LABELS[risk.status]||risk.status}</span>`; break;
+    case 'owner': {
+      const g = OWNER_COLORS[risk.owner] || 'linear-gradient(135deg,#64748b,#94a3b8)';
+      td.innerHTML = `<div class="owner-sm"><span class="owner-dot" style="background:${g}"></span>${esc(risk.owner)}</div>`;
+      break;
+    }
+    case 'risk':
+    case 'mitigation':
+      td.textContent = risk[field] || ''; break;
+  }
+}
+
+// ── RENDER ───────────────────────────────────────────
+
+function getTopIds() {
+  return [...RISKS].sort((a,b) => b.score-a.score || a.id-b.id).slice(0,3).map(r=>r.id);
 }
 
 function render() {
   const body = document.getElementById('rrBody');
   body.innerHTML = '';
+  const topIds = getTopIds();
+  const sorted = [...RISKS].sort((a,b) => b.score-a.score || a.id-b.id);
 
-  const top3 = RISKS.filter(r => r.score === 9).map(r => r.id);
-  let shown = 0;
-
-  RISKS.forEach((r, i) => {
+  sorted.forEach(r => {
     const scoreStr = String(r.score);
     const catLow = r.category.toLowerCase();
-    const match = activeFilter === 'all'
-      || activeFilter === scoreStr
-      || activeFilter === catLow;
+    const match = activeFilter === 'all' || activeFilter === scoreStr || activeFilter === catLow;
     if (!match) return;
 
-    shown++;
-    const isTop = top3.includes(r.id);
+    const isTop = topIds.includes(r.id);
     const tr = document.createElement('tr');
+    tr.dataset.id = r.id;
     if (isTop) tr.className = 'top-risk';
-    tr.dataset.score = r.score;
-    tr.dataset.cat = catLow;
 
-    const ownerGrad = OWNER_COLORS[r.owner] || '#64748b';
+    const ownerGrad = OWNER_COLORS[r.owner] || 'linear-gradient(135deg,#64748b,#94a3b8)';
 
     tr.innerHTML = `
       <td><span class="risk-num ${scoreClass(r.score)}">${r.id}</span></td>
-      <td>
-        ${isTop ? `<div class="top-badge" style="margin-bottom:4px"><svg viewBox="0 0 24 24" fill="currentColor" style="width:10px;height:10px"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg> Top 3 Priority</div>` : ''}
-        ${r.risk}
+      <td class="editable" data-field="risk" style="max-width:280px;">
+        ${isTop ? `<div class="top-badge" style="margin-bottom:4px"><svg viewBox="0 0 24 24" fill="currentColor" style="width:10px;height:10px"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg> Top 3 Priority</div>` : ''}${esc(r.risk)}
       </td>
-      <td><span class="cat-tag">${r.category}</span></td>
-      <td><span class="li-badge li-${r.L.toLowerCase()}">${r.L}</span></td>
-      <td><span class="li-badge li-${r.I.toLowerCase()}">${r.I}</span></td>
-      <td><span class="score-badge ${scoreClass(r.score)}">${r.score}</span></td>
-      <td style="max-width:260px;font-size:12px;">${r.mitigation}</td>
-      <td>
-        <div class="owner-sm">
-          <span class="owner-dot" style="background:${ownerGrad}"></span>
-          ${r.owner}
-        </div>
-      </td>
-      <td><span class="status-badge ${STATUS_CLS[r.status]}">${STATUS_LABELS[r.status]}</span></td>
+      <td class="editable" data-field="category"><span class="cat-tag">${esc(r.category)}</span></td>
+      <td class="editable" data-field="likelihood"><span class="li-badge li-${r.likelihood.toLowerCase()}">${r.likelihood}</span></td>
+      <td class="editable" data-field="impact"><span class="li-badge li-${r.impact.toLowerCase()}">${r.impact}</span></td>
+      <td data-field="score"><span class="score-badge ${scoreClass(r.score)}">${r.score}</span></td>
+      <td class="editable" data-field="mitigation" style="max-width:260px;font-size:12px;">${esc(r.mitigation||'')}</td>
+      <td class="editable" data-field="owner"><div class="owner-sm"><span class="owner-dot" style="background:${ownerGrad}"></span>${esc(r.owner||'')}</div></td>
+      <td class="editable" data-field="status"><span class="status-badge ${STATUS_CLS[r.status]||'st-identified'}">${STATUS_LABELS[r.status]||r.status}</span></td>
+      <td><button class="rr-del-btn" title="Delete risk">×</button></td>
     `;
+
+    // Click handlers for editable cells
+    tr.querySelectorAll('td.editable').forEach(td => {
+      td.addEventListener('click', () => {
+        const f = td.dataset.field;
+        if (f === 'risk' || f === 'mitigation') editText(td, r, f, true);
+        else if (f === 'owner')      editText(td, r, f, false);
+        else if (f === 'category')   editSelect(td, r, f, CATEGORIES);
+        else if (f === 'likelihood') editSelect(td, r, f, ['H','M','L'], {H:'High (3)',M:'Medium (2)',L:'Low (1)'});
+        else if (f === 'impact')     editSelect(td, r, f, ['H','M','L'], {H:'High (3)',M:'Medium (2)',L:'Low (1)'});
+        else if (f === 'status')     editSelect(td, r, f, STATUSES, STATUS_LABELS);
+      });
+    });
+
+    tr.querySelector('.rr-del-btn').addEventListener('click', () => deleteRisk(r.id));
+
     body.appendChild(tr);
   });
 
@@ -294,11 +495,11 @@ function render() {
 
 function updateSummary() {
   const el = document.getElementById('rrSummary');
-  const total = RISKS.length;
+  const total    = RISKS.length;
   const critical = RISKS.filter(r => r.score === 9).length;
-  const high = RISKS.filter(r => r.score === 6).length;
-  const medium = RISKS.filter(r => r.score === 4).length;
-  const low = RISKS.filter(r => r.score <= 2).length;
+  const high     = RISKS.filter(r => r.score === 6).length;
+  const medium   = RISKS.filter(r => r.score === 4).length;
+  const low      = RISKS.filter(r => r.score <= 2).length;
   el.innerHTML = `
     <div class="rr-stat"><div class="rr-stat-label">Total Risks</div><div class="rr-stat-value">${total}</div><div class="rr-stat-sub">Across all categories</div></div>
     <div class="rr-stat"><div class="rr-stat-label">Critical (Score 9)</div><div class="rr-stat-value critical">${critical}</div><div class="rr-stat-sub">Require immediate action</div></div>
@@ -315,10 +516,22 @@ function setFilter(f, btn) {
   render();
 }
 
+function scoreClass(s) {
+  if (s >= 9) return 'score-9';
+  if (s >= 6) return 'score-6';
+  if (s >= 4) return 'score-4';
+  return 'score-2';
+}
+
+function esc(s) {
+  return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+}
+
 function exportToExcel() {
   if (typeof XLSX === 'undefined') { alert('Excel library not loaded'); return; }
   const rows = [['#','Risk Description','Category','Likelihood','Impact','Score','Mitigation','Owner','Status']];
-  RISKS.forEach(r => rows.push([r.id, r.risk, r.category, r.L, r.I, r.score, r.mitigation, r.owner, STATUS_LABELS[r.status]]));
+  const sorted = [...RISKS].sort((a,b) => b.score-a.score || a.id-b.id);
+  sorted.forEach(r => rows.push([r.id, r.risk, r.category, r.likelihood, r.impact, r.score, r.mitigation, r.owner, STATUS_LABELS[r.status]||r.status]));
   const ws = XLSX.utils.aoa_to_sheet(rows);
   ws['!cols'] = [{wch:4},{wch:60},{wch:14},{wch:12},{wch:10},{wch:7},{wch:50},{wch:12},{wch:12}];
   const wb = XLSX.utils.book_new();
@@ -326,12 +539,14 @@ function exportToExcel() {
   XLSX.writeFile(wb, 'NACS-IT-Risk-Register.xlsx');
 }
 
+// ── INIT ────────────────────────────────────────────
+
 npInit('risk-register').then(session => {
   if (!session) return;
   npPopulateTopbar();
   renderNav('team');
   document.getElementById('topbarAvatar').textContent = npGetInitials();
-  render();
+  loadRisks();
 });
 </script>
 </body>
