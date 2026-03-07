@@ -7,6 +7,17 @@
     <link rel="stylesheet" href="/northpoint.css">
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script src="/auth.js"></script>
+    <link rel="prefetch" href="/facilities/map/index.html">
+    <link rel="prefetch" href="/facilities/onboarding/index.html">
+    <link rel="prefetch" href="/facilities/integration-checklist/index.html">
+    <link rel="prefetch" href="/facilities/editor/index.html">
+    <style>
+        @view-transition { navigation: auto; }
+        ::view-transition-old(root) { animation: 180ms ease-in vt-out; }
+        ::view-transition-new(root) { animation: 260ms ease-out vt-in; }
+        @keyframes vt-out { from { opacity:1; transform:translateY(0); } to { opacity:0; transform:translateY(-6px); } }
+        @keyframes vt-in  { from { opacity:0; transform:translateY(10px); } to { opacity:1; transform:translateY(0); } }
+    </style>
 </head>
 <body class="mod-facilities">
 <div class="layout">

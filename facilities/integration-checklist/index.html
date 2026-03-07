@@ -184,6 +184,11 @@
         html[data-theme="dark"] .bb-counts { color: #64748b; }
         html[data-theme="dark"] .btn-reset { background: rgba(255,255,255,0.04); border-color: rgba(255,255,255,0.10); color: #64748b; }
         html[data-theme="dark"] .btn-reset:hover { border-color: rgba(255,255,255,0.20); color: #94a3b8; }
+        @view-transition { navigation: auto; }
+        ::view-transition-old(root) { animation: 180ms ease-in vt-out; }
+        ::view-transition-new(root) { animation: 260ms ease-out vt-in; }
+        @keyframes vt-out { from { opacity:1; transform:translateY(0); } to { opacity:0; transform:translateY(-6px); } }
+        @keyframes vt-in  { from { opacity:0; transform:translateY(10px); } to { opacity:1; transform:translateY(0); } }
     </style>
 </head>
 <body class="mod-facilities">

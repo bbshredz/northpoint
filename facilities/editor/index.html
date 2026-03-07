@@ -164,6 +164,11 @@
         .at-tr.new-row .at-td { animation: row-flash 1.4s ease-out; }
 
         .at-row-count { font-size: 11px; color: var(--text-tertiary); margin-top: 8px; }
+        @view-transition { navigation: auto; }
+        ::view-transition-old(root) { animation: 180ms ease-in vt-out; }
+        ::view-transition-new(root) { animation: 260ms ease-out vt-in; }
+        @keyframes vt-out { from { opacity:1; transform:translateY(0); } to { opacity:0; transform:translateY(-6px); } }
+        @keyframes vt-in  { from { opacity:0; transform:translateY(10px); } to { opacity:1; transform:translateY(0); } }
     </style>
 </head>
 <body class="mod-facilities">
