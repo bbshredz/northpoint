@@ -71,6 +71,8 @@ body.mod-software    { --accent: #14b8a6; --accent-dim: rgba(20,184,166,0.1);  -
 body.mod-projects    { --accent: #f97316; --accent-dim: rgba(249,115,22,0.1);  --accent-glow: rgba(249,115,22,0.2); }
 body.mod-field-guide { --accent: #eab308; --accent-dim: rgba(234,179,8,0.1);   --accent-glow: rgba(234,179,8,0.2);  }
 
+html { background: var(--bg); }
+
 body {
     font-family: 'DM Sans', sans-serif;
     background: var(--bg);
