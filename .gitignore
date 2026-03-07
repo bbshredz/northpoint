@@ -1,0 +1,16 @@
+# Sensitive / imported data files
+*.xlsx
+*.xls
+*.csv
+data/
+
+# Local env
+.env
+.env.local
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Claude local settings
+.claude/settings.local.json
