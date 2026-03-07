@@ -2,12 +2,15 @@
 // Shared session + role management
 // Include on every protected page BEFORE nav.js
 
-// FOUC prevention — apply saved theme + hide until auth resolves
+// FOUC prevention — apply saved theme + hide body until auth resolves
+// Uses body (not html) so html background is visible during view transition snapshots
 (function(){
   var t = localStorage.getItem('np-theme');
   if (t === 'dark') document.documentElement.setAttribute('data-theme', 'dark');
-  document.documentElement.style.opacity = '0';
-  document.documentElement.style.transition = 'opacity 0.12s ease';
+  var style = document.createElement('style');
+  style.id = 'np-fouc';
+  style.textContent = 'body { opacity: 0; transition: opacity 0.14s ease; }';
+  document.head.appendChild(style);
 }());
 
 const SUPABASE_URL = 'https://vpxlgtgavjmftbdsajtk.supabase.co';
@@ -52,7 +55,8 @@ async function npInit(requireModule = null) {
     }
   }
 
-  document.documentElement.style.opacity = '';
+  var fouc = document.getElementById('np-fouc');
+  if (fouc) fouc.remove();
   return { user: _npUser, role: _npRole, modules: _npModules };
 }
 
