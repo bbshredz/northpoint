@@ -352,31 +352,39 @@
 
 <script src="/nav.js"></script>
 <script>
-let _assets      = [];
-let _filtered    = [];
-let _childrenMap = {};   // parent id → visible children[] for current filter
-let _expanded    = new Set();
-let _sortCol     = 'software_name';
-let _sortAsc     = true;
-let _editId      = null;
-let _canEdit     = false;
-let _isNew       = false;
+let _assets        = [];
+let _filtered      = [];
+let _childrenMap   = {};   // parent id → visible children[] for current filter
+let _expanded      = new Set();
+let _sortCol       = 'software_name';
+let _sortAsc       = true;
+let _editId        = null;
+let _canEdit       = false;
+let _canSeePricing = false;
+let _isNew         = false;
 
 npInit('software').then(session => {
     if (!session) return;
     npPopulateTopbar();
     renderNav('software');
     const role = npGetRole();
-    _canEdit = ['admin','exec','director'].includes(role);
+    _canEdit       = ['admin','exec','director'].includes(role);
+    _canSeePricing = ['admin','exec','director','staff'].includes(role);
     if (_canEdit) document.getElementById('sam-add-btn').style.display = '';
+    if (!_canSeePricing) {
+        const priceTh = document.querySelector('th[data-sort="price"]');
+        if (priceTh) priceTh.style.display = 'none';
+    }
     loadAssets();
 });
 
 // ── Load ─────────────────────────────────────────────────────────────────────
 async function loadAssets() {
+    const cols = _canSeePricing ? '*'
+        : 'id,software_name,vendor,status,system_owner,facility,aliases,tags,term,term_start,term_end,licenses,contract_invoice,notes,summary_verified,parent_id,software_summary,updated_at';
     const { data, error } = await _npSupabase
         .from('software_assets')
-        .select('*')
+        .select(cols)
         .order('software_name');
     if (error) {
         document.getElementById('sam-tbody').innerHTML =
@@ -501,7 +509,7 @@ function renderTable() {
         `Showing ${_filtered.length} of ${parentTotal} top-level assets`;
 
     if (!_filtered.length) {
-        tbody.innerHTML = '<tr><td colspan="7" class="sam-empty">No assets match your filters.</td></tr>';
+        tbody.innerHTML = `<tr><td colspan="${_canSeePricing ? 7 : 6}" class="sam-empty">No assets match your filters.</td></tr>`;
         return;
     }
 
@@ -574,7 +582,7 @@ function renderRow(a, isChild) {
         <td>${statusBadge(a.status)}</td>
         <td class="cell-owner">${esc(a.system_owner || '—')}</td>
         <td style="color:var(--text-tertiary)">${esc(a.facility || '—')}</td>
-        <td>${priceHtml}</td>
+        ${_canSeePricing ? `<td>${priceHtml}</td>` : ''}
         <td class="cell-expires">${expiryHtml}</td>
         <td><div class="cell-tags">${tagsHtml}</div></td>
     </tr>`;
@@ -641,7 +649,7 @@ function renderPanelView(a) {
         { label: 'Summary',            value: a.software_summary },
         { label: 'Aliases',            value: a.aliases },
         { label: 'Tags',               value: a.tags },
-        { label: 'Price',              value: a.price ? `$${Number(a.price).toLocaleString()}` : null },
+        ...(_canSeePricing ? [{ label: 'Price', value: a.price ? `$${Number(a.price).toLocaleString()}` : null }] : []),
         { label: 'Term',               value: a.term },
         { label: 'Term Start',         value: fmtDate(a.term_start) },
         { label: 'Term End',           value: fmtDate(a.term_end) },
@@ -744,7 +752,7 @@ function renderPanelEdit(a) {
                 <input class="pf-input" id="ep-tags" value="${esc(a.tags || '')}">
             </div>
         </div>
-        <div class="pf-row">
+        ${_canSeePricing ? `<div class="pf-row">
             <div>
                 <div class="pf-label">Price ($)</div>
                 <input class="pf-input" id="ep-price" type="number" value="${a.price || ''}">
@@ -753,7 +761,7 @@ function renderPanelEdit(a) {
                 <div class="pf-label">Term</div>
                 <input class="pf-input" id="ep-term" value="${esc(a.term || '')}" placeholder="Annually / Monthly">
             </div>
-        </div>
+        </div>` : ''}
         <div class="pf-row">
             <div>
                 <div class="pf-label">Term Start</div>
@@ -862,8 +870,8 @@ document.getElementById('sam-export-btn').addEventListener('click', () => {
         'Summary':       a.software_summary || '',
         'Aliases':       a.aliases || '',
         'Tags':          a.tags || '',
-        'Price':         a.price || '',
-        'Term':          a.term || '',
+        'Price':         _canSeePricing ? (a.price || '') : '',
+        'Term':          _canSeePricing ? (a.term || '') : '',
         'Term Start':    a.term_start || '',
         'Term End':      a.term_end || '',
         'Licenses':      a.licenses || '',
