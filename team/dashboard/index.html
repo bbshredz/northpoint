@@ -279,13 +279,12 @@ npInit(null).then(session => {
     });
 });
 
-// ── DRIFT — 8-bit meditation runner ──────────────────────────────────────────
+// ── DRIFT v2 — spring-hover meditation runner ─────────────────────────────────
 (function () {
-    const canvas = document.getElementById('drift');
-    const ctx    = canvas.getContext('2d');
+    var canvas = document.getElementById('drift');
+    var ctx    = canvas.getContext('2d');
 
-    // 8-color space-dream palette
-    const C = {
+    var C = {
         void:   '#000009',
         space:  '#050520',
         nebula: '#0f0a3d',
@@ -296,336 +295,415 @@ npInit(null).then(session => {
         gold:   '#fde68a',
     };
 
-    let W, H = 190;
+    var W, H = 190;
 
-    /* ── Stars (3 parallax layers) */
-    let stars = [];
+    // ── Stars
+    var stars = [];
     function initStars() {
-        stars = Array.from({ length: 160 }, () => ({
-            x:       Math.random() * W,
-            y:       Math.random() * H,
-            layer:   Math.random(),
-            size:    Math.random() < 0.18 ? 2 : 1,
-            twinkle: Math.random() * Math.PI * 2,
-            tspd:    0.018 + Math.random() * 0.038,
-        }));
+        stars = [];
+        for (var i = 0; i < 160; i++) stars.push({
+            x: Math.random()*W, y: Math.random()*H,
+            layer: Math.random(), size: Math.random()<0.18?2:1,
+            twinkle: Math.random()*Math.PI*2, tspd: 0.018+Math.random()*0.038,
+        });
     }
-
-    /* ── Nebula blobs */
-    let nebulas = [];
+    // ── Nebulas
+    var nebulas = [];
     function initNebulas() {
-        nebulas = Array.from({ length: 10 }, () => ({
-            x:     Math.random() * W,
-            y:     Math.random() * H,
-            w:     70  + Math.random() * 130,
-            h:     18  + Math.random() * 45,
-            alpha: 0.03 + Math.random() * 0.05,
-        }));
+        nebulas = [];
+        for (var i = 0; i < 10; i++) nebulas.push({
+            x: Math.random()*W, y: Math.random()*H,
+            w: 70+Math.random()*130, h: 18+Math.random()*45,
+            alpha: 0.03+Math.random()*0.05,
+        });
     }
-
-    /* ── Dust motes */
-    let motes = [];
+    // ── Motes
+    var motes = [];
     function initMotes() {
-        motes = Array.from({ length: 50 }, () => ({
-            x:     Math.random() * W,
-            y:     Math.random() * H,
-            spd:   0.08 + Math.random() * 0.25,
-            alpha: 0.08 + Math.random() * 0.28,
-        }));
+        motes = [];
+        for (var i = 0; i < 50; i++) motes.push({
+            x: Math.random()*W, y: Math.random()*H,
+            spd: 0.08+Math.random()*0.25, alpha: 0.08+Math.random()*0.28,
+        });
     }
 
-    /* ── Player */
-    const P = {
-        x: 110, y: 0, vy: 0,
-        GRAVITY: 0.12, LIFT: -3.2, MAX_VY: 4,
-        SIZE: 5, pulse: 0,
-    };
+    // ── Player — spring-hover, center-seeking
+    var P = { x:0, y:0, vy:0, SPRING:0.005, DAMPING:0.92, NUDGE:-2.4, SIZE:5, pulse:0 };
 
-    /* ── Gates */
-    const GATE_GAP   = 130;
-    const GATE_W     = 16;
-    const GATE_SPACE = 340;
-    let gates = [];
-    function spawnGate(x) {
-        gates.push({ x, center: 52 + Math.random() * (H - 104), passed: false });
+    // ── Game objects
+    var orbs   = [];  // collectibles
+    var shards = [];  // hazards (rare)
+    var trail  = [];  // stardust tail
+    var parts  = [];  // burst particles
+
+    // ── State
+    var mode       = 'idle';
+    var score      = 0;
+    var speed      = 1.0;
+    var frame      = 0;
+    var scrolled   = 0;
+    var nextOrb    = 220;
+    var nextShard  = 800;
+    var deathFrame = -999;
+    var hsChecked  = false;
+    var initials   = ['_','_','_'];
+    var initIdx    = 0;
+
+    // ── Leaderboard
+    function loadLB() {
+        try { return JSON.parse(localStorage.getItem('np-drift-lb')||'[]'); } catch(e) { return []; }
     }
-    function initGates() {
-        gates = [];
-        for (let i = 0; i < 4; i++) spawnGate(W + 180 + i * GATE_SPACE);
+    function saveLB(entry) {
+        var lb = loadLB();
+        lb.push(entry);
+        lb.sort(function(a,b){ return b.score-a.score; });
+        localStorage.setItem('np-drift-lb', JSON.stringify(lb.slice(0,5)));
+    }
+    function isNewHigh() {
+        var lb = loadLB();
+        return lb.length < 5 || score > lb[lb.length-1].score;
     }
 
-    /* ── Particles */
-    let parts = [];
+    // ── Spawn helpers
+    var ORB_COLS = [C.glow, C.glow, C.gold, C.bright];
+    var ORB_VALS = [1,       1,      2,       3      ];
+    function spawnOrb() {
+        var ti = Math.floor(Math.random()*ORB_COLS.length);
+        orbs.push({ x:W+20, y:20+Math.random()*(H-40), col:ORB_COLS[ti], val:ORB_VALS[ti], pulse:Math.random()*Math.PI*2 });
+    }
+    function spawnShard() {
+        shards.push({ x:W+20, y:25+Math.random()*(H-50), pulse:0 });
+    }
     function burst(x, y, col, n) {
-        n = n || 10;
-        for (let i = 0; i < n; i++) {
-            const a = (Math.PI * 2 / n) * i + Math.random() * 0.4;
-            const v = 0.6 + Math.random() * 2.2;
-            parts.push({ x, y, vx: Math.cos(a) * v, vy: Math.sin(a) * v, life: 1, col, sz: 1 + Math.random() });
+        n = n||10;
+        for (var i=0; i<n; i++) {
+            var a=(Math.PI*2/n)*i+Math.random()*0.4, v=0.6+Math.random()*2.2;
+            parts.push({ x:x, y:y, vx:Math.cos(a)*v, vy:Math.sin(a)*v, life:1, col:col, sz:1+Math.random() });
         }
     }
 
-    /* ── Game state */
-    let mode    = 'idle';
-    let score   = 0;
-    let speed   = 0.9;
-    let frame   = 0;
-    let hiScore = parseInt(localStorage.getItem('np-drift-hi') || '0');
-
+    // ── Input
     function tap() {
-        if (mode === 'idle' || mode === 'over') {
-            mode  = 'play';
-            score = 0;
-            speed = 0.9;
-            P.y   = H / 2;
-            P.vy  = 0;
-            initGates();
-            parts = [];
-        } else {
-            P.vy = P.LIFT;
+        if (mode==='idle') { startGame(); return; }
+        if (mode==='play') { P.vy = Math.max(-5, P.vy+P.NUDGE); return; }
+        if (mode==='over' && frame-deathFrame>50) { startGame(); return; }
+        if (mode==='enter') {
+            // cycle current letter on tap
+            var A='ABCDEFGHIJKLMNOPQRSTUVWXYZ';
+            var ci=A.indexOf(initials[initIdx]); if(ci<0)ci=-1;
+            initials[initIdx]=A[(ci+1)%A.length];
         }
     }
+    function startGame() {
+        mode='play'; score=0; speed=1.0; scrolled=0;
+        nextOrb=220; nextShard=800; hsChecked=false;
+        P.y=H/2; P.vy=0;
+        orbs=[]; shards=[]; trail=[]; parts=[];
+    }
+    function die() {
+        mode='over'; deathFrame=frame;
+        burst(P.x,P.y,C.gold,18);
+    }
+    function submitScore() {
+        // fill remaining slots with A
+        for (var i=initIdx; i<3; i++) if(initials[i]==='_') initials[i]='A';
+        saveLB({ initials:initials.join(''), score:score });
+        mode='idle';
+    }
 
-    /* ── Update */
+    // Keyboard for initials
+    document.addEventListener('keydown', function(e) {
+        if (mode!=='enter') return;
+        var ch=e.key.toUpperCase();
+        if (/^[A-Z]$/.test(ch)) {
+            initials[initIdx]=ch;
+            if (initIdx<2) { initIdx++; } else { setTimeout(submitScore,400); }
+        } else if (e.key==='Backspace' && initIdx>0) {
+            initIdx--; initials[initIdx]='_';
+        } else if (e.key==='Enter') { submitScore(); }
+        e.preventDefault();
+    });
+
+    // ── Update
     function update() {
         frame++;
+        var bgSpd = mode==='play' ? speed : 0.8;
 
-        // Scroll stars (parallax)
-        stars.forEach(function(s) {
-            s.x -= (0.12 + s.layer * 0.78) * speed * 0.5;
-            if (s.x < 0) s.x = W;
-            s.twinkle += s.tspd;
-        });
-
-        // Drift nebulas
-        nebulas.forEach(function(n) {
-            n.x -= 0.06 * speed;
-            if (n.x + n.w < 0) { n.x = W + 50; n.y = Math.random() * H; }
-        });
-
-        // Drift motes
-        motes.forEach(function(m) {
-            m.x -= m.spd * speed;
-            if (m.x < 0) m.x = W;
-        });
-
-        if (mode !== 'play') return;
-
-        // Player physics (floaty)
-        P.pulse += 0.055;
-        P.vy = Math.max(-P.MAX_VY, Math.min(P.vy + P.GRAVITY, P.MAX_VY));
-        P.y  = Math.max(P.SIZE, P.y + P.vy);
-
-        if (P.y >= H - P.SIZE) { die(); return; }
-
-        // Gates
-        gates.forEach(function(g) { g.x -= speed; });
-        if (gates.length && gates[0].x + GATE_W < 0) {
-            gates.shift();
-            spawnGate(gates[gates.length - 1].x + GATE_SPACE);
+        // Scroll background
+        for (var si=0; si<stars.length; si++) {
+            var s=stars[si];
+            s.x -= (0.12+s.layer*0.78)*bgSpd*0.5;
+            if (s.x<0) s.x=W;
+            s.twinkle+=s.tspd;
+        }
+        for (var ni=0; ni<nebulas.length; ni++) {
+            var n=nebulas[ni];
+            n.x-=0.06*bgSpd;
+            if (n.x+n.w<0){ n.x=W+50; n.y=Math.random()*H; }
+        }
+        for (var mi=0; mi<motes.length; mi++) {
+            var m=motes[mi];
+            m.x-=m.spd*bgSpd;
+            if (m.x<0) m.x=W;
         }
 
-        gates.forEach(function(g) {
-            if (!g.passed && g.x + GATE_W < P.x) {
-                g.passed = true;
-                score++;
-                speed = Math.min(0.9 + score * 0.032, 2.8);
-                if (score > hiScore) {
-                    hiScore = score;
-                    localStorage.setItem('np-drift-hi', hiScore);
+        // Idle: gentle ambient hover
+        if (mode==='idle') {
+            P.y = H*0.5 + Math.sin(frame*0.016)*7;
+            P.pulse+=0.035;
+            return;
+        }
+
+        // Over: check for high score after delay
+        if (mode==='over') {
+            if (!hsChecked && frame-deathFrame>55) {
+                hsChecked=true;
+                if (score>0 && isNewHigh()) {
+                    mode='enter'; initials=['_','_','_']; initIdx=0;
                 }
-                burst(P.x, P.y, C.glow);
             }
-            // Collision
-            if (P.x + P.SIZE - 1 > g.x && P.x - P.SIZE + 1 < g.x + GATE_W) {
-                var top = g.center - GATE_GAP / 2;
-                var bot = g.center + GATE_GAP / 2;
-                if (P.y - P.SIZE + 1 < top || P.y + P.SIZE - 1 > bot) die();
-            }
-        });
+            return;
+        }
 
-        // Age particles
-        for (var i = parts.length - 1; i >= 0; i--) {
-            var p = parts[i];
-            p.x += p.vx; p.y += p.vy; p.vy += 0.04; p.life -= 0.028;
-            if (p.life <= 0) parts.splice(i, 1);
+        if (mode!=='play') return;
+
+        // Player spring physics
+        P.pulse+=0.055;
+        P.vy += (H*0.5-P.y)*P.SPRING;
+        P.vy *= P.DAMPING;
+        P.y  += P.vy;
+        P.y   = Math.max(P.SIZE, Math.min(H-P.SIZE, P.y));
+
+        // Stardust trail (every 2 frames)
+        if (frame%2===0) {
+            var tc=[C.gold,C.glow,C.bright,C.accent];
+            trail.push({
+                x:P.x-P.SIZE-1, y:P.y+(Math.random()-0.5)*3,
+                vx:-(0.3+Math.random()*0.5), vy:(Math.random()-0.5)*0.35,
+                life:1, col:tc[Math.floor(Math.random()*tc.length)],
+                sz: Math.random()<0.25?2:1,
+            });
+        }
+
+        // Scroll distance tracker → spawn objects
+        scrolled+=speed;
+        if (scrolled>=nextOrb) { spawnOrb(); nextOrb=scrolled+180+Math.random()*100; }
+        if (score>=8 && scrolled>=nextShard) { spawnShard(); nextShard=scrolled+500+Math.random()*220; }
+
+        // Move & collect orbs
+        for (var oi=orbs.length-1; oi>=0; oi--) {
+            var orb=orbs[oi];
+            orb.x-=speed; orb.pulse+=0.08;
+            var dx=P.x-orb.x, dy=P.y-orb.y;
+            if (Math.sqrt(dx*dx+dy*dy)<18) {
+                burst(orb.x,orb.y,orb.col,8);
+                score+=orb.val;
+                speed=Math.min(1.0+score*0.022,2.4);
+                orbs.splice(oi,1);
+            } else if (orb.x+10<0) { orbs.splice(oi,1); }
+        }
+
+        // Move & collide shards
+        for (var shi=shards.length-1; shi>=0; shi--) {
+            var sh=shards[shi];
+            sh.x-=speed; sh.pulse+=0.07;
+            var sdx=P.x-sh.x, sdy=P.y-sh.y;
+            if (Math.sqrt(sdx*sdx+sdy*sdy)<11) { die(); return; }
+            if (sh.x+12<0) { shards.splice(shi,1); }
+        }
+
+        // Age trail
+        for (var ti=trail.length-1; ti>=0; ti--) {
+            var tp=trail[ti];
+            tp.x+=tp.vx; tp.y+=tp.vy; tp.life-=0.024;
+            if (tp.life<=0) trail.splice(ti,1);
+        }
+        // Age burst particles
+        for (var pi=parts.length-1; pi>=0; pi--) {
+            var bp=parts[pi];
+            bp.x+=bp.vx; bp.y+=bp.vy; bp.vy+=0.04; bp.life-=0.028;
+            if (bp.life<=0) parts.splice(pi,1);
         }
     }
 
-    function die() {
-        mode = 'over';
-        burst(P.x, P.y, C.gold, 18);
+    // ── Draw helpers
+    function px(x,y,w,h,col,a) {
+        if (a!==undefined&&a<1) ctx.globalAlpha=a;
+        ctx.fillStyle=col; ctx.fillRect(Math.floor(x),Math.floor(y),w,h);
+        if (a!==undefined&&a<1) ctx.globalAlpha=1;
     }
-
-    /* ── Draw helpers */
-    function px(x, y, w, h, col, a) {
-        if (a !== undefined && a < 1) ctx.globalAlpha = a;
-        ctx.fillStyle = col;
-        ctx.fillRect(Math.floor(x), Math.floor(y), w, h);
-        if (a !== undefined && a < 1) ctx.globalAlpha = 1;
+    function t8(str,x,y,col,sz) {
+        sz=sz||8; ctx.fillStyle=col;
+        ctx.font=sz+"px 'Press Start 2P',monospace";
+        ctx.fillText(str,Math.floor(x),Math.floor(y));
     }
-    function t8(str, x, y, col, sz) {
-        sz = sz || 8;
-        ctx.fillStyle = col;
-        ctx.font = sz + "px 'Press Start 2P',monospace";
-        ctx.fillText(str, Math.floor(x), Math.floor(y));
-    }
-    function tw(str, sz) {
-        sz = sz || 8;
-        ctx.font = sz + "px 'Press Start 2P',monospace";
+    function tw(str,sz) {
+        sz=sz||8; ctx.font=sz+"px 'Press Start 2P',monospace";
         return ctx.measureText(str).width;
     }
 
-    /* ── Draw */
+    // ── Draw
     function draw() {
-        // Background void
-        ctx.fillStyle = C.void;
-        ctx.fillRect(0, 0, W, H);
+        // Background
+        ctx.fillStyle=C.void; ctx.fillRect(0,0,W,H);
+        var bg=ctx.createLinearGradient(0,0,0,H);
+        bg.addColorStop(0,C.space+'bb'); bg.addColorStop(0.6,C.void+'00'); bg.addColorStop(1,C.nebula+'66');
+        ctx.fillStyle=bg; ctx.fillRect(0,0,W,H);
 
-        // Gradient overlay
-        var bg = ctx.createLinearGradient(0, 0, 0, H);
-        bg.addColorStop(0,   C.space  + 'bb');
-        bg.addColorStop(0.6, C.void   + '00');
-        bg.addColorStop(1,   C.nebula + '66');
-        ctx.fillStyle = bg;
-        ctx.fillRect(0, 0, W, H);
-
-        // Nebula blobs
-        nebulas.forEach(function(n) {
-            px(n.x % W, n.y, n.w, n.h, C.nebula, n.alpha);
-        });
+        // Nebulas
+        for (var ni=0; ni<nebulas.length; ni++) { var n=nebulas[ni]; px(n.x%W,n.y,n.w,n.h,C.nebula,n.alpha); }
 
         // Stars
-        stars.forEach(function(s) {
-            var t  = (Math.sin(s.twinkle) + 1) * 0.5;
-            var al = s.layer < 0.3 ? 0.2 + t * 0.2 : 0.45 + t * 0.55;
-            ctx.globalAlpha = al;
-            ctx.fillStyle   = s.size === 2 ? C.gold : C.bright;
-            ctx.fillRect(Math.floor(s.x), Math.floor(s.y), s.size, s.size);
-        });
-        ctx.globalAlpha = 1;
+        for (var si=0; si<stars.length; si++) {
+            var s=stars[si], tw2=(Math.sin(s.twinkle)+1)*0.5;
+            ctx.globalAlpha=s.layer<0.3?0.2+tw2*0.2:0.45+tw2*0.55;
+            ctx.fillStyle=s.size===2?C.gold:C.bright;
+            ctx.fillRect(Math.floor(s.x),Math.floor(s.y),s.size,s.size);
+        }
+        ctx.globalAlpha=1;
 
-        // Dust motes
-        motes.forEach(function(m) {
-            px(Math.floor(m.x), Math.floor(m.y), 1, 1, C.glow, m.alpha);
-        });
+        // Motes
+        for (var mi=0; mi<motes.length; mi++) { var m=motes[mi]; px(Math.floor(m.x),Math.floor(m.y),1,1,C.glow,m.alpha); }
 
-        // Gates (void monoliths with glowing edges)
-        gates.forEach(function(g) {
-            var top = g.center - GATE_GAP / 2;
-            var bot = g.center + GATE_GAP / 2;
-            px(g.x, 0,       GATE_W, top,     C.purple);
-            px(g.x, 0,       GATE_W, 2,       C.accent, 0.5);
-            px(g.x, top - 4, GATE_W, 4,       C.glow,   0.9);
-            px(g.x, bot,     GATE_W, H - bot, C.purple);
-            px(g.x, H - 2,   GATE_W, 2,       C.accent, 0.5);
-            px(g.x, bot,     GATE_W, 4,       C.glow,   0.9);
-            px(g.x + 1, 0,   1,      top,     C.accent, 0.18);
-            px(g.x + 1, bot, 1,      H - bot, C.accent, 0.18);
-        });
+        // Stardust trail (behind player)
+        for (var ti=0; ti<trail.length; ti++) {
+            var tp=trail[ti];
+            ctx.globalAlpha=tp.life*0.85; ctx.fillStyle=tp.col;
+            ctx.fillRect(Math.floor(tp.x),Math.floor(tp.y),tp.sz,tp.sz);
+        }
+        ctx.globalAlpha=1;
 
-        // Particles
-        parts.forEach(function(p) {
-            ctx.globalAlpha = p.life;
-            ctx.fillStyle   = p.col;
-            ctx.fillRect(Math.floor(p.x), Math.floor(p.y), Math.ceil(p.sz), Math.ceil(p.sz));
-        });
-        ctx.globalAlpha = 1;
+        // Orbs
+        for (var oi=0; oi<orbs.length; oi++) {
+            var orb=orbs[oi], pl=(Math.sin(orb.pulse)+1)*0.5;
+            px(orb.x-4,orb.y-4,9,9,orb.col,(0.12+pl*0.18)*0.5);  // glow
+            ctx.globalAlpha=0.6+pl*0.4; ctx.fillStyle=orb.col;
+            ctx.fillRect(Math.floor(orb.x)-1,Math.floor(orb.y)-3,3,7); // vertical arm
+            ctx.fillRect(Math.floor(orb.x)-3,Math.floor(orb.y)-1,7,3); // horizontal arm
+            ctx.fillStyle=C.bright;
+            ctx.fillRect(Math.floor(orb.x)-1,Math.floor(orb.y)-1,3,3); // bright center
+            ctx.globalAlpha=1;
+        }
 
-        // Player
+        // Void shards
+        for (var shi=0; shi<shards.length; shi++) {
+            var sh=shards[shi], spl=(Math.sin(sh.pulse)+1)*0.5;
+            ctx.globalAlpha=0.6+spl*0.3;
+            for (var d=-2; d<=2; d++) {
+                px(sh.x+d,sh.y+d,2,2,C.purple);
+                px(sh.x+d,sh.y-d,2,2,C.purple);
+            }
+            px(sh.x-1,sh.y-1,3,3,C.accent,0.5);
+            ctx.globalAlpha=1;
+        }
+
+        // Burst particles
+        for (var pi=0; pi<parts.length; pi++) {
+            var bp=parts[pi];
+            ctx.globalAlpha=bp.life; ctx.fillStyle=bp.col;
+            ctx.fillRect(Math.floor(bp.x),Math.floor(bp.y),Math.ceil(bp.sz),Math.ceil(bp.sz));
+        }
+        ctx.globalAlpha=1;
+
         drawPlayer();
-
-        // HUD
         drawUI();
     }
 
     function drawPlayer() {
-        var x  = Math.floor(P.x);
-        var y  = Math.floor(P.y);
-        var s  = P.SIZE;
-        var pl = (Math.sin(P.pulse) + 1) * 0.5;
-        var blink = mode === 'over' ? Math.abs(Math.sin(frame * 0.14)) : 1;
+        var x=Math.floor(P.x), y=Math.floor(P.y), s=P.SIZE;
+        var pl=(Math.sin(P.pulse)+1)*0.5;
+        var blink=mode==='over'?Math.abs(Math.sin(frame*0.14)):1;
 
         // Glow aura
-        ctx.globalAlpha = (0.06 + pl * 0.08) * blink;
-        ctx.fillStyle   = C.glow;
-        ctx.fillRect(x - s * 2, y - s * 2, s * 4, s * 4);
-        ctx.globalAlpha = blink;
+        ctx.globalAlpha=(0.06+pl*0.09)*blink; ctx.fillStyle=C.glow;
+        ctx.fillRect(x-s*2,y-s*2,s*4,s*4);
+        ctx.globalAlpha=blink;
 
-        // Pixel cross body
-        px(x - s,     y - 1,     s * 2,     3,     C.bright);
-        px(x - 1,     y - s,     3,         s * 2, C.bright);
-        px(x - s + 1, y - 1,     s * 2 - 2, 3,     C.glow);
-        px(x - 1,     y - s + 1, 3,     s * 2 - 2, C.glow);
-        px(x - 1,     y - 1,     3,         3,     C.bright);
-
-        // Trail
-        ctx.globalAlpha = 0.45 * blink; ctx.fillStyle = C.glow;
-        ctx.fillRect(x - s * 2 - 4,  y, s,     1);
-        ctx.globalAlpha = 0.22 * blink; ctx.fillStyle = C.accent;
-        ctx.fillRect(x - s * 3 - 8,  y, s - 1, 1);
-        ctx.globalAlpha = 0.10 * blink; ctx.fillStyle = C.accent;
-        ctx.fillRect(x - s * 4 - 13, y, s - 2, 1);
-        ctx.globalAlpha = 1;
+        // Pixel cross
+        px(x-s,   y-1,   s*2,   3,   C.bright);
+        px(x-1,   y-s,   3,   s*2,   C.bright);
+        px(x-s+1, y-1,   s*2-2, 3,   C.glow);
+        px(x-1,   y-s+1, 3, s*2-2,   C.glow);
+        px(x-1,   y-1,   3,     3,   C.bright);
+        ctx.globalAlpha=1;
     }
 
     function drawUI() {
-        // Score
-        t8(String(score).padStart(4, '0'), 10, 15, C.glow, 7);
+        t8(String(score).padStart(4,'0'),10,15,C.glow,7);
 
-        // Hi score (top right)
-        var hi = 'HI ' + String(hiScore).padStart(4, '0');
-        t8(hi, W - tw(hi, 6) - 10, 14, C.purple, 6);
-
-        if (mode === 'idle') {
-            var title = 'DRIFT';
-            t8(title, W / 2 - tw(title, 20) / 2, H / 2 - 4, C.glow, 20);
-
-            ctx.globalAlpha = 0.5 + 0.35 * Math.sin(frame * 0.045);
-            var sub = 'click  to  play';
-            t8(sub, W / 2 - tw(sub, 6) / 2, H / 2 + 18, C.bright, 6);
-            ctx.globalAlpha = 1;
-
-            ctx.globalAlpha = 0.15 + 0.10 * Math.sin(frame * 0.03);
-            var dots = '·  ·  ·  ·  ·  ·  ·  ·  ·  ·  ·  ·  ·  ·  ·';
-            t8(dots, W / 2 - tw(dots, 5) / 2, H / 2 + 34, C.glow, 5);
-            ctx.globalAlpha = 1;
+        // Top leaderboard entry (top right)
+        var lb=loadLB();
+        if (lb.length>0) {
+            var top1=lb[0].initials+'  '+String(lb[0].score).padStart(4,'0');
+            t8(top1,W-tw(top1,6)-10,14,C.purple,6);
         }
 
-        if (mode === 'over') {
-            var msg = 'SIGNAL  LOST';
-            t8(msg, W / 2 - tw(msg, 8) / 2, H / 2 - 12, C.gold, 8);
+        if (mode==='idle') {
+            t8('DRIFT',W/2-tw('DRIFT',20)/2,H/2-4,C.glow,20);
+            ctx.globalAlpha=0.5+0.35*Math.sin(frame*0.045);
+            t8('click  to  play',W/2-tw('click  to  play',6)/2,H/2+18,C.bright,6);
+            ctx.globalAlpha=1;
+            // Leaderboard
+            if (lb.length>0) {
+                for (var li=0; li<Math.min(3,lb.length); li++) {
+                    var e=lb[li], es=(li+1)+'.  '+e.initials+'  '+String(e.score).padStart(4,'0');
+                    ctx.globalAlpha=0.32;
+                    t8(es,W/2-tw(es,5)/2,H-22+li*13,li===0?C.gold:C.glow,5);
+                    ctx.globalAlpha=1;
+                }
+            }
+            ctx.globalAlpha=0.12+0.08*Math.sin(frame*0.025);
+            var dots='·  ·  ·  ·  ·  ·  ·  ·  ·  ·  ·  ·  ·  ·  ·';
+            t8(dots,W/2-tw(dots,5)/2,H/2+34,C.glow,5);
+            ctx.globalAlpha=1;
+        }
 
-            var sc = 'PARSECS  ' + score;
-            t8(sc, W / 2 - tw(sc, 6) / 2, H / 2 + 5, C.glow, 6);
+        if (mode==='over') {
+            t8('SIGNAL  LOST',W/2-tw('SIGNAL  LOST',8)/2,H/2-10,C.gold,8);
+            t8('PARSECS  '+score,W/2-tw('PARSECS  '+score,6)/2,H/2+6,C.glow,6);
+            ctx.globalAlpha=0.4+0.4*Math.abs(Math.sin(frame*0.08));
+            t8('click  to  drift  again',W/2-tw('click  to  drift  again',5)/2,H/2+22,C.bright,5);
+            ctx.globalAlpha=1;
+        }
 
-            ctx.globalAlpha = 0.45 + 0.45 * Math.abs(Math.sin(frame * 0.07));
-            var rst = 'click  to  drift  again';
-            t8(rst, W / 2 - tw(rst, 5) / 2, H / 2 + 22, C.bright, 5);
-            ctx.globalAlpha = 1;
+        if (mode==='enter') {
+            ctx.fillStyle='rgba(0,0,9,0.9)'; ctx.fillRect(0,0,W,H);
+            t8('NEW  HIGH  SCORE',W/2-tw('NEW  HIGH  SCORE',7)/2,H/2-36,C.gold,7);
+            t8(String(score),W/2-tw(String(score),14)/2,H/2-14,C.glow,14);
+            t8('enter  your  initials',W/2-tw('enter  your  initials',5)/2,H/2+5,C.bright,5);
+            // Slots
+            var SW=20,SH=18,SG=6,TX=W/2-(3*SW+2*SG)/2,TY=H/2+16;
+            for (var si=0; si<3; si++) {
+                var sx=TX+si*(SW+SG), active=si===initIdx;
+                ctx.fillStyle=active?C.accent:C.purple; ctx.globalAlpha=active?0.5:0.2;
+                ctx.fillRect(sx,TY,SW,SH); ctx.globalAlpha=1;
+                ctx.fillStyle=active?C.bright:C.glow;
+                ctx.font="10px 'Press Start 2P',monospace";
+                var lw=ctx.measureText(initials[si]).width;
+                ctx.fillText(initials[si],Math.floor(sx+SW/2-lw/2),TY+13);
+                if (active&&frame%32<16) { ctx.fillStyle=C.bright; ctx.fillRect(Math.floor(sx+SW/2-5),TY+16,10,1); }
+            }
+            ctx.globalAlpha=0.35;
+            t8('type  ·  tap  to  cycle  ·  enter  to  save',W/2-tw('type  ·  tap  to  cycle  ·  enter  to  save',4)/2,H/2+45,C.glow,4);
+            ctx.globalAlpha=1;
         }
     }
 
-    /* ── Loop */
+    // ── Loop / resize
     function loop() { update(); draw(); requestAnimationFrame(loop); }
-
-    /* ── Resize */
     function resize() {
-        W             = canvas.width  = canvas.parentElement.clientWidth;
-        canvas.height = H;
-        initStars();
-        initNebulas();
-        initMotes();
-        if (mode === 'idle') P.y = H / 2;
+        W=canvas.width=canvas.parentElement.clientWidth;
+        canvas.height=H;
+        P.x=Math.max(160,Math.round(W*0.30));
+        initStars(); initNebulas(); initMotes();
+        if (mode==='idle') P.y=H/2;
     }
 
     canvas.addEventListener('click', tap);
-    canvas.addEventListener('touchstart', function(e) { e.preventDefault(); tap(); }, { passive: false });
-
-    var ro = new ResizeObserver(resize);
+    canvas.addEventListener('touchstart', function(e){ e.preventDefault(); tap(); }, {passive:false});
+    var ro=new ResizeObserver(resize);
     ro.observe(canvas.parentElement);
-    resize();
-    loop();
+    resize(); loop();
 })();
 </script>
 </body>
