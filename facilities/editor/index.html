@@ -1,0 +1,518 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Facility Editor — NorthPoint</title>
+    <link rel="stylesheet" href="/northpoint.css">
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="/auth.js"></script>
+    <style>
+        .content { overflow-y: auto; }
+
+        /* ── Toolbar ── */
+        .at-toolbar { display: flex; align-items: center; gap: 10px; margin-bottom: 16px; flex-wrap: wrap; }
+        .at-search {
+            flex: 1; min-width: 180px;
+            background: var(--card); border: 1px solid var(--border);
+            border-radius: 8px; padding: 7px 12px;
+            font-size: 13px; color: var(--text-primary);
+            font-family: inherit; outline: none;
+        }
+        .at-search:focus { border-color: var(--accent); }
+        .at-search::placeholder { color: var(--text-tertiary); }
+        .at-pill {
+            background: var(--card); border: 1px solid var(--border);
+            border-radius: 20px; padding: 5px 13px;
+            font-size: 12px; font-weight: 600; color: var(--text-tertiary);
+            cursor: pointer; font-family: inherit; transition: all 0.15s; white-space: nowrap;
+        }
+        .at-pill:hover { border-color: var(--accent); color: var(--accent); }
+        .at-pill.active { background: var(--accent-dim); border-color: var(--accent); color: var(--accent); }
+        .at-save-tag {
+            font-size: 12px; color: var(--text-tertiary);
+            margin-left: auto; white-space: nowrap; transition: color 0.15s;
+        }
+        .at-save-tag.saving { color: var(--accent); }
+        .at-save-tag.saved  { color: #22c55e; }
+        .at-save-tag.error  { color: #ef4444; }
+
+        /* ── Grid ── */
+        .at-wrap {
+            overflow-x: auto;
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            background: var(--card);
+        }
+        .at-table { width: max-content; min-width: 100%; border-collapse: collapse; }
+
+        /* ── Header ── */
+        .at-th {
+            position: sticky; top: 0; z-index: 5;
+            background: var(--silver-light);
+            padding: 0 10px; height: 32px;
+            font-size: 10px; font-weight: 700;
+            text-transform: uppercase; letter-spacing: 0.08em;
+            color: var(--text-tertiary);
+            border-bottom: 1px solid var(--border);
+            border-right: 1px solid var(--border);
+            white-space: nowrap; text-align: left; user-select: none;
+        }
+        .at-th:last-child { border-right: none; }
+
+        /* ── Rows ── */
+        .at-tr:last-child .at-td { border-bottom: none; }
+        .at-tr:hover .at-td { background: rgba(139,92,246,0.03); }
+        .at-tr:hover .at-del { opacity: 1; }
+
+        /* ── Cells ── */
+        .at-td {
+            border-bottom: 1px solid var(--border);
+            border-right: 1px solid var(--border);
+            height: 38px; padding: 0; position: relative;
+            vertical-align: middle; overflow: hidden;
+        }
+        .at-td:last-child { border-right: none; }
+        .at-td.focused { box-shadow: inset 0 0 0 2px var(--accent); z-index: 4; }
+        .at-num-cell { text-align: center; font-size: 11px; color: var(--text-tertiary); cursor: default; }
+        .at-act-cell { text-align: center; cursor: default; }
+
+        /* display value */
+        .at-v {
+            display: flex; align-items: center;
+            height: 100%; padding: 0 10px;
+            font-size: 13px; color: var(--text-primary);
+            cursor: text; overflow: hidden;
+            white-space: nowrap; text-overflow: ellipsis;
+            user-select: none;
+        }
+        .at-v.muted { color: var(--text-tertiary); }
+
+        /* inputs */
+        .at-inp {
+            position: absolute; inset: 0;
+            width: 100%; height: 100%; border: none;
+            background: var(--card); color: var(--text-primary);
+            font-size: 13px; padding: 0 10px;
+            font-family: inherit; outline: none; z-index: 6;
+        }
+        .at-sel {
+            position: absolute; inset: 0;
+            width: 100%; height: 100%; border: none;
+            background: var(--card); color: var(--text-primary);
+            font-size: 13px; padding: 0 8px;
+            font-family: inherit; outline: none; cursor: pointer; z-index: 6;
+        }
+        .at-sel option { background: var(--navy-mid, #1e293b); }
+
+        /* status display */
+        .at-status-v {
+            display: flex; align-items: center;
+            gap: 6px; height: 100%; padding: 0 10px;
+            font-size: 13px; cursor: pointer; user-select: none;
+            white-space: nowrap;
+        }
+        .at-dot { width: 7px; height: 7px; border-radius: 50%; flex-shrink: 0; }
+        .d-online  .at-dot { background: #22c55e; }
+        .d-warning .at-dot { background: #f59e0b; }
+        .d-offline .at-dot { background: #ef4444; }
+        .d-online  { color: var(--text-primary); }
+        .d-warning { color: #f59e0b; }
+        .d-offline { color: #ef4444; }
+
+        /* bool toggle */
+        .at-bool-wrap {
+            display: flex; align-items: center;
+            justify-content: center; height: 100%; cursor: pointer;
+        }
+        .at-tog {
+            width: 28px; height: 16px; border-radius: 8px;
+            background: var(--border); position: relative;
+            transition: background 0.18s; flex-shrink: 0;
+        }
+        .at-tog.on { background: var(--accent); }
+        .at-tog::after {
+            content: ''; position: absolute;
+            top: 2px; left: 2px; width: 12px; height: 12px;
+            border-radius: 50%; background: white;
+            transition: transform 0.18s;
+            box-shadow: 0 1px 2px rgba(0,0,0,0.18);
+        }
+        .at-tog.on::after { transform: translateX(12px); }
+
+        /* delete */
+        .at-del {
+            opacity: 0; background: transparent; border: none;
+            color: var(--text-tertiary); cursor: pointer;
+            font-size: 13px; padding: 4px 6px; border-radius: 4px;
+            transition: color 0.15s, opacity 0.15s; line-height: 1;
+        }
+        .at-del:hover { color: #ef4444; }
+
+        /* add row */
+        .at-add-row {
+            display: flex; align-items: center; gap: 7px;
+            padding: 0 48px; height: 36px;
+            border-top: 1px solid var(--border);
+            color: var(--text-tertiary); font-size: 12px;
+            cursor: pointer; transition: background 0.12s, color 0.12s;
+            user-select: none;
+        }
+        .at-add-row:hover { background: rgba(139,92,246,0.04); color: var(--accent); }
+
+        @keyframes row-flash { from { background: rgba(139,92,246,0.1); } to { } }
+        .at-tr.new-row .at-td { animation: row-flash 1.4s ease-out; }
+
+        .at-row-count { font-size: 11px; color: var(--text-tertiary); margin-top: 8px; }
+    </style>
+</head>
+<body class="mod-facilities">
+<div class="layout">
+    <div id="rail-mount"></div>
+    <div class="main">
+        <header class="topbar">
+            <div class="topbar-left">
+                <a href="/index.html" class="topbar-name">NorthPoint</a>
+                <div class="topbar-sep"></div>
+                <a href="/facilities/index.html" class="topbar-section" style="text-decoration:none;color:inherit;">Facilities</a>
+                <div class="topbar-sep"></div>
+                <span class="topbar-section">Editor</span>
+            </div>
+            <div class="topbar-right">
+                <span class="topbar-date" id="currentDate"></span>
+                <span class="topbar-role" id="topbarRole"></span>
+            </div>
+        </header>
+        <div class="content">
+        <div style="max-width:1400px;margin:0 auto;padding:32px 28px 80px;">
+
+            <div class="page-header animate-1">
+                <h1 class="page-title">Facility Editor</h1>
+                <p class="page-subtitle">Facilities · Admin</p>
+                <p class="page-desc">Add and edit facility records. Click any cell to edit — changes save automatically.</p>
+            </div>
+
+            <div class="at-toolbar animate-2">
+                <input type="text" class="at-search" id="at-search" placeholder="Filter by name, region, city…">
+                <button class="at-pill active" id="pill-all">All</button>
+                <button class="at-pill" id="pill-incoming">Incoming</button>
+                <span class="at-save-tag" id="at-save-tag"></span>
+            </div>
+
+            <div class="at-wrap animate-3">
+                <table class="at-table">
+                    <thead id="at-thead"></thead>
+                    <tbody id="at-tbody"></tbody>
+                </table>
+                <div class="at-add-row" id="at-add-row">
+                    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+                    Add facility
+                </div>
+            </div>
+            <div class="at-row-count" id="at-row-count"></div>
+
+        </div>
+        </div>
+    </div>
+</div>
+
+<script src="/nav.js"></script>
+<script>
+// ── Column config ─────────────────────────────────────────────────────────────
+const COLS = [
+    { key: 'facility_number', label: '#',        w: 52,  type: 'number'  },
+    { key: 'name',            label: 'Name',      w: 220, type: 'text'    },
+    { key: 'region',          label: 'Region',    w: 110, type: 'text'    },
+    { key: 'status',          label: 'Status',    w: 130, type: 'status'  },
+    { key: 'is_incoming',     label: 'Incoming',  w: 90,  type: 'bool'    },
+    { key: 'is_service_center', label: 'Svc Ctr', w: 76,  type: 'bool'   },
+    { key: 'address',         label: 'Address',   w: 190, type: 'text'    },
+    { key: 'city',            label: 'City',      w: 120, type: 'text'    },
+    { key: 'state',           label: 'State',     w: 55,  type: 'text'    },
+    { key: 'zip',             label: 'ZIP',       w: 68,  type: 'text'    },
+    { key: 'phone',           label: 'Phone',     w: 130, type: 'text'    },
+    { key: 'admin_name',      label: 'Admin',     w: 160, type: 'text'    },
+    { key: 'emp_count',       label: 'Beds',      w: 62,  type: 'number'  },
+    { key: 'lat',             label: 'Lat',       w: 92,  type: 'decimal' },
+    { key: 'lng',             label: 'Lng',       w: 92,  type: 'decimal' },
+];
+const STATUS_OPTS = ['online', 'warning', 'offline'];
+
+// ── State ─────────────────────────────────────────────────────────────────────
+let _rows         = [];
+let _filtered     = [];
+let _active       = null;   // { td, col, rowId, origVal }
+let _q            = '';
+let _incomingOnly = false;
+let _pending      = 0;
+
+// ── Boot ──────────────────────────────────────────────────────────────────────
+npInit('facilities').then(session => {
+    if (!session) return;
+    npPopulateTopbar();
+    renderNav('facilities');
+    if (!['admin', 'exec'].includes(npGetRole())) {
+        window.location.href = '/facilities/index.html';
+        return;
+    }
+    load();
+});
+
+async function load() {
+    const { data, error } = await _npSupabase
+        .from('facilities').select('*').order('facility_number');
+    if (error || !data) return;
+    _rows = data;
+    buildHead();
+    filter();
+}
+
+// ── Header ────────────────────────────────────────────────────────────────────
+function buildHead() {
+    document.getElementById('at-thead').innerHTML = `<tr>
+        <th class="at-th" style="width:38px;min-width:38px"></th>
+        ${COLS.map(c => `<th class="at-th" style="width:${c.w}px;min-width:${c.w}px">${c.label}</th>`).join('')}
+        <th class="at-th" style="width:36px;min-width:36px"></th>
+    </tr>`;
+}
+
+// ── Filters ───────────────────────────────────────────────────────────────────
+document.getElementById('at-search').addEventListener('input', e => {
+    _q = e.target.value.toLowerCase().trim();
+    filter();
+});
+document.getElementById('pill-all').addEventListener('click', () => {
+    _incomingOnly = false;
+    document.getElementById('pill-all').classList.add('active');
+    document.getElementById('pill-incoming').classList.remove('active');
+    filter();
+});
+document.getElementById('pill-incoming').addEventListener('click', () => {
+    _incomingOnly = true;
+    document.getElementById('pill-incoming').classList.add('active');
+    document.getElementById('pill-all').classList.remove('active');
+    filter();
+});
+
+function filter() {
+    _filtered = _rows.filter(r => {
+        if (_incomingOnly && !r.is_incoming) return false;
+        if (_q) {
+            const h = [r.name, r.region, r.city, r.state, r.address, r.admin_name]
+                .filter(Boolean).join(' ').toLowerCase();
+            if (!h.includes(_q)) return false;
+        }
+        return true;
+    });
+    buildBody();
+}
+
+// ── Body ──────────────────────────────────────────────────────────────────────
+function buildBody() {
+    document.getElementById('at-tbody').innerHTML =
+        _filtered.map((r, i) => rowHtml(r, i + 1)).join('');
+    document.getElementById('at-row-count').textContent =
+        `${_filtered.length} of ${_rows.length} facilities`;
+}
+
+function rowHtml(row, num) {
+    const cells = COLS.map(col => {
+        const val = row[col.key];
+        let inner;
+        if (col.type === 'bool') {
+            inner = `<div class="at-bool-wrap" data-bool data-col="${col.key}" data-id="${row.id}">
+                <div class="at-tog${val ? ' on' : ''}"></div>
+            </div>`;
+        } else if (col.type === 'status') {
+            const s = val || 'online';
+            inner = `<div class="at-status-v d-${s}" data-col="${col.key}" data-id="${row.id}">
+                <span class="at-dot"></span>${s.charAt(0).toUpperCase() + s.slice(1)}
+            </div>`;
+        } else {
+            const d = val !== null && val !== undefined && val !== '' ? String(val) : '';
+            inner = `<div class="at-v${d ? '' : ' muted'}" data-col="${col.key}" data-id="${row.id}">${d ? esc(d) : '—'}</div>`;
+        }
+        return `<td class="at-td" style="width:${col.w}px;min-width:${col.w}px;max-width:${col.w}px">${inner}</td>`;
+    }).join('');
+
+    return `<tr class="at-tr" data-id="${row.id}">
+        <td class="at-td at-num-cell">${num}</td>
+        ${cells}
+        <td class="at-td at-act-cell"><button class="at-del" data-id="${row.id}" title="Delete">✕</button></td>
+    </tr>`;
+}
+
+// ── Event delegation ──────────────────────────────────────────────────────────
+document.getElementById('at-tbody').addEventListener('click', e => {
+    const v    = e.target.closest('[data-col][data-id]:not([data-bool])');
+    const bool = e.target.closest('[data-bool]');
+    const del  = e.target.closest('.at-del');
+    if (v)    activate(v.closest('.at-td'), COLS.find(c => c.key === v.dataset.col), v.dataset.id);
+    if (bool) toggleBool(bool.dataset.col, bool.dataset.id);
+    if (del)  deleteRow(del.dataset.id);
+});
+
+// ── Cell activation ───────────────────────────────────────────────────────────
+function activate(td, col, rowId) {
+    if (!col) return;
+    if (_active) commit();
+    const row = _rows.find(r => r.id === rowId);
+    if (!row) return;
+    const origVal = row[col.key] ?? '';
+    _active = { td, col, rowId, origVal };
+    td.classList.add('focused');
+
+    let el;
+    if (col.type === 'status') {
+        el = document.createElement('select');
+        el.className = 'at-sel';
+        STATUS_OPTS.forEach(o => {
+            const opt = document.createElement('option');
+            opt.value = o;
+            opt.textContent = o.charAt(0).toUpperCase() + o.slice(1);
+            if (o === origVal) opt.selected = true;
+            el.appendChild(opt);
+        });
+        el.addEventListener('change', commit);
+    } else {
+        el = document.createElement('input');
+        el.className = 'at-inp';
+        el.type  = (col.type === 'number' || col.type === 'decimal') ? 'number' : 'text';
+        if (col.type === 'decimal') el.step = 'any';
+        el.value = origVal;
+        el.addEventListener('keydown', onKey);
+    }
+
+    td.innerHTML = '';
+    td.appendChild(el);
+    el.focus();
+    if (el.tagName === 'INPUT') el.select();
+    el.addEventListener('blur', () => setTimeout(commit, 80));
+}
+
+function onKey(e) {
+    if (e.key === 'Escape') { cancel(); return; }
+    const snap = _active ? { rowId: _active.rowId, colKey: _active.col.key } : null;
+    if (e.key === 'Enter') { e.preventDefault(); commit(); if (snap) nav(snap, 'down'); }
+    if (e.key === 'Tab')   { e.preventDefault(); commit(); if (snap) nav(snap, e.shiftKey ? 'left' : 'right'); }
+}
+
+function nav(snap, dir) {
+    let ci = COLS.findIndex(c => c.key === snap.colKey);
+    let ri = _filtered.findIndex(r => r.id === snap.rowId);
+    if (dir === 'right') {
+        ci++;
+        while (ci < COLS.length && COLS[ci].type === 'bool') ci++;
+        if (ci >= COLS.length) { ci = 0; ri++; }
+    } else if (dir === 'left') {
+        ci--;
+        while (ci >= 0 && COLS[ci].type === 'bool') ci--;
+        if (ci < 0) ci = 0;
+    } else if (dir === 'down') {
+        ri++;
+    }
+    const nextCol = COLS[ci];
+    const nextRow = _filtered[ri];
+    if (!nextCol || !nextRow || nextCol.type === 'bool') return;
+    setTimeout(() => {
+        const tr = document.querySelector(`tr[data-id="${nextRow.id}"]`);
+        if (!tr) return;
+        const el = tr.querySelector(`[data-col="${nextCol.key}"]`);
+        if (el) el.click();
+    }, 20);
+}
+
+function commit() {
+    if (!_active) return;
+    const { td, col, rowId, origVal } = _active;
+    const el = td.querySelector('input, select');
+    _active = null;
+    td.classList.remove('focused');
+    if (!el) return;
+
+    let val = el.value;
+    if (col.type === 'number' || col.type === 'decimal')
+        val = val !== '' ? parseFloat(val) : null;
+    else
+        val = val.trim() || null;
+
+    const row = _rows.find(r => r.id === rowId);
+    if (row) row[col.key] = val;
+    filter();
+    if (String(val ?? '') !== String(origVal ?? '')) saveField(rowId, col.key, val);
+}
+
+function cancel() {
+    if (!_active) return;
+    _active.td.classList.remove('focused');
+    _active = null;
+    filter();
+}
+
+// ── Bool toggle ───────────────────────────────────────────────────────────────
+function toggleBool(key, rowId) {
+    const row = _rows.find(r => r.id === rowId);
+    if (!row) return;
+    row[key] = !row[key];
+    saveField(rowId, key, row[key]);
+    filter();
+}
+
+// ── Save ──────────────────────────────────────────────────────────────────────
+async function saveField(rowId, field, value) {
+    _pending++;
+    setTag('saving');
+    const { error } = await _npSupabase
+        .from('facilities')
+        .update({ [field]: value })
+        .eq('id', rowId);
+    _pending--;
+    setTag(error ? 'error' : _pending ? 'saving' : 'saved');
+    if (!_pending && !error) setTimeout(() => setTag(''), 2000);
+}
+
+function setTag(state) {
+    const el = document.getElementById('at-save-tag');
+    el.className = 'at-save-tag' + (state ? ' ' + state : '');
+    el.textContent = { saving: 'Saving…', saved: 'All changes saved', error: 'Save failed' }[state] || '';
+}
+
+// ── Add row ───────────────────────────────────────────────────────────────────
+document.getElementById('at-add-row').addEventListener('click', async () => {
+    setTag('saving');
+    const { data, error } = await _npSupabase
+        .from('facilities')
+        .insert({ name: 'New Facility', status: 'online', is_incoming: true })
+        .select().single();
+    if (error || !data) { setTag('error'); return; }
+    _rows.push(data);
+    filter();
+    setTag('saved');
+    setTimeout(() => setTag(''), 2000);
+    setTimeout(() => {
+        const tr = document.querySelector(`tr[data-id="${data.id}"]`);
+        if (!tr) return;
+        tr.classList.add('new-row');
+        tr.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+        const nameEl = tr.querySelector('[data-col="name"]');
+        if (nameEl) nameEl.click();
+    }, 60);
+});
+
+// ── Delete ────────────────────────────────────────────────────────────────────
+async function deleteRow(rowId) {
+    const row = _rows.find(r => r.id === rowId);
+    if (!confirm(`Delete "${row?.name || 'this facility'}"?\nThis cannot be undone.`)) return;
+    const { error } = await _npSupabase.from('facilities').delete().eq('id', rowId);
+    if (error) { alert('Error: ' + error.message); return; }
+    _rows = _rows.filter(r => r.id !== rowId);
+    filter();
+}
+
+// ── Helper ────────────────────────────────────────────────────────────────────
+function esc(s) {
+    return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+</script>
+</body>
+</html>
