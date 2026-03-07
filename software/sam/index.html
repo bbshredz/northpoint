@@ -219,6 +219,23 @@
 
         /* ── Empty ── */
         .sam-empty { padding: 48px; text-align: center; color: var(--text-tertiary); font-size: 13px; }
+
+        /* ── Child rows & expand ── */
+        .sam-child-row td { background: rgba(0,0,0,0.018); }
+        html[data-theme="dark"] .sam-child-row td { background: rgba(255,255,255,0.012); }
+        .sam-child-row:hover td { background: var(--card-hover) !important; }
+        .sam-row-indent { display: flex; align-items: flex-start; gap: 7px; }
+        .sam-child-hook { color: var(--text-tertiary); font-size: 12px; margin-top: 2px; flex-shrink: 0; line-height: 1.3; }
+        .sam-expand-spacer { width: 14px; flex-shrink: 0; display: inline-block; }
+        .sam-expand-btn {
+            background: transparent; border: none;
+            color: var(--text-tertiary); cursor: pointer;
+            font-size: 11px; padding: 0;
+            width: 14px; flex-shrink: 0;
+            text-align: center; line-height: 1.4;
+            transition: color 0.15s; margin-top: 1px;
+        }
+        .sam-expand-btn:hover { color: var(--accent); }
     </style>
 </head>
 <body class="mod-software">
@@ -335,13 +352,15 @@
 
 <script src="/nav.js"></script>
 <script>
-let _assets   = [];
-let _filtered = [];
-let _sortCol  = 'software_name';
-let _sortAsc  = true;
-let _editId   = null;
-let _canEdit  = false;
-let _isNew    = false;
+let _assets      = [];
+let _filtered    = [];
+let _childrenMap = {};   // parent id → visible children[] for current filter
+let _expanded    = new Set();
+let _sortCol     = 'software_name';
+let _sortAsc     = true;
+let _editId      = null;
+let _canEdit     = false;
+let _isNew       = false;
 
 npInit('software').then(session => {
     if (!session) return;
@@ -402,18 +421,47 @@ document.getElementById('sam-status-filter').addEventListener('change', applyFil
 document.getElementById('sam-owner-filter').addEventListener('change', applyFilters);
 
 function applyFilters() {
-    const q      = document.getElementById('sam-search').value.toLowerCase();
-    const status = document.getElementById('sam-status-filter').value;
-    const owner  = document.getElementById('sam-owner-filter').value;
+    const q         = document.getElementById('sam-search').value.toLowerCase().trim();
+    const status    = document.getElementById('sam-status-filter').value;
+    const owner     = document.getElementById('sam-owner-filter').value;
+    const hasFilter = q || status || owner;
 
-    _filtered = _assets.filter(a => {
+    function matches(a) {
         const haystack = [a.software_name, a.vendor, a.system_owner, a.tags, a.aliases, a.software_summary]
             .filter(Boolean).join(' ').toLowerCase();
         if (q && !haystack.includes(q)) return false;
         if (status && a.status !== status) return false;
         if (owner  && a.system_owner !== owner) return false;
         return true;
+    }
+
+    const allChildren  = _assets.filter(a => a.parent_id);
+    const allParents   = _assets.filter(a => !a.parent_id);
+    const allParentIds = new Set(allParents.map(p => p.id));
+
+    const matchedChildren = allChildren.filter(matches);
+    const parentsWithKids = new Set(matchedChildren.map(c => c.parent_id));
+
+    // Orphans: parent_id set but parent not in DB — show as top-level
+    const orphans = allChildren.filter(c => !allParentIds.has(c.parent_id) && matches(c));
+
+    _filtered = [
+        ...allParents.filter(a => matches(a) || parentsWithKids.has(a.id)),
+        ...orphans,
+    ];
+
+    // Build children map for each visible parent
+    _childrenMap = {};
+    _filtered.forEach(p => {
+        if (p.parent_id) return; // orphans treated as top-level
+        const kids    = allChildren.filter(c => c.parent_id === p.id);
+        if (!kids.length) return;
+        const visible = hasFilter ? kids.filter(matches) : kids;
+        if (visible.length) _childrenMap[p.id] = visible;
     });
+
+    // Auto-expand parents that have matching children when filter active
+    if (hasFilter) parentsWithKids.forEach(id => _expanded.add(id));
 
     sortFiltered();
     renderTable();
@@ -433,66 +481,103 @@ document.querySelectorAll('.sam-table th[data-sort]').forEach(th => {
 });
 
 function sortFiltered() {
-    _filtered.sort((a, b) => {
+    function cmp(a, b) {
         let av = a[_sortCol], bv = b[_sortCol];
         if (!av && !bv) return 0;
         if (!av) return 1;
         if (!bv) return -1;
         if (typeof av === 'number') return _sortAsc ? av - bv : bv - av;
         return _sortAsc ? av.localeCompare(bv) : bv.localeCompare(av);
-    });
+    }
+    _filtered.sort(cmp);
+    Object.values(_childrenMap).forEach(kids => kids.sort(cmp));
 }
 
 // ── Render table ──────────────────────────────────────────────────────────────
 function renderTable() {
-    const tbody = document.getElementById('sam-tbody');
+    const tbody       = document.getElementById('sam-tbody');
+    const parentTotal = _assets.filter(a => !a.parent_id).length;
     document.getElementById('sam-row-count').textContent =
-        `Showing ${_filtered.length} of ${_assets.length} assets`;
+        `Showing ${_filtered.length} of ${parentTotal} top-level assets`;
 
     if (!_filtered.length) {
         tbody.innerHTML = '<tr><td colspan="7" class="sam-empty">No assets match your filters.</td></tr>';
         return;
     }
 
-    const today = new Date();
-    const d90   = new Date(today); d90.setDate(d90.getDate() + 90);
-
-    tbody.innerHTML = _filtered.map(a => {
-        // Expiry cell
-        let expiryHtml = '—';
-        if (a.term_end) {
-            const end = new Date(a.term_end);
-            const daysLeft = Math.ceil((end - today) / (1000 * 60 * 60 * 24));
-            const cls = daysLeft < 0 ? 'expires-overdue' : daysLeft <= 90 ? 'expires-soon' : '';
-            const label = fmtDate(a.term_end);
-            expiryHtml = cls ? `<span class="${cls}">${label}</span>` : label;
+    const rows = [];
+    _filtered.forEach(a => {
+        rows.push(renderRow(a, false)); // items in _filtered are always top-level
+        if (_expanded.has(a.id) && _childrenMap[a.id]) {
+            _childrenMap[a.id].forEach(child => rows.push(renderRow(child, true)));
         }
-        // Price cell
-        const priceHtml = a.price
-            ? `<span class="cell-price">$${Number(a.price).toLocaleString()}</span>${a.term ? `<span style="font-size:11px;color:var(--text-tertiary)"> / ${a.term.toLowerCase()}</span>` : ''}`
-            : '—';
-        // Tags
-        const tagsHtml = a.tags
-            ? a.tags.split(',').map(t => `<span class="mini-tag">${t.trim()}</span>`).join('')
-            : '';
-
-        return `<tr data-id="${a.id}">
-            <td>
-                <div class="cell-name">${esc(a.software_name)}</div>
-                ${a.aliases ? `<div class="cell-alias">${esc(a.aliases)}</div>` : ''}
-            </td>
-            <td>${statusBadge(a.status)}</td>
-            <td class="cell-owner">${esc(a.system_owner || '—')}</td>
-            <td style="color:var(--text-tertiary)">${esc(a.facility || '—')}</td>
-            <td>${priceHtml}</td>
-            <td class="cell-expires">${expiryHtml}</td>
-            <td><div class="cell-tags">${tagsHtml}</div></td>
-        </tr>`;
-    }).join('');
+    });
+    tbody.innerHTML = rows.join('');
 
     tbody.querySelectorAll('tr[data-id]').forEach(row =>
-        row.addEventListener('click', () => openPanel(row.dataset.id))
+        row.addEventListener('click', e => {
+            if (e.target.closest('.sam-expand-btn')) return;
+            openPanel(row.dataset.id);
+        })
     );
+    tbody.querySelectorAll('.sam-expand-btn').forEach(btn =>
+        btn.addEventListener('click', e => {
+            e.stopPropagation();
+            const id = btn.dataset.parent;
+            if (_expanded.has(id)) _expanded.delete(id);
+            else _expanded.add(id);
+            renderTable();
+        })
+    );
+}
+
+function renderRow(a, isChild) {
+    const today   = new Date();
+    const kids    = _childrenMap[a.id];
+    const hasKids = !isChild && !!kids?.length;
+    const open    = _expanded.has(a.id);
+
+    // Name cell prefix
+    const prefix = isChild
+        ? `<span class="sam-child-hook">↳</span>`
+        : hasKids
+            ? `<button class="sam-expand-btn" data-parent="${a.id}" title="${open ? 'Collapse' : 'Expand'}">${open ? '▾' : '▸'}</button>`
+            : `<span class="sam-expand-spacer"></span>`;
+
+    const nameCell = `<div class="sam-row-indent">${prefix}<div>
+        <div class="cell-name">${esc(a.software_name)}</div>
+        ${a.aliases ? `<div class="cell-alias">${esc(a.aliases)}</div>` : ''}
+        ${hasKids ? `<div class="cell-alias" style="color:var(--accent);opacity:0.75">${kids.length} product${kids.length > 1 ? 's' : ''}</div>` : ''}
+    </div></div>`;
+
+    // Price
+    const priceHtml = a.price
+        ? `<span class="cell-price">$${Number(a.price).toLocaleString()}</span>${a.term ? `<span style="font-size:11px;color:var(--text-tertiary)"> / ${a.term.toLowerCase()}</span>` : ''}`
+        : hasKids ? `<span style="font-size:11px;color:var(--text-tertiary)">see products</span>` : '—';
+
+    // Expiry
+    let expiryHtml = '—';
+    if (a.term_end) {
+        const end      = new Date(a.term_end);
+        const daysLeft = Math.ceil((end - today) / (1000 * 60 * 60 * 24));
+        const cls      = daysLeft < 0 ? 'expires-overdue' : daysLeft <= 90 ? 'expires-soon' : '';
+        expiryHtml     = cls ? `<span class="${cls}">${fmtDate(a.term_end)}</span>` : fmtDate(a.term_end);
+    }
+
+    // Tags
+    const tagsHtml = a.tags
+        ? a.tags.split(',').map(t => `<span class="mini-tag">${t.trim()}</span>`).join('')
+        : '';
+
+    return `<tr data-id="${a.id}"${isChild ? ' class="sam-child-row"' : ''}>
+        <td>${nameCell}</td>
+        <td>${statusBadge(a.status)}</td>
+        <td class="cell-owner">${esc(a.system_owner || '—')}</td>
+        <td style="color:var(--text-tertiary)">${esc(a.facility || '—')}</td>
+        <td>${priceHtml}</td>
+        <td class="cell-expires">${expiryHtml}</td>
+        <td><div class="cell-tags">${tagsHtml}</div></td>
+    </tr>`;
 }
 
 function statusBadge(status) {
@@ -534,28 +619,69 @@ function renderPanelView(a) {
     document.getElementById('sp-name').textContent   = a.software_name;
     document.getElementById('sp-vendor').textContent = a.vendor || '';
 
+    const parent   = a.parent_id ? _assets.find(x => x.id === a.parent_id) : null;
+    const children = _assets.filter(x => x.parent_id === a.id);
+
+    let html = '';
+
+    // "Part of" banner for child assets
+    if (parent) {
+        html += `<div style="background:var(--accent-dim);border:1px solid var(--border);border-radius:8px;padding:9px 12px;display:flex;align-items:center;gap:6px;font-size:12px">
+            <span style="color:var(--text-tertiary)">Part of</span>
+            <button class="sam-panel-link" data-id="${parent.id}"
+                style="color:var(--accent);background:transparent;border:none;cursor:pointer;font-size:12px;font-weight:600;font-family:inherit;padding:0"
+            >${esc(parent.software_name)}</button>
+        </div>`;
+    }
+
     const fields = [
-        { label: 'Status',       value: statusBadge(a.status), raw: true },
-        { label: 'System Owner', value: a.system_owner },
-        { label: 'Facility',     value: a.facility },
-        { label: 'Summary',      value: a.software_summary },
-        { label: 'Aliases',      value: a.aliases },
-        { label: 'Tags',         value: a.tags },
-        { label: 'Price',        value: a.price ? `$${Number(a.price).toLocaleString()}` : null },
-        { label: 'Term',         value: a.term },
-        { label: 'Term Start',   value: fmtDate(a.term_start) },
-        { label: 'Term End',     value: fmtDate(a.term_end) },
-        { label: 'Licenses',     value: a.licenses },
+        { label: 'Status',             value: statusBadge(a.status), raw: true },
+        { label: 'System Owner',       value: a.system_owner },
+        { label: 'Facility',           value: a.facility },
+        { label: 'Summary',            value: a.software_summary },
+        { label: 'Aliases',            value: a.aliases },
+        { label: 'Tags',               value: a.tags },
+        { label: 'Price',              value: a.price ? `$${Number(a.price).toLocaleString()}` : null },
+        { label: 'Term',               value: a.term },
+        { label: 'Term Start',         value: fmtDate(a.term_start) },
+        { label: 'Term End',           value: fmtDate(a.term_end) },
+        { label: 'Licenses',           value: a.licenses },
         { label: 'Contract / Invoice', value: a.contract_invoice },
-        { label: 'Notes',        value: a.notes },
+        { label: 'Notes',              value: a.notes },
     ].filter(f => f.value);
 
-    document.getElementById('sp-body').innerHTML = fields.map(f => `
+    html += fields.map(f => `
         <div>
             <div class="pf-label">${f.label}</div>
             <div class="pf-value">${f.raw ? f.value : esc(f.value)}</div>
         </div>
     `).join('');
+
+    // Linked products section for parent assets
+    if (children.length) {
+        html += `<div>
+            <div class="pf-label">Linked Products (${children.length})</div>
+            <div style="display:flex;flex-direction:column;gap:5px;margin-top:4px">
+                ${children.map(c => `
+                    <button class="sam-panel-link" data-id="${c.id}"
+                        style="display:flex;align-items:center;justify-content:space-between;width:100%;background:var(--silver-light);border:1px solid var(--border);border-radius:7px;padding:8px 10px;cursor:pointer;font-family:inherit;text-align:left;gap:8px"
+                    >
+                        <div>
+                            <div style="font-size:13px;font-weight:600;color:var(--text-primary)">${esc(c.software_name)}</div>
+                            ${c.system_owner ? `<div style="font-size:11px;color:var(--text-tertiary)">${esc(c.system_owner)}</div>` : ''}
+                        </div>
+                        ${statusBadge(c.status)}
+                    </button>
+                `).join('')}
+            </div>
+        </div>`;
+    }
+
+    document.getElementById('sp-body').innerHTML = html;
+
+    document.querySelectorAll('.sam-panel-link').forEach(btn =>
+        btn.addEventListener('click', () => openPanel(btn.dataset.id))
+    );
 
     document.getElementById('sp-edit-btn').style.display   = _canEdit ? '' : 'none';
     document.getElementById('sp-save-btn').style.display   = 'none';
@@ -598,6 +724,15 @@ function renderPanelEdit(a) {
         <div>
             <div class="pf-label">Software Summary</div>
             <textarea class="pf-textarea" id="ep-summary">${esc(a.software_summary || '')}</textarea>
+        </div>
+        <div>
+            <div class="pf-label">Parent / Billing Group</div>
+            <select class="pf-select" id="ep-parent">
+                <option value="">— None (standalone) —</option>
+                ${_assets.filter(x => !x.parent_id && x.id !== a.id).map(x =>
+                    `<option value="${x.id}" ${a.parent_id === x.id ? 'selected' : ''}>${esc(x.software_name)}</option>`
+                ).join('')}
+            </select>
         </div>
         <div class="pf-row">
             <div>
@@ -691,6 +826,7 @@ async function saveAsset() {
         contract_invoice:  v('ep-contract'),
         notes:             v('ep-notes'),
         summary_verified:  document.getElementById('ep-verified')?.checked || false,
+        parent_id:         document.getElementById('ep-parent')?.value || null,
         updated_at:        new Date().toISOString(),
     };
 
@@ -733,6 +869,7 @@ document.getElementById('sam-export-btn').addEventListener('click', () => {
         'Licenses':      a.licenses || '',
         'Contract/Invoice': a.contract_invoice || '',
         'Notes':         a.notes || '',
+        'Parent':        a.parent_id ? (_assets.find(x => x.id === a.parent_id)?.software_name || '') : '',
     }));
     const ws = XLSX.utils.json_to_sheet(rows);
     const wb = XLSX.utils.book_new();
