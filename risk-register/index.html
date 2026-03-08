@@ -15,7 +15,17 @@
 .rr-stat {
   flex: 1; min-width: 130px; background: var(--card); border: 1px solid var(--silver);
   border-radius: 12px; padding: 16px 18px;
+  cursor: pointer; transition: border-color 0.18s, box-shadow 0.18s;
+  user-select: none;
 }
+.rr-stat:hover { border-color: var(--accent); box-shadow: 0 2px 12px rgba(0,0,0,0.06); }
+.rr-stat.expanded { border-color: var(--accent); }
+.rr-stat-header { display: flex; align-items: flex-start; justify-content: space-between; }
+.rr-stat-chevron {
+  font-size: 11px; color: var(--text-tertiary); transition: transform 0.2s;
+  margin-top: 2px; flex-shrink: 0;
+}
+.rr-stat.expanded .rr-stat-chevron { transform: rotate(180deg); color: var(--accent); }
 .rr-stat-label { font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 1px; color: var(--text-tertiary); margin-bottom: 6px; }
 .rr-stat-value { font-size: 28px; font-weight: 700; color: var(--text-primary); line-height: 1; margin-bottom: 4px; }
 .rr-stat-value.critical { color: #dc2626; }
@@ -23,6 +33,33 @@
 .rr-stat-value.medium { color: var(--amber); }
 .rr-stat-value.low { color: var(--green); }
 .rr-stat-sub { font-size: 11px; color: var(--text-tertiary); }
+
+/* ── ACCORDION DETAIL ── */
+.rr-stat-detail {
+  max-height: 0; overflow: hidden;
+  transition: max-height 0.28s ease, opacity 0.22s ease, margin-top 0.22s ease;
+  opacity: 0; margin-top: 0;
+}
+.rr-stat.expanded .rr-stat-detail {
+  max-height: 320px; opacity: 1; margin-top: 12px;
+}
+.rr-stat-divider { border: none; border-top: 1px solid var(--silver); margin: 0 0 10px; }
+.rr-detail-list { list-style: none; padding: 0; margin: 0; }
+.rr-detail-list li {
+  font-size: 11px; color: var(--text-secondary); padding: 4px 0;
+  border-bottom: 1px solid var(--silver-light); line-height: 1.4;
+  display: flex; align-items: flex-start; gap: 6px;
+}
+.rr-detail-list li:last-child { border-bottom: none; }
+.rr-detail-dot { width: 6px; height: 6px; border-radius: 50%; flex-shrink: 0; margin-top: 4px; }
+
+/* ── CATEGORY BAR CHART ── */
+.rr-cat-bars { display: flex; flex-direction: column; gap: 5px; }
+.rr-cat-bar-row { display: flex; align-items: center; gap: 7px; font-size: 10.5px; }
+.rr-cat-bar-label { width: 80px; color: var(--text-tertiary); flex-shrink: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.rr-cat-bar-track { flex: 1; height: 6px; background: var(--silver-light); border-radius: 3px; overflow: hidden; }
+.rr-cat-bar-fill { height: 100%; border-radius: 3px; background: var(--accent); transition: width 0.4s ease; }
+.rr-cat-bar-count { font-size: 10.5px; color: var(--text-tertiary); width: 14px; text-align: right; flex-shrink: 0; }
 
 /* ── CONTROLS ── */
 .rr-controls { display: flex; align-items: center; gap: 8px; margin-bottom: 20px; flex-wrap: wrap; }
@@ -532,20 +569,68 @@ function render() {
   updateSummary();
 }
 
+const _expandedCards = new Set();
+
+function statCard({ id, label, value, valueClass, sub, detail }) {
+  const expanded = _expandedCards.has(id);
+  return `
+    <div class="rr-stat${expanded ? ' expanded' : ''}" data-card-id="${id}" onclick="toggleCard('${id}')">
+      <div class="rr-stat-header">
+        <div>
+          <div class="rr-stat-label">${label}</div>
+          <div class="rr-stat-value${valueClass ? ' '+valueClass : ''}">${value}</div>
+          <div class="rr-stat-sub">${sub}</div>
+        </div>
+        <span class="rr-stat-chevron">▼</span>
+      </div>
+      <div class="rr-stat-detail">
+        <hr class="rr-stat-divider">
+        ${detail}
+      </div>
+    </div>`;
+}
+
+function toggleCard(id) {
+  if (_expandedCards.has(id)) _expandedCards.delete(id);
+  else _expandedCards.add(id);
+  updateSummary();
+}
+
+function riskListDetail(risks, dotColor) {
+  if (!risks.length) return `<div style="font-size:11px;color:var(--text-tertiary)">None</div>`;
+  return `<ul class="rr-detail-list">${risks.slice(0,6).map(r =>
+    `<li><span class="rr-detail-dot" style="background:${dotColor}"></span>${esc(r.risk)}</li>`
+  ).join('')}${risks.length > 6 ? `<li style="color:var(--text-tertiary)">+ ${risks.length - 6} more</li>` : ''}</ul>`;
+}
+
+function categoryBarDetail(risks) {
+  const cats = {};
+  risks.forEach(r => { cats[r.category] = (cats[r.category] || 0) + 1; });
+  const sorted = Object.entries(cats).sort((a,b) => b[1]-a[1]);
+  const max = sorted[0]?.[1] || 1;
+  return `<div class="rr-cat-bars">${sorted.map(([cat, count]) => `
+    <div class="rr-cat-bar-row">
+      <div class="rr-cat-bar-label">${cat}</div>
+      <div class="rr-cat-bar-track"><div class="rr-cat-bar-fill" style="width:${Math.round(count/max*100)}%"></div></div>
+      <div class="rr-cat-bar-count">${count}</div>
+    </div>`).join('')}</div>`;
+}
+
 function updateSummary() {
-  const el = document.getElementById('rrSummary');
-  const total    = RISKS.length;
-  const critical = RISKS.filter(r => r.score === 9).length;
-  const high     = RISKS.filter(r => r.score === 6).length;
-  const medium   = RISKS.filter(r => r.score === 4).length;
-  const low      = RISKS.filter(r => r.score <= 2).length;
-  el.innerHTML = `
-    <div class="rr-stat"><div class="rr-stat-label">Total Risks</div><div class="rr-stat-value">${total}</div><div class="rr-stat-sub">Across all categories</div></div>
-    <div class="rr-stat"><div class="rr-stat-label">Critical (Score 9)</div><div class="rr-stat-value critical">${critical}</div><div class="rr-stat-sub">Require immediate action</div></div>
-    <div class="rr-stat"><div class="rr-stat-label">High (Score 6)</div><div class="rr-stat-value high">${high}</div><div class="rr-stat-sub">Active mitigation needed</div></div>
-    <div class="rr-stat"><div class="rr-stat-label">Medium (Score 4)</div><div class="rr-stat-value medium">${medium}</div><div class="rr-stat-sub">Monitored</div></div>
-    <div class="rr-stat"><div class="rr-stat-label">Low (Score ≤2)</div><div class="rr-stat-value low">${low}</div><div class="rr-stat-sub">Accepted / in progress</div></div>
-  `;
+  const el       = document.getElementById('rrSummary');
+  const active   = RISKS.filter(r => !r.deleted_at);
+  const total    = active.length;
+  const critical = active.filter(r => r.score === 9);
+  const high     = active.filter(r => r.score === 6);
+  const medium   = active.filter(r => r.score === 4);
+  const low      = active.filter(r => r.score <= 2);
+
+  el.innerHTML =
+    statCard({ id:'total',    label:'Total Risks',       value:total,           sub:'Across all categories',   detail: categoryBarDetail(active) }) +
+    statCard({ id:'critical', label:'Critical (Score 9)', value:critical.length, valueClass:'critical', sub:'Require immediate action',  detail: riskListDetail(critical, '#dc2626') }) +
+    statCard({ id:'high',     label:'High (Score 6)',     value:high.length,     valueClass:'high',     sub:'Active mitigation needed',  detail: riskListDetail(high, '#f97316') }) +
+    statCard({ id:'medium',   label:'Medium (Score 4)',   value:medium.length,   valueClass:'medium',   sub:'Monitored',                 detail: riskListDetail(medium, '#f59e0b') }) +
+    statCard({ id:'low',      label:'Low (Score ≤2)',     value:low.length,      valueClass:'low',      sub:'Accepted / in progress',    detail: riskListDetail(low, '#10b981') });
 }
 
 function setFilter(f, btn) {
