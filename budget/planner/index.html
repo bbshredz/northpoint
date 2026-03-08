@@ -1026,12 +1026,12 @@ function renderPersonnelDetail() {
     // ── FY2025 static view ──────────────────────────────────────────────
     if (_view === 'current') {
         let html = `<table class="li-table" style="table-layout:fixed;">
-            <colgroup><col><col style="width:120px;"><col style="width:140px;"><col style="width:160px;"></colgroup>
+            <colgroup><col><col style="width:120px;"><col style="width:160px;"><col style="width:140px;"></colgroup>
             <thead><tr>
                 <th>Team Member</th>
                 <th style="text-align:right;">Current Base</th>
-                <th style="text-align:right;">All-In Cost</th>
                 <th>Source</th>
+                <th style="text-align:right;">All-In Cost</th>
             </tr></thead>
             <tbody>`;
         PEOPLE.forEach(p => {
@@ -1042,11 +1042,11 @@ function renderPersonnelDetail() {
                     <div class="person-titles"><span class="person-t-curr">${p.titleCurr}</span></div>
                 </td>
                 <td style="text-align:right;font-weight:600;">${fmtFull(p.base)}</td>
+                <td><span class="salary-source${isEstimate ? '' : ' verified'}">${p.baseSource || '—'}</span></td>
                 <td style="text-align:right;">
                     <span class="li-cost">${fmtFull(burden(p.base))}</span>
                     <br><span class="burden-note">incl. 25% burden</span>
                 </td>
-                <td><span class="salary-source${isEstimate ? '' : ' verified'}">${p.baseSource || '—'}</span></td>
             </tr>`;
         });
         html += `</tbody>
