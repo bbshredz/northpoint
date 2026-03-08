@@ -572,21 +572,19 @@ function render() {
 const _expandedCards = new Set();
 
 function statCard({ id, label, value, valueClass, sub, detail }) {
-  const expanded = _expandedCards.has(id);
+  const expandable = !!detail;
+  const expanded = expandable && _expandedCards.has(id);
   return `
-    <div class="rr-stat${expanded ? ' expanded' : ''}" data-card-id="${id}" onclick="toggleCard('${id}')">
+    <div class="rr-stat${expanded ? ' expanded' : ''}" data-card-id="${id}"${expandable ? ` onclick="toggleCard('${id}')"` : ''} style="${expandable ? '' : 'cursor:default'}">
       <div class="rr-stat-header">
         <div>
           <div class="rr-stat-label">${label}</div>
           <div class="rr-stat-value${valueClass ? ' '+valueClass : ''}">${value}</div>
           <div class="rr-stat-sub">${sub}</div>
         </div>
-        <span class="rr-stat-chevron">▼</span>
+        ${expandable ? `<span class="rr-stat-chevron">▼</span>` : ''}
       </div>
-      <div class="rr-stat-detail">
-        <hr class="rr-stat-divider">
-        ${detail}
-      </div>
+      ${expandable ? `<div class="rr-stat-detail"><hr class="rr-stat-divider">${detail}</div>` : ''}
     </div>`;
 }
 
@@ -627,10 +625,10 @@ function updateSummary() {
 
   el.innerHTML =
     statCard({ id:'total',    label:'Total Risks',       value:total,           sub:'Across all categories',   detail: categoryBarDetail(active) }) +
-    statCard({ id:'critical', label:'Critical (Score 9)', value:critical.length, valueClass:'critical', sub:'Require immediate action',  detail: riskListDetail(critical, '#dc2626') }) +
-    statCard({ id:'high',     label:'High (Score 6)',     value:high.length,     valueClass:'high',     sub:'Active mitigation needed',  detail: riskListDetail(high, '#f97316') }) +
-    statCard({ id:'medium',   label:'Medium (Score 4)',   value:medium.length,   valueClass:'medium',   sub:'Monitored',                 detail: riskListDetail(medium, '#f59e0b') }) +
-    statCard({ id:'low',      label:'Low (Score ≤2)',     value:low.length,      valueClass:'low',      sub:'Accepted / in progress',    detail: riskListDetail(low, '#10b981') });
+    statCard({ id:'critical', label:'Critical (Score 9)', value:critical.length, valueClass:'critical', sub:'Require immediate action' }) +
+    statCard({ id:'high',     label:'High (Score 6)',     value:high.length,     valueClass:'high',     sub:'Active mitigation needed' }) +
+    statCard({ id:'medium',   label:'Medium (Score 4)',   value:medium.length,   valueClass:'medium',   sub:'Monitored' }) +
+    statCard({ id:'low',      label:'Low (Score ≤2)',     value:low.length,      valueClass:'low',      sub:'Accepted / in progress' });
 }
 
 function setFilter(f, btn) {
