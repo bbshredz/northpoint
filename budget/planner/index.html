@@ -219,6 +219,9 @@
         .ctx-coverage-footer { margin-top: 10px; padding: 7px 10px; background: #e0f2fe; border-radius: 6px; font-size: 11px; color: #0369a1; }
         .bench-callout { margin-top: 14px; padding: 12px 16px; background: #fff7ed; border-radius: 8px; border: 1px solid #fed7aa; font-size: 12px; color: #92400e; line-height: 1.6; }
         .bench-source { font-size: 11px; color: #8a95a8; margin-top: 12px; }
+        .salary-source { font-size: 10px; color: #f97316; font-weight: 600; margin-top: 2px; }
+        .salary-source.verified { color: #10b981; }
+        .mkt-source-note { font-size: 10px; color: #8a95a8; margin-top: 2px; }
 
         /* ── DARK MODE ── */
         html[data-theme="dark"] .content { background: #0a0f1e; }
@@ -447,23 +450,23 @@ const MARKET = {
     hardware:     { low: 280000,  high: 380000,  sweet: 320000  },
 };
 
-// Per-person market salary ranges (base)
+// Per-person market salary ranges (base) + market source
 const PERSON_MKT = {
-    anthony: { low: 180000, high: 220000, sweet: 200000 },
-    geremia: { low: 150000, high: 175000, sweet: 162000 },
-    jon:     { low: 105000, high: 130000, sweet: 118000 },
-    francis: { low: 85000,  high: 120000, sweet: 100000 },
-    tom:     { low: 70000,  high: 85000,  sweet: 77000  },
-    rogi:    { low: 75000,  high: 95000,  sweet: 83000  },
+    anthony: { low: 180000, high: 220000, sweet: 200000, source: 'Salary.com · Robert Half 2025 · HIMSS' },
+    geremia: { low: 150000, high: 175000, sweet: 162000, source: 'Salary.com · CompTIA · BLS OES' },
+    jon:     { low: 105000, high: 130000, sweet: 118000, source: 'Salary.com · BLS OES · Robert Half 2025' },
+    francis: { low: 85000,  high: 120000, sweet: 100000, source: 'Salary.com · CompTIA · BLS OES' },
+    tom:     { low: 70000,  high: 85000,  sweet: 77000,  source: 'Salary.com · CompTIA · BLS OES' },
+    rogi:    { low: 75000,  high: 95000,  sweet: 83000,  source: 'HIMSS Compensation Survey · Salary.com' },
 };
 
 const PEOPLE = [
-    { id: 'anthony', name: 'Anthony Trujillo', base: 93000,  titleCurr: 'IT Director, South',          titleFuture: 'VP, Business Systems & Technology' },
-    { id: 'geremia', name: 'Geremia Doan',     base: 133000, titleCurr: 'IT Director, North',          titleFuture: 'Director, IT Infrastructure & Security' },
-    { id: 'jon',     name: 'Jon Andrews',      base: 120000, titleCurr: 'Database Administrator',      titleFuture: 'Database Administrator' },
-    { id: 'francis', name: 'Francis Ferma',    base: 66000,  titleCurr: 'Network Administrator',       titleFuture: 'IT Service Delivery Manager' },
-    { id: 'tom',     name: 'Tom Jarrell',      base: 75000,  titleCurr: 'Network Administrator',       titleFuture: 'Systems Administrator' },
-    { id: 'rogi',    name: 'Rogi Poblete',     base: 75000,  titleCurr: 'Clinical Project Specialist', titleFuture: 'Clinical Systems Specialist' },
+    { id: 'anthony', name: 'Anthony Trujillo', base: 93000,  baseSource: 'Estimate — verify with HR', titleCurr: 'IT Director, South',          titleFuture: 'VP, Business Systems & Technology' },
+    { id: 'geremia', name: 'Geremia Doan',     base: 133000, baseSource: 'Estimate — verify with HR', titleCurr: 'IT Director, North',          titleFuture: 'Director, IT Infrastructure & Security' },
+    { id: 'jon',     name: 'Jon Andrews',      base: 120000, baseSource: 'Estimate — verify with HR', titleCurr: 'Database Administrator',      titleFuture: 'Database Administrator' },
+    { id: 'francis', name: 'Francis Ferma',    base: 66000,  baseSource: 'Estimate — verify with HR', titleCurr: 'Network Administrator',       titleFuture: 'IT Service Delivery Manager' },
+    { id: 'tom',     name: 'Tom Jarrell',      base: 75000,  baseSource: 'Estimate — verify with HR', titleCurr: 'Network Administrator',       titleFuture: 'Systems Administrator' },
+    { id: 'rogi',    name: 'Rogi Poblete',     base: 75000,  baseSource: 'Estimate — verify with HR', titleCurr: 'Clinical Project Specialist', titleFuture: 'Clinical Systems Specialist' },
 ];
 
 const burden = b => Math.round(b * 1.25 + 500);
@@ -1023,14 +1026,16 @@ function renderPersonnelDetail() {
     // ── FY2025 static view ──────────────────────────────────────────────
     if (_view === 'current') {
         let html = `<table class="li-table" style="table-layout:fixed;">
-            <colgroup><col><col style="width:120px;"><col style="width:140px;"></colgroup>
+            <colgroup><col><col style="width:120px;"><col style="width:140px;"><col style="width:160px;"></colgroup>
             <thead><tr>
                 <th>Team Member</th>
                 <th style="text-align:right;">Current Base</th>
                 <th style="text-align:right;">All-In Cost</th>
+                <th>Source</th>
             </tr></thead>
             <tbody>`;
         PEOPLE.forEach(p => {
+            const isEstimate = (p.baseSource || '').toLowerCase().includes('estimate');
             html += `<tr class="person-row">
                 <td>
                     <div class="person-name">${p.name}</div>
@@ -1041,16 +1046,18 @@ function renderPersonnelDetail() {
                     <span class="li-cost">${fmtFull(burden(p.base))}</span>
                     <br><span class="burden-note">incl. 25% burden</span>
                 </td>
+                <td><span class="salary-source${isEstimate ? '' : ' verified'}">${p.baseSource || '—'}</span></td>
             </tr>`;
         });
         html += `</tbody>
             <tbody><tr class="li-total">
-                <td colspan="2">Personnel Total (FY2025)</td>
+                <td colspan="3">Personnel Total (FY2025)</td>
                 <td style="text-align:right;">${fmtFull(currentTotal)}</td>
             </tr></tbody>
         </table>
         <div class="mkt-sources">
-            FY2025 actuals · Switch to FY2026 view to model proposed compensation adjustments
+            FY2025 actuals · Switch to FY2026 view to model proposed compensation adjustments.
+            Base salary sources marked in orange require HR verification before use in executive presentations.
         </div>`;
         document.getElementById('d-body').innerHTML = html;
         return;
@@ -1116,6 +1123,8 @@ function renderPersonnelDetail() {
                         ${dissolved ? 'disabled' : ''}
                         oninput="updatePerson('${p.id}', this.value)">
                     <div style="font-size:10px;color:#bec6d3;">Market sweet spot: ${fmtFull(pm.sweet)}</div>
+                    <div class="mkt-source-note">Mkt source: ${pm.source}</div>
+                    <div class="salary-source" style="margin-top:3px;">Current base source: ${p.baseSource || '—'}</div>
                 </div>
             </td>
             <td style="text-align:right;" id="allin-${p.id}">
