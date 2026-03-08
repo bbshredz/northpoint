@@ -161,6 +161,21 @@ html[data-theme="dark"] .rr-export-btn { background: rgba(255,255,255,0.04); bor
 html[data-theme="dark"] .rr-table td[data-editing] input,
 html[data-theme="dark"] .rr-table td[data-editing] textarea,
 html[data-theme="dark"] .rr-table td[data-editing] select { background: rgba(255,255,255,0.06); }
+.rr-trash-toggle {
+  display: flex; align-items: center; gap: 6px; padding: 7px 14px;
+  border-radius: 8px; border: 1px solid var(--silver); background: var(--card);
+  color: var(--text-tertiary); font-size: 12px; font-weight: 600;
+  font-family: inherit; cursor: pointer; transition: all 0.18s;
+}
+.rr-trash-toggle:hover { border-color: #dc2626; color: #dc2626; }
+.rr-trash-toggle.active { background: rgba(220,38,38,0.06); border-color: #dc2626; color: #dc2626; }
+.rr-restore-btn {
+  opacity: 0; cursor: pointer; background: none; border: none;
+  color: var(--green); font-size: 12px; font-weight: 600; padding: 2px 6px;
+  border-radius: 4px; transition: opacity 0.15s; white-space: nowrap;
+}
+.rr-table tr:hover .rr-restore-btn { opacity: 1; }
+.rr-table tr.rr-deleted td { opacity: 0.45; }
 </style>
 </head>
 <body class="mod-team">
@@ -201,6 +216,7 @@ html[data-theme="dark"] .rr-table td[data-editing] select { background: rgba(255
           <button class="rr-filter-btn" data-filter="clinical" onclick="setFilter('clinical',this)">Clinical</button>
           <div class="rr-right">
             <span class="rr-saving" id="rrSaving">Saved</span>
+            <button class="rr-trash-toggle" id="rrTrashToggle" onclick="toggleTrash()">Trash</button>
             <button class="rr-add-btn" onclick="addRisk()">+ Add Risk</button>
             <button class="rr-export-btn" onclick="exportToExcel()">
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:14px;height:14px"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
@@ -254,6 +270,7 @@ const OWNER_COLORS  = {
 
 let RISKS = [];
 let activeFilter = 'all';
+let showTrash = false;
 
 // ── DATA ────────────────────────────────────────────
 
@@ -300,10 +317,27 @@ async function addRisk() {
 }
 
 async function deleteRisk(id) {
-  if (!confirm('Delete this risk?')) return;
-  const { error } = await _npSupabase.from('risk_register').delete().eq('id', id);
+  const r = RISKS.find(x => x.id === id);
+  if (!r) return;
+  if (!confirm(`Move this risk to trash?`)) return;
+  const ts = new Date().toISOString();
+  const { error } = await _npSupabase.from('risk_register').update({ deleted_at: ts }).eq('id', id);
   if (error) { console.error('Delete error:', error); return; }
-  RISKS = RISKS.filter(r => r.id !== id);
+  r.deleted_at = ts;
+  render();
+}
+
+async function restoreRisk(id) {
+  const { error } = await _npSupabase.from('risk_register').update({ deleted_at: null }).eq('id', id);
+  if (error) { console.error('Restore error:', error); return; }
+  const r = RISKS.find(x => x.id === id);
+  if (r) r.deleted_at = null;
+  render();
+}
+
+function toggleTrash() {
+  showTrash = !showTrash;
+  document.getElementById('rrTrashToggle').classList.toggle('active', showTrash);
   render();
 }
 
@@ -445,6 +479,7 @@ function render() {
   const sorted = [...RISKS].sort((a,b) => b.score-a.score || a.id-b.id);
 
   sorted.forEach(r => {
+    if (showTrash ? !r.deleted_at : r.deleted_at) return;
     const scoreStr = String(r.score);
     const catLow = r.category.toLowerCase();
     const match = activeFilter === 'all' || activeFilter === scoreStr || activeFilter === catLow;
@@ -469,7 +504,10 @@ function render() {
       <td class="editable" data-field="mitigation" style="max-width:260px;font-size:12px;">${esc(r.mitigation||'')}</td>
       <td class="editable" data-field="owner"><div class="owner-sm"><span class="owner-dot" style="background:${ownerGrad}"></span>${esc(r.owner||'')}</div></td>
       <td class="editable" data-field="status"><span class="status-badge ${STATUS_CLS[r.status]||'st-identified'}">${STATUS_LABELS[r.status]||r.status}</span></td>
-      <td><button class="rr-del-btn" title="Delete risk">×</button></td>
+      <td>${showTrash
+        ? `<button class="rr-restore-btn" title="Restore risk">Restore</button>`
+        : `<button class="rr-del-btn" title="Move to trash">×</button>`
+      }</td>
     `;
 
     // Click handlers for editable cells
@@ -485,7 +523,8 @@ function render() {
       });
     });
 
-    tr.querySelector('.rr-del-btn').addEventListener('click', () => deleteRisk(r.id));
+    const actionBtn = tr.querySelector('.rr-del-btn') || tr.querySelector('.rr-restore-btn');
+    if (actionBtn) actionBtn.addEventListener('click', () => showTrash ? restoreRisk(r.id) : deleteRisk(r.id));
 
     body.appendChild(tr);
   });

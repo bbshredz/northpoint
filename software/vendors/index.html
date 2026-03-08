@@ -112,6 +112,24 @@
 .vc-link { font-size: 12px; color: var(--accent); text-decoration: none; }
 .vc-link:hover { text-decoration: underline; }
 
+/* ── TRASH ── */
+.vc-trash-toggle {
+  display: flex; align-items: center; gap: 6px; padding: 7px 14px;
+  border-radius: 8px; border: 1px solid var(--silver); background: var(--card);
+  color: var(--text-tertiary); font-size: 12px; font-weight: 600;
+  font-family: inherit; cursor: pointer; transition: all 0.18s;
+}
+.vc-trash-toggle:hover { border-color: #dc2626; color: #dc2626; }
+.vc-trash-toggle.active { background: rgba(220,38,38,0.06); border-color: #dc2626; color: #dc2626; }
+.vc-restore-btn {
+  opacity: 0; cursor: pointer; background: none; border: none;
+  color: var(--green); font-size: 12px; font-weight: 600; padding: 2px 6px;
+  border-radius: 4px; transition: opacity 0.15s, background 0.15s; white-space: nowrap;
+}
+.vc-table tr:hover .vc-restore-btn { opacity: 1; }
+.vc-table tr.vc-deleted td { opacity: 0.45; }
+.vc-table tr.vc-deleted td:first-child { text-decoration: line-through; }
+
 /* ── INLINE EDIT ── */
 .vc-table td.editable { cursor: pointer; }
 .vc-table td.editable:hover:not([data-editing]) { outline: 1px dashed var(--silver); outline-offset: -2px; border-radius: 4px; }
@@ -186,6 +204,7 @@ html[data-theme="dark"] .vc-table td[data-editing] select { background: rgba(255
           <button class="vc-filter-btn" data-filter="Telecom" onclick="setFilter('Telecom',this)">Telecom</button>
           <div class="vc-right">
             <span class="vc-saving" id="vcSaving">Saved</span>
+            <button class="vc-trash-toggle" id="vcTrashToggle" onclick="toggleTrash()">Trash</button>
             <button class="vc-add-btn" onclick="addVendor()">+ Add Vendor</button>
             <button class="vc-export-btn" onclick="exportToExcel()">
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:14px;height:14px"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
@@ -225,16 +244,17 @@ html[data-theme="dark"] .vc-table td[data-editing] select { background: rgba(255
 const CATEGORIES     = ['Software','Clinical','Infrastructure','Security','Productivity','Telecom','Finance','Hardware','Staffing','Other'];
 const CONTRACT_TYPES = ['SaaS','Perpetual','Support','MSA','Subscription','Per-seat','Usage-based','Other'];
 
-let VENDORS  = [];
-let SW_COUNTS = {};  // vendor name (lowercase) → count
+let VENDORS   = [];
+let SW_COUNTS = {};
 let activeFilter = 'all';
-let searchQ = '';
+let searchQ   = '';
+let showTrash = false;
 
 // ── DATA ────────────────────────────────────────────
 
 async function loadData() {
   const [vendorRes, swRes] = await Promise.all([
-    _npSupabase.from('vendors').select('*').order('name'),
+    _npSupabase.from('vendors').select('*').order('name'),  // includes deleted_at
     _npSupabase.from('software_assets').select('vendor_id')
   ]);
 
@@ -278,10 +298,27 @@ async function addVendor() {
 }
 
 async function deleteVendor(id) {
-  if (!confirm('Delete this vendor?')) return;
-  const { error } = await _npSupabase.from('vendors').delete().eq('id', id);
+  const v = VENDORS.find(x => x.id === id);
+  if (!v) return;
+  if (!confirm(`Move "${v.name}" to trash?`)) return;
+  const ts = new Date().toISOString();
+  const { error } = await _npSupabase.from('vendors').update({ deleted_at: ts }).eq('id', id);
   if (error) { console.error(error); return; }
-  VENDORS = VENDORS.filter(v => v.id !== id);
+  v.deleted_at = ts;
+  render();
+}
+
+async function restoreVendor(id) {
+  const { error } = await _npSupabase.from('vendors').update({ deleted_at: null }).eq('id', id);
+  if (error) { console.error(error); return; }
+  const v = VENDORS.find(x => x.id === id);
+  if (v) v.deleted_at = null;
+  render();
+}
+
+function toggleTrash() {
+  showTrash = !showTrash;
+  document.getElementById('vcTrashToggle').classList.toggle('active', showTrash);
   render();
 }
 
@@ -486,6 +523,7 @@ function render() {
   body.innerHTML = '';
 
   const filtered = VENDORS.filter(v => {
+    if (showTrash ? !v.deleted_at : v.deleted_at) return false;
     if (activeFilter !== 'all' && v.category !== activeFilter) return false;
     if (searchQ) {
       const q = searchQ.toLowerCase();
@@ -515,10 +553,12 @@ function render() {
       <td class="editable" data-field="annual_spend">${v.annual_spend ? `<span class="vc-spend">$${Number(v.annual_spend).toLocaleString('en-US',{minimumFractionDigits:0,maximumFractionDigits:0})}</span>` : '<span class="vc-spend zero">—</span>'}</td>
       <td>${swCountHtml(v.id, v.name)}</td>
       <td class="editable" data-field="notes" style="max-width:200px;font-size:12px;color:var(--text-tertiary);">${esc(v.notes||'')}</td>
-      <td><button class="vc-del-btn" title="Delete vendor">×</button></td>
+      <td>${showTrash
+        ? `<button class="vc-restore-btn" title="Restore vendor">Restore</button>`
+        : `<button class="vc-del-btn" title="Move to trash">×</button>`
+      }</td>
     `;
 
-    // Click handlers — contact cell cycles through sub-fields
     let contactFieldIdx = 0;
     const contactFields = ['contact_name', 'contact_email', 'contact_phone'];
 
@@ -540,7 +580,8 @@ function render() {
       });
     });
 
-    tr.querySelector('.vc-del-btn').addEventListener('click', () => deleteVendor(v.id));
+    const actionBtn = tr.querySelector('.vc-del-btn') || tr.querySelector('.vc-restore-btn');
+    if (actionBtn) actionBtn.addEventListener('click', () => showTrash ? restoreVendor(v.id) : deleteVendor(v.id));
     body.appendChild(tr);
   });
 
