@@ -1,0 +1,738 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Rain Buckets — NorthPoint</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/northpoint.css">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="/auth.js"></script>
+<style>
+.rain-wrap {
+    width: 100%; border-radius: 14px; overflow: hidden;
+    margin-bottom: 36px; position: relative;
+    cursor: none; user-select: none; -webkit-user-select: none;
+}
+#rain {
+    display: block; width: 100%; height: 280px;
+    image-rendering: pixelated; image-rendering: crisp-edges;
+}
+.rain-tag {
+    position: absolute; bottom: 8px; right: 10px;
+    font-family: 'Press Start 2P', monospace; font-size: 5px;
+    color: rgba(30,64,175,0.18); pointer-events: none; letter-spacing: 0.05em;
+}
+</style>
+</head>
+<body class="mod-team">
+<div class="layout">
+    <div id="rail-mount"></div>
+    <div class="main">
+        <header class="topbar">
+            <div class="topbar-left">
+                <a href="/index.html" class="topbar-name">NorthPoint</a>
+                <div class="topbar-sep"></div>
+                <a href="/team/dashboard/index.html" class="topbar-section" style="text-decoration:none;color:inherit;">IT Team</a>
+                <div class="topbar-sep"></div>
+                <span class="topbar-section">Rain Buckets</span>
+            </div>
+            <div class="topbar-right">
+                <span class="topbar-date" id="currentDate"></span>
+                <span class="topbar-role" id="topbarRole"></span>
+            </div>
+        </header>
+        <div class="content">
+            <div style="padding:28px 32px 0;">
+
+                <div class="rain-wrap">
+                    <canvas id="rain"></canvas>
+                    <div class="rain-tag">RAIN BUCKETS · move to play</div>
+                </div>
+
+                <div class="page-header">
+                    <h1 class="page-title">Rain Buckets</h1>
+                    <p class="page-subtitle">Catch the drops. Dodge the storms.</p>
+                    <p class="page-desc">Move your bucket left and right to catch falling drops. Gold drops are worth more — red storm drops cost a life. How long can you keep the streak?</p>
+                </div>
+
+            </div>
+        </div>
+    </div>
+</div>
+<script src="/nav.js"></script>
+<script>
+npInit(null).then(session => {
+    if (!session) return;
+    npPopulateTopbar();
+    renderNav('team');
+});
+
+// ── RAIN BUCKETS ───────────────────────────────────────────────────────────
+(function () {
+    var canvas = document.getElementById('rain');
+    var ctx    = canvas.getContext('2d');
+
+    var C = {
+        sky1:    '#dbeafe',
+        sky2:    '#eff6ff',
+        ground:  '#bbf7d0',
+        groundL: '#86efac',
+        cloud:   '#ffffff',
+        cloudSh: '#e2e8f0',
+        bucket:  '#92400e',
+        bucketH: '#b45309',
+        bucketR: '#78350f',
+        bucketW: '#bfdbfe',  // water inside bucket
+        splash:  '#93c5fd',
+        drop:    '#2563eb',
+        dropRim: '#1d4ed8',
+        gold:    '#f59e0b',
+        goldRim: '#b45309',
+        crystal: '#06b6d4',
+        crystalR:'#0891b2',
+        star:    '#7c3aed',
+        starR:   '#5b21b6',
+        bad:     '#dc2626',
+        badR:    '#991b1b',
+        text:    '#0f172a',
+        textMd:  '#334155',
+        textLt:  '#94a3b8',
+        ui:      '#1e3a8a',
+        uiLight: '#3b82f6',
+        gold2:   '#fbbf24',
+    };
+
+    var W, H = 280;
+    var GROUND_Y;
+    var BUCKET_Y, BUCKET_W = 44, BUCKET_H = 28;
+
+    // ── Clouds
+    var clouds = [];
+    var CLOUD_SHAPES = [
+        [{x:0,y:8,w:40,h:16},{x:8,y:0,w:28,h:12},{x:16,y:-4,w:20,h:8}],
+        [{x:0,y:10,w:56,h:18},{x:10,y:0,w:36,h:14},{x:24,y:-6,w:24,h:10}],
+        [{x:0,y:8,w:32,h:14},{x:6,y:0,w:22,h:10}],
+    ];
+    function initClouds() {
+        clouds = [];
+        for (var i = 0; i < 5; i++) {
+            clouds.push(spawnCloud(true));
+        }
+    }
+    function spawnCloud(anywhere) {
+        var shape = CLOUD_SHAPES[Math.floor(Math.random() * CLOUD_SHAPES.length)];
+        return {
+            x: anywhere ? Math.random() * W : W + 80,
+            y: 10 + Math.random() * 60,
+            spd: 0.18 + Math.random() * 0.22,
+            shape: shape,
+            scale: 0.8 + Math.random() * 0.8,
+            alpha: 0.7 + Math.random() * 0.3,
+        };
+    }
+
+    // ── Drop types
+    var DROP_TYPES = [
+        { id:'drop',    col:null, rim:null, val:1,  spd:1.0, prob:55, label:'+1'  },
+        { id:'crystal', col:null, rim:null, val:2,  spd:1.3, prob:20, label:'+2'  },
+        { id:'gold',    col:null, rim:null, val:5,  spd:0.7, prob:14, label:'+5'  },
+        { id:'star',    col:null, rim:null, val:10, spd:1.6, prob:5,  label:'+10' },
+        { id:'bad',     col:null, rim:null, val:-1, spd:1.4, prob:6,  label:'!'   },
+    ];
+    DROP_TYPES[0].col = null;  // set after C defined
+    function initDropColors() {
+        DROP_TYPES[0].col = C.drop;    DROP_TYPES[0].rim = C.dropRim;
+        DROP_TYPES[1].col = C.crystal; DROP_TYPES[1].rim = C.crystalR;
+        DROP_TYPES[2].col = C.gold;    DROP_TYPES[2].rim = C.goldRim;
+        DROP_TYPES[3].col = C.star;    DROP_TYPES[3].rim = C.starR;
+        DROP_TYPES[4].col = C.bad;     DROP_TYPES[4].rim = C.badR;
+    }
+    function pickDropType() {
+        var r = Math.random() * 100, cum = 0;
+        for (var i = 0; i < DROP_TYPES.length; i++) {
+            cum += DROP_TYPES[i].prob;
+            if (r < cum) return DROP_TYPES[i];
+        }
+        return DROP_TYPES[0];
+    }
+
+    // ── Game objects
+    var drops  = [];
+    var parts  = [];  // splash/catch particles
+    var labels = [];  // floating score labels
+
+    // ── Bucket state
+    var bx       = 0;    // current x (center)
+    var bTarget  = 0;    // mouse/touch target
+    var bShake   = 0;    // frames of shake remaining
+    var bFill    = 0;    // water fill level (0-1), grows on catch
+    var bCatch   = 0;    // catch flash frames
+
+    // ── Game state
+    var mode      = 'idle';
+    var score     = 0;
+    var lives     = 3;
+    var speed     = 2.8;
+    var frame     = 0;
+    var nextDrop  = 60;
+    var streak    = 0;
+    var deathFrame = -999;
+    var hsChecked = false;
+    var initials  = ['_','_','_'];
+    var initIdx   = 0;
+
+    // ── Leaderboard
+    function loadLB() {
+        try { return JSON.parse(localStorage.getItem('np-rain-lb') || '[]'); } catch(e) { return []; }
+    }
+    function saveLB(entry) {
+        var lb = loadLB();
+        lb.push(entry);
+        lb.sort(function(a,b){ return b.score - a.score; });
+        localStorage.setItem('np-rain-lb', JSON.stringify(lb.slice(0,5)));
+    }
+    function isNewHigh() {
+        var lb = loadLB();
+        return lb.length < 5 || score > lb[lb.length-1].score;
+    }
+
+    // ── Spawn drop
+    var DROP_R = 6;
+    function spawnDrop() {
+        var type = pickDropType();
+        drops.push({
+            x: DROP_R * 2 + Math.random() * (W - DROP_R * 4),
+            y: -DROP_R * 2,
+            type: type,
+            spd: speed * type.spd * (0.9 + Math.random() * 0.2),
+            pulse: Math.random() * Math.PI * 2,
+            wobble: (Math.random() - 0.5) * 0.6,
+        });
+    }
+
+    // ── Particles
+    function splash(x, y, col, n) {
+        n = n || 8;
+        for (var i = 0; i < n; i++) {
+            var a = (Math.PI * 2 / n) * i + Math.random() * 0.5;
+            var v = 1.2 + Math.random() * 2.5;
+            parts.push({ x:x, y:y, vx:Math.cos(a)*v, vy:Math.sin(a)*v - 1, life:1, col:col, sz:2+Math.random()*2 });
+        }
+    }
+    function floatLabel(x, y, text, col) {
+        labels.push({ x:x, y:y, vy:-1.2, life:1, text:text, col:col });
+    }
+
+    // ── Input
+    canvas.addEventListener('mousemove', function(e) {
+        var rect = canvas.getBoundingClientRect();
+        bTarget = (e.clientX - rect.left) * (W / rect.width);
+    });
+    canvas.addEventListener('touchmove', function(e) {
+        e.preventDefault();
+        var rect = canvas.getBoundingClientRect();
+        bTarget = (e.touches[0].clientX - rect.left) * (W / rect.width);
+    }, {passive:false});
+    canvas.addEventListener('click', function() {
+        if (mode === 'idle') { startGame(); return; }
+        if (mode === 'over' && frame - deathFrame > 50) { startGame(); return; }
+        if (mode === 'enter') cycleLetter();
+    });
+    canvas.addEventListener('touchstart', function(e) {
+        e.preventDefault();
+        if (mode === 'idle') { startGame(); return; }
+        if (mode === 'over' && frame - deathFrame > 50) { startGame(); return; }
+        if (mode === 'enter') cycleLetter();
+    }, {passive:false});
+
+    document.addEventListener('keydown', function(e) {
+        if (mode === 'enter') {
+            var ch = e.key.toUpperCase();
+            if (/^[A-Z]$/.test(ch)) {
+                initials[initIdx] = ch;
+                if (initIdx < 2) { initIdx++; } else { setTimeout(submitScore, 400); }
+            } else if (e.key === 'Backspace' && initIdx > 0) {
+                initIdx--; initials[initIdx] = '_';
+            } else if (e.key === 'Enter') { submitScore(); }
+            e.preventDefault();
+            return;
+        }
+        if (mode === 'idle' && (e.key === ' ' || e.key === 'Enter')) { startGame(); return; }
+        if (mode === 'play') {
+            if (e.key === 'ArrowLeft'  || e.key === 'a' || e.key === 'A') bTarget = Math.max(BUCKET_W/2, bTarget - 40);
+            if (e.key === 'ArrowRight' || e.key === 'd' || e.key === 'D') bTarget = Math.min(W - BUCKET_W/2, bTarget + 40);
+        }
+    });
+
+    function cycleLetter() {
+        var A = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
+        var ci = A.indexOf(initials[initIdx]); if (ci < 0) ci = -1;
+        initials[initIdx] = A[(ci+1) % A.length];
+    }
+
+    function startGame() {
+        mode = 'play'; score = 0; lives = 3; speed = 2.8;
+        streak = 0; frame = 0; nextDrop = 60; hsChecked = false;
+        bx = W / 2; bTarget = W / 2; bFill = 0; bShake = 0; bCatch = 0;
+        drops = []; parts = []; labels = [];
+    }
+
+    function loseLife() {
+        lives--;
+        bShake = 18;
+        if (lives <= 0) {
+            mode = 'over';
+            deathFrame = frame;
+            splash(bx, BUCKET_Y, C.bad, 16);
+        }
+    }
+
+    function submitScore() {
+        for (var i = initIdx; i < 3; i++) if (initials[i] === '_') initials[i] = 'A';
+        saveLB({ initials: initials.join(''), score: score });
+        mode = 'idle';
+    }
+
+    // ── Update
+    function update() {
+        frame++;
+
+        // Animate clouds always
+        for (var ci = 0; ci < clouds.length; ci++) {
+            clouds[ci].x -= clouds[ci].spd;
+            if (clouds[ci].x < -120) clouds[ci] = spawnCloud(false);
+        }
+
+        if (mode === 'idle') {
+            bx += (W/2 - bx) * 0.04;
+            return;
+        }
+        if (mode === 'over') {
+            if (!hsChecked && frame - deathFrame > 55) {
+                hsChecked = true;
+                if (score > 0 && isNewHigh()) {
+                    mode = 'enter'; initials = ['_','_','_']; initIdx = 0;
+                }
+            }
+            ageParts();
+            return;
+        }
+        if (mode !== 'play') return;
+
+        // Bucket follow
+        bx += (bTarget - bx) * 0.14;
+        bx = Math.max(BUCKET_W/2, Math.min(W - BUCKET_W/2, bx));
+        if (bShake > 0) bShake--;
+        if (bCatch > 0) bCatch--;
+        bFill = Math.max(0, bFill - 0.008);
+
+        // Spawn drops
+        if (frame >= nextDrop) {
+            spawnDrop();
+            var interval = Math.max(18, 52 - score * 0.4);
+            nextDrop = frame + interval + Math.floor(Math.random() * 14);
+        }
+
+        // Move drops
+        for (var di = drops.length - 1; di >= 0; di--) {
+            var d = drops[di];
+            d.y   += d.spd;
+            d.x   += d.wobble;
+            d.pulse += 0.1;
+
+            // Hit bucket?
+            var bLeft  = bx - BUCKET_W/2;
+            var bRight = bx + BUCKET_W/2;
+            var catchY = BUCKET_Y - 4;
+            if (d.y + DROP_R >= catchY && d.y - DROP_R <= catchY + BUCKET_H &&
+                d.x >= bLeft && d.x <= bRight) {
+
+                if (d.type.id === 'bad') {
+                    splash(d.x, d.y, C.bad, 10);
+                    floatLabel(d.x, catchY - 10, 'DODGE!', C.bad);
+                    loseLife();
+                } else {
+                    score += d.type.val;
+                    streak++;
+                    speed = Math.min(6.5, 2.8 + score * 0.025);
+                    bFill = Math.min(1, bFill + 0.25);
+                    bCatch = 8;
+                    splash(d.x, catchY, d.type.col, d.type.id === 'star' ? 14 : 8);
+                    floatLabel(d.x, catchY - 14, d.type.label, d.type.id === 'star' ? C.star : d.type.col);
+                }
+                drops.splice(di, 1);
+                continue;
+            }
+
+            // Hit ground?
+            if (d.y > GROUND_Y + 12) {
+                if (d.type.id !== 'bad') {
+                    // miss — small ground splash
+                    splash(d.x, GROUND_Y, C.splash, 4);
+                    streak = 0;
+                }
+                drops.splice(di, 1);
+            }
+        }
+
+        ageParts();
+
+        // Age labels
+        for (var li = labels.length - 1; li >= 0; li--) {
+            labels[li].y  += labels[li].vy;
+            labels[li].life -= 0.04;
+            if (labels[li].life <= 0) labels.splice(li, 1);
+        }
+    }
+
+    function ageParts() {
+        for (var pi = parts.length - 1; pi >= 0; pi--) {
+            parts[pi].x  += parts[pi].vx;
+            parts[pi].y  += parts[pi].vy;
+            parts[pi].vy += 0.09;
+            parts[pi].life -= 0.03;
+            if (parts[pi].life <= 0) parts.splice(pi, 1);
+        }
+    }
+
+    // ── Draw
+    function draw() {
+        // Sky gradient
+        var bg = ctx.createLinearGradient(0, 0, 0, H);
+        bg.addColorStop(0, C.sky1);
+        bg.addColorStop(1, C.sky2);
+        ctx.fillStyle = bg;
+        ctx.fillRect(0, 0, W, H);
+
+        drawClouds();
+        drawGround();
+        drawDrops();
+        drawBucket();
+        drawParts();
+        drawLabels();
+        drawUI();
+    }
+
+    function drawClouds() {
+        for (var ci = 0; ci < clouds.length; ci++) {
+            var cl = clouds[ci];
+            ctx.save();
+            ctx.translate(Math.floor(cl.x), Math.floor(cl.y));
+            ctx.globalAlpha = cl.alpha;
+            for (var si = 0; si < cl.shape.length; si++) {
+                var s = cl.shape[si];
+                // shadow
+                ctx.fillStyle = C.cloudSh;
+                ctx.fillRect(Math.floor(s.x * cl.scale) + 2, Math.floor(s.y * cl.scale) + 3,
+                             Math.ceil(s.w * cl.scale), Math.ceil(s.h * cl.scale));
+                // cloud
+                ctx.fillStyle = C.cloud;
+                ctx.fillRect(Math.floor(s.x * cl.scale), Math.floor(s.y * cl.scale),
+                             Math.ceil(s.w * cl.scale), Math.ceil(s.h * cl.scale));
+            }
+            ctx.restore();
+        }
+        ctx.globalAlpha = 1;
+    }
+
+    function drawGround() {
+        // Ground strip
+        ctx.fillStyle = C.groundL;
+        ctx.fillRect(0, GROUND_Y, W, 4);
+        ctx.fillStyle = C.ground;
+        ctx.fillRect(0, GROUND_Y + 4, W, H - GROUND_Y - 4);
+        // Grass tufts
+        ctx.fillStyle = C.groundL;
+        for (var gx = 8; gx < W; gx += 18) {
+            ctx.fillRect(gx, GROUND_Y - 3, 2, 3);
+            ctx.fillRect(gx + 5, GROUND_Y - 2, 2, 2);
+        }
+    }
+
+    function drawDrops() {
+        for (var di = 0; di < drops.length; di++) {
+            var d = drops[di];
+            var px = Math.floor(d.x), py = Math.floor(d.y);
+            var pl = (Math.sin(d.pulse) + 1) * 0.5;
+
+            // streak/trail
+            ctx.globalAlpha = 0.3;
+            ctx.fillStyle = d.type.col;
+            ctx.fillRect(px - 1, py - DROP_R * 2, 3, DROP_R * 2);
+            ctx.globalAlpha = 1;
+
+            // drop body (teardrop: circle + triangle)
+            ctx.fillStyle = d.type.rim;
+            ctx.beginPath();
+            ctx.arc(px, py, DROP_R + 1, 0, Math.PI * 2);
+            ctx.fill();
+            ctx.fillStyle = d.type.col;
+            ctx.beginPath();
+            ctx.arc(px, py, DROP_R, 0, Math.PI * 2);
+            ctx.fill();
+            // point
+            ctx.fillStyle = d.type.col;
+            ctx.fillRect(px - 2, py + DROP_R - 1, 4, 2);
+            ctx.fillRect(px - 1, py + DROP_R + 1, 2, 3);
+            // highlight
+            ctx.fillStyle = 'rgba(255,255,255,0.5)';
+            ctx.fillRect(px - DROP_R + 2, py - DROP_R + 2, 3, 3);
+
+            // pulse glow for star/gold
+            if (d.type.id === 'star' || d.type.id === 'gold') {
+                ctx.globalAlpha = 0.12 + pl * 0.1;
+                ctx.fillStyle = d.type.col;
+                ctx.beginPath();
+                ctx.arc(px, py, DROP_R * 2.2, 0, Math.PI * 2);
+                ctx.fill();
+                ctx.globalAlpha = 1;
+            }
+        }
+    }
+
+    function drawBucket() {
+        var shake = bShake > 0 ? (Math.random() - 0.5) * 6 : 0;
+        var px = Math.floor(bx + shake);
+        var py = BUCKET_Y;
+        var bw = BUCKET_W, bh = BUCKET_H;
+        var bw2 = Math.floor(bw * 0.8); // bottom width
+
+        // Bucket body (trapezoid via two rects + side fills)
+        var topX = px - bw/2, botX = px - bw2/2;
+        var botW = bw2, topW = bw;
+
+        // Side walls (pixel-style trapezoid)
+        ctx.fillStyle = C.bucketR;
+        // left wall
+        ctx.fillRect(Math.floor(topX), py, 4, bh);
+        // right wall
+        ctx.fillRect(Math.floor(topX + topW - 4), py, 4, bh);
+        // bottom
+        ctx.fillRect(Math.floor(botX), py + bh - 4, botW, 4);
+
+        // Inner fill (lighter, optional water fill)
+        ctx.fillStyle = C.bucketH;
+        ctx.fillRect(Math.floor(topX + 4), py, topW - 8, bh - 4);
+
+        // Water inside
+        if (bFill > 0) {
+            var wh = Math.round((bh - 8) * bFill);
+            ctx.fillStyle = C.bucketW;
+            ctx.globalAlpha = 0.7;
+            ctx.fillRect(Math.floor(topX + 5), py + bh - 4 - wh, topW - 10, wh);
+            ctx.globalAlpha = 1;
+        }
+
+        // Catch flash
+        if (bCatch > 0) {
+            ctx.globalAlpha = bCatch / 8 * 0.4;
+            ctx.fillStyle = '#fef08a';
+            ctx.fillRect(Math.floor(topX), py, topW, bh);
+            ctx.globalAlpha = 1;
+        }
+
+        // Rim (top bar)
+        ctx.fillStyle = C.bucketR;
+        ctx.fillRect(Math.floor(topX - 2), py, topW + 4, 5);
+        ctx.fillStyle = C.bucketH;
+        ctx.fillRect(Math.floor(topX - 1), py + 1, topW + 2, 3);
+
+        // Handle (arch above bucket)
+        ctx.strokeStyle = C.bucketR;
+        ctx.lineWidth = 3;
+        ctx.beginPath();
+        ctx.arc(px, py, bw/2 - 2, Math.PI, 0);
+        ctx.stroke();
+    }
+
+    function drawParts() {
+        for (var pi = 0; pi < parts.length; pi++) {
+            var p = parts[pi];
+            ctx.globalAlpha = p.life;
+            ctx.fillStyle = p.col;
+            ctx.fillRect(Math.floor(p.x), Math.floor(p.y), Math.ceil(p.sz), Math.ceil(p.sz));
+        }
+        ctx.globalAlpha = 1;
+    }
+
+    function drawLabels() {
+        for (var li = 0; li < labels.length; li++) {
+            var l = labels[li];
+            ctx.globalAlpha = l.life;
+            ctx.fillStyle = l.col;
+            ctx.font = "7px 'Press Start 2P',monospace";
+            ctx.fillText(l.text, Math.floor(l.x - ctx.measureText(l.text).width/2), Math.floor(l.y));
+        }
+        ctx.globalAlpha = 1;
+    }
+
+    function drawUI() {
+        var lb = loadLB();
+
+        // Score
+        ctx.fillStyle = C.ui;
+        ctx.font = "8px 'Press Start 2P',monospace";
+        ctx.fillText(String(score).padStart(4,'0'), 10, 16);
+
+        // Best score (top right)
+        if (lb.length > 0) {
+            var best = lb[0].initials + '  ' + String(lb[0].score).padStart(4,'0');
+            ctx.fillStyle = C.uiLight;
+            ctx.font = "6px 'Press Start 2P',monospace";
+            ctx.fillText(best, W - ctx.measureText(best).width - 10, 14);
+        }
+
+        // Lives (bucket icons, top center)
+        var lifeSpacing = 18;
+        var lifeStartX = W/2 - (lives * lifeSpacing)/2;
+        for (var i = 0; i < 3; i++) {
+            ctx.globalAlpha = i < lives ? 1 : 0.2;
+            ctx.fillStyle = i < lives ? C.bucket : C.textLt;
+            ctx.fillRect(Math.floor(lifeStartX + i * lifeSpacing), 5, 12, 9);
+            ctx.fillStyle = i < lives ? C.bucketR : C.textLt;
+            ctx.fillRect(Math.floor(lifeStartX + i * lifeSpacing - 1), 5, 14, 3);
+        }
+        ctx.globalAlpha = 1;
+
+        // Streak badge
+        if (streak >= 5 && mode === 'play') {
+            ctx.fillStyle = C.gold;
+            ctx.font = "5px 'Press Start 2P',monospace";
+            var stk = streak + 'x  streak';
+            ctx.fillText(stk, W/2 - ctx.measureText(stk).width/2, H - GROUND_Y < 30 ? H - 6 : GROUND_Y - 6);
+        }
+
+        // Idle screen
+        if (mode === 'idle') {
+            ctx.fillStyle = 'rgba(219,234,254,0.82)';
+            ctx.fillRect(0, 0, W, H);
+
+            ctx.fillStyle = C.ui;
+            ctx.font = "20px 'Press Start 2P',monospace";
+            var title = 'RAIN  BUCKETS';
+            ctx.fillText(title, W/2 - ctx.measureText(title).width/2, H/2 - 20);
+
+            ctx.globalAlpha = 0.5 + 0.35 * Math.sin(frame * 0.045);
+            ctx.fillStyle = C.uiLight;
+            ctx.font = "6px 'Press Start 2P',monospace";
+            var sub = 'move  to  play  ·  click  to  start';
+            ctx.fillText(sub, W/2 - ctx.measureText(sub).width/2, H/2 + 6);
+            ctx.globalAlpha = 1;
+
+            // Leaderboard
+            if (lb.length > 0) {
+                for (var li2 = 0; li2 < Math.min(3, lb.length); li2++) {
+                    var e = lb[li2];
+                    ctx.globalAlpha = 0.35;
+                    ctx.fillStyle = li2 === 0 ? C.gold : C.ui;
+                    ctx.font = "5px 'Press Start 2P',monospace";
+                    var es = (li2+1) + '.  ' + e.initials + '  ' + String(e.score).padStart(4,'0');
+                    ctx.fillText(es, W/2 - ctx.measureText(es).width/2, H - 30 + li2 * 13);
+                    ctx.globalAlpha = 1;
+                }
+            }
+
+            // Drop legend
+            var legend = [
+                { col: C.drop,    label: '+1' },
+                { col: C.crystal, label: '+2' },
+                { col: C.gold,    label: '+5' },
+                { col: C.star,    label: '+10'},
+                { col: C.bad,     label: 'life'},
+            ];
+            var lx = W/2 - (legend.length * 28)/2;
+            for (var li3 = 0; li3 < legend.length; li3++) {
+                ctx.fillStyle = legend[li3].col;
+                ctx.beginPath();
+                ctx.arc(Math.floor(lx + li3*28 + 6), H/2 + 26, 5, 0, Math.PI*2);
+                ctx.fill();
+                ctx.fillStyle = C.textMd;
+                ctx.font = "5px 'Press Start 2P',monospace";
+                ctx.globalAlpha = 0.7;
+                ctx.fillText(legend[li3].label, Math.floor(lx + li3*28), H/2 + 40);
+                ctx.globalAlpha = 1;
+            }
+        }
+
+        // Game over
+        if (mode === 'over') {
+            ctx.fillStyle = 'rgba(219,234,254,0.88)';
+            ctx.fillRect(0, 0, W, H);
+            ctx.fillStyle = C.bad;
+            ctx.font = "10px 'Press Start 2P',monospace";
+            var ov = 'GAME  OVER';
+            ctx.fillText(ov, W/2 - ctx.measureText(ov).width/2, H/2 - 16);
+            ctx.fillStyle = C.ui;
+            ctx.font = "7px 'Press Start 2P',monospace";
+            var sc = 'SCORE  ' + score;
+            ctx.fillText(sc, W/2 - ctx.measureText(sc).width/2, H/2 + 2);
+            ctx.globalAlpha = 0.4 + 0.4 * Math.abs(Math.sin(frame * 0.08));
+            ctx.fillStyle = C.uiLight;
+            ctx.font = "5px 'Press Start 2P',monospace";
+            var again = 'click  to  play  again';
+            ctx.fillText(again, W/2 - ctx.measureText(again).width/2, H/2 + 18);
+            ctx.globalAlpha = 1;
+        }
+
+        // Initials entry
+        if (mode === 'enter') {
+            ctx.fillStyle = 'rgba(219,234,254,0.94)';
+            ctx.fillRect(0, 0, W, H);
+            ctx.fillStyle = C.gold;
+            ctx.font = "7px 'Press Start 2P',monospace";
+            var hs = 'NEW  HIGH  SCORE';
+            ctx.fillText(hs, W/2 - ctx.measureText(hs).width/2, H/2 - 38);
+            ctx.fillStyle = C.ui;
+            ctx.font = "16px 'Press Start 2P',monospace";
+            ctx.fillText(String(score), W/2 - ctx.measureText(String(score)).width/2, H/2 - 14);
+            ctx.font = "5px 'Press Start 2P',monospace";
+            ctx.fillText('enter  your  initials', W/2 - ctx.measureText('enter  your  initials').width/2, H/2 + 4);
+            var SW = 20, SH = 18, SG = 6, TX = W/2 - (3*SW + 2*SG)/2, TY = H/2 + 14;
+            for (var si2 = 0; si2 < 3; si2++) {
+                var sx = TX + si2*(SW+SG), active = si2 === initIdx;
+                ctx.fillStyle = active ? C.uiLight : C.cloudSh;
+                ctx.globalAlpha = active ? 0.5 : 0.3;
+                ctx.fillRect(sx, TY, SW, SH);
+                ctx.globalAlpha = 1;
+                ctx.fillStyle = active ? C.ui : C.textMd;
+                ctx.font = "10px 'Press Start 2P',monospace";
+                var lw = ctx.measureText(initials[si2]).width;
+                ctx.fillText(initials[si2], Math.floor(sx + SW/2 - lw/2), TY + 13);
+                if (active && frame % 32 < 16) {
+                    ctx.fillStyle = C.ui;
+                    ctx.fillRect(Math.floor(sx + SW/2 - 5), TY + 16, 10, 1);
+                }
+            }
+            ctx.globalAlpha = 0.35;
+            ctx.fillStyle = C.textMd;
+            ctx.font = "4px 'Press Start 2P',monospace";
+            var hint = 'type  ·  tap  to  cycle  ·  enter  to  save';
+            ctx.fillText(hint, W/2 - ctx.measureText(hint).width/2, H/2 + 44);
+            ctx.globalAlpha = 1;
+        }
+    }
+
+    // ── Loop / resize
+    function loop() { update(); draw(); requestAnimationFrame(loop); }
+
+    function resize() {
+        W = canvas.width  = canvas.parentElement.clientWidth;
+        canvas.height = H;
+        GROUND_Y = H - 28;
+        BUCKET_Y = GROUND_Y - BUCKET_H - 2;
+        bx = W / 2;
+        bTarget = W / 2;
+        initClouds();
+        initDropColors();
+    }
+
+    var ro = new ResizeObserver(resize);
+    ro.observe(canvas.parentElement);
+    resize();
+    loop();
+})();
+</script>
+</body>
+</html>
