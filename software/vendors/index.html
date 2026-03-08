@@ -235,18 +235,17 @@ let searchQ = '';
 async function loadData() {
   const [vendorRes, swRes] = await Promise.all([
     _npSupabase.from('vendors').select('*').order('name'),
-    _npSupabase.from('software_assets').select('vendor')
+    _npSupabase.from('software_assets').select('vendor_id')
   ]);
 
   if (vendorRes.error) { console.error(vendorRes.error); return; }
   VENDORS = vendorRes.data || [];
 
-  // Build soft-join count map
+  // Build FK-based count map
   SW_COUNTS = {};
   (swRes.data || []).forEach(r => {
-    if (!r.vendor) return;
-    const k = r.vendor.toLowerCase().trim();
-    SW_COUNTS[k] = (SW_COUNTS[k] || 0) + 1;
+    if (!r.vendor_id) return;
+    SW_COUNTS[r.vendor_id] = (SW_COUNTS[r.vendor_id] || 0) + 1;
   });
 
   render();
@@ -473,11 +472,10 @@ function renderRenewal(date) {
   return `<span class="vc-renewal">${fmt}</span>`;
 }
 
-function swCountHtml(vendorName) {
-  const k = (vendorName || '').toLowerCase().trim();
-  const count = SW_COUNTS[k] || 0;
+function swCountHtml(vendorId, vendorName) {
+  const count = SW_COUNTS[vendorId] || 0;
   if (!count) return `<span class="vc-sw-count zero">0</span>`;
-  const url = `/software/sam/index.html?vendor=${encodeURIComponent(vendorName)}`;
+  const url = `/software/sam/index.html?vendor_id=${vendorId}`;
   return `<a class="vc-sw-count" href="${url}">${count} <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" style="width:9px;height:9px"><path d="M7 17L17 7M17 7H7M17 7v10"/></svg></a>`;
 }
 
@@ -515,7 +513,7 @@ function render() {
       <td class="editable" data-field="contract_type">${v.contract_type ? `<span class="vc-contract">${esc(v.contract_type)}</span>` : '<span style="color:var(--text-tertiary);font-size:11px">—</span>'}</td>
       <td class="editable" data-field="renewal_date">${renderRenewal(v.renewal_date)}</td>
       <td class="editable" data-field="annual_spend">${v.annual_spend ? `<span class="vc-spend">$${Number(v.annual_spend).toLocaleString('en-US',{minimumFractionDigits:0,maximumFractionDigits:0})}</span>` : '<span class="vc-spend zero">—</span>'}</td>
-      <td>${swCountHtml(v.name)}</td>
+      <td>${swCountHtml(v.id, v.name)}</td>
       <td class="editable" data-field="notes" style="max-width:200px;font-size:12px;color:var(--text-tertiary);">${esc(v.notes||'')}</td>
       <td><button class="vc-del-btn" title="Delete vendor">×</button></td>
     `;

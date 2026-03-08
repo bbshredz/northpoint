@@ -381,7 +381,7 @@ npInit('software').then(session => {
 // ── Load ─────────────────────────────────────────────────────────────────────
 async function loadAssets() {
     const cols = _canSeePricing ? '*'
-        : 'id,software_name,vendor,status,system_owner,facility,aliases,tags,term,term_start,term_end,licenses,contract_invoice,notes,summary_verified,parent_id,software_summary,updated_at';
+        : 'id,software_name,vendor,vendor_id,status,system_owner,facility,aliases,tags,term,term_start,term_end,licenses,contract_invoice,notes,summary_verified,parent_id,software_summary,updated_at';
     const { data, error } = await _npSupabase
         .from('software_assets')
         .select(cols)
@@ -428,11 +428,14 @@ document.getElementById('sam-search').addEventListener('input', applyFilters);
 document.getElementById('sam-status-filter').addEventListener('change', applyFilters);
 document.getElementById('sam-owner-filter').addEventListener('change', applyFilters);
 
+const _urlVendorId = new URLSearchParams(window.location.search).get('vendor_id');
+
 function applyFilters() {
     const q         = document.getElementById('sam-search').value.toLowerCase().trim();
     const status    = document.getElementById('sam-status-filter').value;
     const owner     = document.getElementById('sam-owner-filter').value;
-    const hasFilter = q || status || owner;
+    const vendorId  = _urlVendorId ? parseInt(_urlVendorId) : null;
+    const hasFilter = q || status || owner || vendorId;
 
     function matches(a) {
         const haystack = [a.software_name, a.vendor, a.system_owner, a.tags, a.aliases, a.software_summary]
@@ -440,6 +443,7 @@ function applyFilters() {
         if (q && !haystack.includes(q)) return false;
         if (status && a.status !== status) return false;
         if (owner  && a.system_owner !== owner) return false;
+        if (vendorId && a.vendor_id !== vendorId) return false;
         return true;
     }
 
