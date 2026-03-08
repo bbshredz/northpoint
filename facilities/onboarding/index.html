@@ -111,7 +111,7 @@
 
         /* Summary strip */
         .summary-strip {
-            display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px;
+            display: grid; grid-template-columns: repeat(auto-fill, minmax(130px, 1fr)); gap: 12px;
         }
         @media (max-width: 600px) { .summary-strip { grid-template-columns: 1fr 1fr; } }
 
@@ -130,6 +130,8 @@
         .sum-sub { font-size: 11px; color: #8a95a8; margin-top: 4px; }
         .sum-highlight .sum-sub { color: #4d6899; }
         .sum-savings { font-size: 11px; color: #10b981; font-weight: 700; margin-top: 4px; }
+        .sum-dts-badge { font-size: 10px; font-weight: 700; margin-top: 5px; }
+        html[data-theme="dark"] .sum-dts-badge { opacity: 0.9; }
 
         /* Breakdown */
         .breakdown-card {
@@ -423,6 +425,7 @@
                         <div style="font-size:11px;color:#8a95a8;margin-top:6px;" id="device-ratio-hint">
                             ~<span id="device-count">42</span> devices for <span id="device-staff-ref">120</span> staff — SNFs use shared workstations
                         </div>
+                        <div style="font-size:11px;margin-top:4px;" id="dts-rec-hint"></div>
                     </div>
 
                     <div class="toggle-row">
@@ -525,6 +528,12 @@
                             <div class="sum-savings" id="sum-savings">—</div>
                             <div class="sum-sub" id="sum-cons-sub">Estimated external rate</div>
                         </div>
+                        <div class="sum-card">
+                            <div class="sum-label">Recommended DTS</div>
+                            <div class="sum-value" id="sum-dts-rec">—</div>
+                            <div class="sum-sub" id="sum-dts-sub">Role-weighted benchmark</div>
+                            <div class="sum-dts-badge" id="sum-dts-badge"></div>
+                        </div>
                     </div>
 
                     <!-- Breakdown table -->
@@ -544,6 +553,27 @@
                             </thead>
                             <tbody id="bd-tbody"></tbody>
                         </table>
+                    </div>
+
+                    <!-- DTS role breakdown -->
+                    <div class="breakdown-card">
+                        <div class="breakdown-header">
+                            <span class="breakdown-title">Device Allocation by Role</span>
+                            <span class="breakdown-total" id="dts-header-total"></span>
+                        </div>
+                        <table class="bd-table">
+                            <thead>
+                                <tr>
+                                    <th>Role</th>
+                                    <th>Est. Staff</th>
+                                    <th>DTS Rec.</th>
+                                    <th>Devices</th>
+                                    <th>% of Total</th>
+                                </tr>
+                            </thead>
+                            <tbody id="dts-tbody"></tbody>
+                        </table>
+                        <div style="padding:10px 20px 14px;font-size:11px;color:#8a95a8;line-height:1.6;" id="dts-footnote"></div>
                     </div>
 
                     <!-- Timeline -->
@@ -623,6 +653,32 @@ function wireInputs() {
 }
 
 function autoStaff(beds) { return Math.round(beds * 0.7); }
+
+// ── DTS role model ─────────────────────────────────────────────────────────
+// SNF staffing distribution + recommended device ratio per role
+const ROLES = [
+    { name: 'Nursing & CNAs',       pct: 0.57, dts: 0.35, color: '#8b5cf6', note: 'Shared workstations / charting carts at nursing stations' },
+    { name: 'Rehab (PT/OT/SLP)',    pct: 0.10, dts: 1.00, color: '#10b981', note: 'Each therapist needs own device for EMR documentation' },
+    { name: 'Leadership & Admin',   pct: 0.07, dts: 1.00, color: '#3b82f6', note: 'Individual computers for directors and office staff' },
+    { name: 'Dietary / Food Svc',   pct: 0.09, dts: 0.10, color: '#f59e0b', note: 'Primarily paper-based; manager may have one device' },
+    { name: 'Maintenance',          pct: 0.04, dts: 0.10, color: '#6b7280', note: 'Shared tablet for work orders if any' },
+    { name: 'Housekeeping',         pct: 0.06, dts: 0.00, color: '#9ca3af', note: 'No devices — fully paper/verbal workflow' },
+    { name: 'Other (Social, Act.)', pct: 0.07, dts: 0.50, color: '#a78bfa', note: 'Social workers get own device; activities team shares' },
+];
+
+function roleBreakdown(staff) {
+    return ROLES.map(r => ({
+        ...r,
+        count:   Math.round(staff * r.pct),
+        devices: Math.round(staff * r.pct * r.dts),
+    }));
+}
+
+function recommendedDTS(staff) {
+    const rows      = roleBreakdown(staff);
+    const totalDevs = rows.reduce((s, r) => s + r.devices, 0);
+    return { ratio: totalDevs / staff, devices: totalDevs, rows };
+}
 
 function syncDeviceRatioUI() {
     const devices = Math.round(_staff * _deviceRatio);
@@ -810,8 +866,64 @@ function calculate() {
         <td>${fmt(totalYear1)}</td>
     </tr>`;
 
+    // DTS benchmark
+    renderDTSBreakdown();
+
     // Timeline
     renderTimeline(_beds);
+}
+
+// ── DTS breakdown render ───────────────────────────────────────────────────
+function renderDTSBreakdown() {
+    const { ratio: recRatio, devices: recDevices, rows } = recommendedDTS(_staff);
+    const actualDevices = Math.round(_staff * _deviceRatio);
+    const diff = _deviceRatio - recRatio;
+    const onTarget = Math.abs(diff) < 0.04;
+    const statusText  = onTarget ? '✓ On target' : diff < 0 ? '⚠ Below recommendation' : '↑ Above recommendation';
+    const statusColor = onTarget ? '#10b981'      : diff < 0 ? '#f59e0b'               : '#3b82f6';
+
+    // 5th summary card
+    document.getElementById('sum-dts-rec').textContent  = recRatio.toFixed(2);
+    document.getElementById('sum-dts-sub').textContent  = `Your setting: ${_deviceRatio.toFixed(2)}`;
+    const badge = document.getElementById('sum-dts-badge');
+    badge.textContent  = statusText;
+    badge.style.color  = statusColor;
+
+    // Input panel hint
+    document.getElementById('dts-rec-hint').innerHTML =
+        `Rec: <strong>${recDevices} devices</strong> (ratio <strong>${recRatio.toFixed(2)}</strong>) &mdash; <span style="color:${statusColor};font-weight:600">${statusText}</span>`;
+
+    // Header
+    document.getElementById('dts-header-total').textContent =
+        `Rec: ${recDevices} devices · Your setting: ${actualDevices} devices`;
+
+    // Table
+    const totalRecDevs = rows.reduce((s, r) => s + r.devices, 0);
+    document.getElementById('dts-tbody').innerHTML = rows.map(r => {
+        const pct = totalRecDevs > 0 ? Math.round(r.devices / totalRecDevs * 100) : 0;
+        return `<tr>
+            <td><div class="bd-cat">${r.name}</div><div class="bd-desc">${r.note}</div></td>
+            <td>${r.count}</td>
+            <td>${r.dts.toFixed(2)}</td>
+            <td style="font-weight:600">${r.devices}</td>
+            <td>
+                <div style="display:flex;align-items:center;gap:6px;justify-content:flex-end">
+                    <div class="bd-bar" style="width:56px;margin:0"><div class="bd-bar-fill" style="width:${pct}%;background:${r.color}"></div></div>
+                    <span style="min-width:28px;font-size:11px;color:#8a95a8">${pct}%</span>
+                </div>
+            </td>
+        </tr>`;
+    }).join('') + `<tr class="bd-total">
+        <td>Total Recommended</td>
+        <td>${_staff}</td>
+        <td>${recRatio.toFixed(2)}</td>
+        <td>${recDevices}</td>
+        <td>100%</td>
+    </tr>`;
+
+    // Footnote
+    document.getElementById('dts-footnote').textContent =
+        `Staff distribution based on SNF industry averages. Percentages vary by facility type, acuity mix, and census. Nursing includes RNs, LPNs, and CNAs. Adjust the Device-to-Staff Ratio slider to model your actual deployment.`;
 }
 
 // ── Timeline ───────────────────────────────────────────────────────────────
