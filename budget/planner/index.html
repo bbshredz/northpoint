@@ -1025,17 +1025,19 @@ function renderPersonnelDetail() {
 
     // ── FY2025 static view ──────────────────────────────────────────────
     if (_view === 'current') {
+        const itBudget = grandTotal('current');
         let html = `<table class="li-table" style="table-layout:fixed;">
-            <colgroup><col><col style="width:120px;"><col style="width:160px;"><col style="width:140px;"></colgroup>
+            <colgroup><col><col style="width:120px;"><col style="width:160px;"><col style="width:80px;"></colgroup>
             <thead><tr>
                 <th>Team Member</th>
                 <th style="text-align:right;">Current Base</th>
                 <th>Source</th>
-                <th style="text-align:right;">All-In Cost</th>
+                <th style="text-align:right;">% of IT</th>
             </tr></thead>
             <tbody>`;
         PEOPLE.forEach(p => {
             const isEstimate = (p.baseSource || '').toLowerCase().includes('estimate');
+            const pct = itBudget > 0 ? Math.round(p.base / itBudget * 100) : 0;
             html += `<tr class="person-row">
                 <td>
                     <div class="person-name">${p.name}</div>
@@ -1043,10 +1045,7 @@ function renderPersonnelDetail() {
                 </td>
                 <td style="text-align:right;font-weight:600;">${fmtFull(p.base)}</td>
                 <td><span class="salary-source${isEstimate ? '' : ' verified'}">${p.baseSource || '—'}</span></td>
-                <td style="text-align:right;">
-                    <span class="li-cost">${fmtFull(burden(p.base))}</span>
-                    <br><span class="burden-note">incl. 25% burden</span>
-                </td>
+                <td style="text-align:right;font-size:11px;color:#8a95a8;">${pct}%</td>
             </tr>`;
         });
         html += `</tbody>
