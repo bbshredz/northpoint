@@ -1,0 +1,335 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Data Sources & Methodology — NorthPoint</title>
+<link rel="stylesheet" href="/northpoint.css">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="/auth.js"></script>
+<style>
+.ref-wrap { max-width: 960px; margin: 0 auto; padding: 36px 28px 80px; }
+
+.pg-eyebrow { font-size: 10px; font-weight: 700; letter-spacing: 0.14em; text-transform: uppercase; color: var(--accent); margin-bottom: 8px; }
+.pg-title   { font-size: 26px; font-weight: 800; color: var(--text-primary); margin-bottom: 6px; }
+.pg-desc    { font-size: 13px; color: var(--text-secondary); margin-bottom: 32px; line-height: 1.6; max-width: 640px; }
+
+.ref-section { margin-bottom: 40px; }
+.ref-section-header {
+    display: flex; align-items: center; gap: 12px; margin-bottom: 16px;
+}
+.ref-section-title {
+    font-size: 11px; font-weight: 700; letter-spacing: 0.12em; text-transform: uppercase;
+    color: var(--text-tertiary); white-space: nowrap;
+}
+.ref-section-line { flex: 1; height: 1px; background: var(--silver); }
+
+.ref-table {
+    width: 100%; border-collapse: collapse;
+    background: var(--card); border: 1px solid var(--silver); border-radius: 12px; overflow: hidden;
+}
+.ref-table th {
+    font-size: 10px; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase;
+    color: var(--text-tertiary); text-align: left; padding: 10px 16px;
+    border-bottom: 1px solid var(--silver); background: var(--bg);
+}
+.ref-table td {
+    padding: 13px 16px; border-bottom: 1px solid var(--silver-light);
+    font-size: 12px; color: var(--text-secondary); vertical-align: top; line-height: 1.5;
+}
+.ref-table tr:last-child td { border-bottom: none; }
+.ref-table tr:hover td { background: rgba(255,255,255,0.02); }
+
+.ref-metric { font-weight: 700; color: var(--text-primary); font-size: 13px; }
+.ref-value  { font-weight: 700; color: var(--accent); white-space: nowrap; }
+.ref-source { font-size: 11px; color: var(--text-tertiary); }
+.ref-year   { font-size: 11px; color: var(--text-tertiary); white-space: nowrap; }
+.ref-note   { font-size: 11px; color: var(--text-secondary); }
+.ref-pages  { display: flex; flex-wrap: wrap; gap: 4px; }
+.ref-page-tag {
+    font-size: 10px; font-weight: 600; padding: 2px 7px; border-radius: 99px;
+    background: var(--silver-light); border: 1px solid var(--silver); color: var(--text-secondary);
+    white-space: nowrap;
+}
+
+.ref-badge-internal {
+    display: inline-block; font-size: 9px; font-weight: 700; padding: 2px 6px; border-radius: 99px;
+    background: rgba(139,92,246,0.12); color: #8b5cf6; border: 1px solid rgba(139,92,246,0.2);
+    text-transform: uppercase; letter-spacing: 0.06em; margin-left: 4px;
+}
+.ref-badge-external {
+    display: inline-block; font-size: 9px; font-weight: 700; padding: 2px 6px; border-radius: 99px;
+    background: rgba(16,185,129,0.12); color: #10b981; border: 1px solid rgba(16,185,129,0.2);
+    text-transform: uppercase; letter-spacing: 0.06em; margin-left: 4px;
+}
+
+.methodology-box {
+    background: rgba(59,130,246,0.05); border: 1px solid rgba(59,130,246,0.15);
+    border-radius: 10px; padding: 14px 18px; margin-bottom: 28px;
+    font-size: 12px; color: var(--text-secondary); line-height: 1.65;
+}
+.methodology-box strong { color: var(--text-primary); }
+</style>
+</head>
+<body class="mod-overview">
+<div class="layout">
+  <div id="rail-mount"></div>
+  <div class="main">
+    <header class="topbar">
+      <div class="topbar-left">
+        <a href="/index.html" class="topbar-name">NorthPoint</a>
+        <div class="topbar-sep"></div>
+        <span class="topbar-section">Data Sources & Methodology</span>
+      </div>
+      <div class="topbar-right">
+        <span class="topbar-date" id="currentDate"></span>
+        <span class="topbar-role" id="topbarRole"></span>
+      </div>
+    </header>
+    <div class="content">
+    <div class="ref-wrap">
+
+      <div class="pg-eyebrow">NorthPoint · Source of Truth</div>
+      <h1 class="pg-title">Data Sources & Methodology</h1>
+      <p class="pg-desc">Every metric, benchmark, and claim on this platform is documented here — source, publication date, and how we arrived at the number. When you see "Sources →" or "Data methodology →" anywhere on the site, it links here.</p>
+
+      <div class="methodology-box">
+        <strong>Internal vs External data:</strong> Metrics labeled <span class="ref-badge-internal">Internal</span> are derived from NACS systems (UKG, Supabase, GL records, IT logs) and represent actual NACS figures.
+        Metrics labeled <span class="ref-badge-external">External</span> are sourced from published industry reports and represent benchmarks or averages across comparable organizations.
+        Where multiple external sources exist, we use the range across all sources rather than a single figure to avoid over-reliance on any one dataset.
+      </div>
+
+      <!-- ── Budget & Finance ── -->
+      <div class="ref-section">
+        <div class="ref-section-header">
+          <span class="ref-section-title">Budget & Finance</span>
+          <div class="ref-section-line"></div>
+        </div>
+        <table class="ref-table">
+          <thead>
+            <tr>
+              <th style="width:22%">Metric</th>
+              <th style="width:14%">Value</th>
+              <th style="width:22%">Source</th>
+              <th style="width:8%">Year</th>
+              <th style="width:20%">Methodology</th>
+              <th style="width:14%">Used On</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><div class="ref-metric">NACS IT Spend</div><div class="ref-source">FY2025 actual<span class="ref-badge-internal">Internal</span></div></td>
+              <td class="ref-value">$1.6M</td>
+              <td class="ref-note">NACS General Ledger · IT cost center consolidation</td>
+              <td class="ref-year">2025</td>
+              <td class="ref-note">Sum of personnel ($560K), SaaS/licensing ($404K), hardware ($252K), services ($196K), connectivity ($152K). Estimated from GL; verify against final actuals.</td>
+              <td><div class="ref-pages"><span class="ref-page-tag">Exec Overview</span><span class="ref-page-tag">Budget</span></div></td>
+            </tr>
+            <tr>
+              <td><div class="ref-metric">IT Spend as % of Revenue</div><div class="ref-source">NACS calculation<span class="ref-badge-internal">Internal</span></div></td>
+              <td class="ref-value">~1%</td>
+              <td class="ref-note">Internal · $1.6M ÷ estimated ~$160M revenue</td>
+              <td class="ref-year">2025</td>
+              <td class="ref-note">Revenue figure is an estimate. Percentage will shift with final GL and confirmed revenue. Directionally accurate.</td>
+              <td><div class="ref-pages"><span class="ref-page-tag">Exec Overview</span><span class="ref-page-tag">Budget</span></div></td>
+            </tr>
+            <tr>
+              <td><div class="ref-metric">Healthcare IT Benchmark — SNF/LTC</div><div class="ref-source">HIMSS<span class="ref-badge-external">External</span></div></td>
+              <td class="ref-value">2.0–3.5%</td>
+              <td class="ref-note">HIMSS Annual IT Survey — Long-Term &amp; Post-Acute Care segment</td>
+              <td class="ref-year">2023</td>
+              <td class="ref-note">IT operating spend as % of total operating revenue, LTPAC-specific cohort. Excludes capital expenditure. Represents median and 75th percentile range.</td>
+              <td><div class="ref-pages"><span class="ref-page-tag">Exec Overview</span><span class="ref-page-tag">Budget</span></div></td>
+            </tr>
+            <tr>
+              <td><div class="ref-metric">Healthcare IT Benchmark — Broad</div><div class="ref-source">Advisory Board<span class="ref-badge-external">External</span></div></td>
+              <td class="ref-value">2.5–4.0%</td>
+              <td class="ref-note">Advisory Board Healthcare IT Benchmarking Report</td>
+              <td class="ref-year">2023</td>
+              <td class="ref-note">IT operating budget as % of net patient revenue. Includes community hospitals and health systems; SNF-specific is typically at the lower end of this range.</td>
+              <td><div class="ref-pages"><span class="ref-page-tag">Exec Overview</span><span class="ref-page-tag">Budget</span></div></td>
+            </tr>
+            <tr>
+              <td><div class="ref-metric">Healthcare IT Benchmark — Broad</div><div class="ref-source">Deloitte<span class="ref-badge-external">External</span></div></td>
+              <td class="ref-value">3.0–5.0%</td>
+              <td class="ref-note">Deloitte 2023 Global Health Care Outlook · IT investment section</td>
+              <td class="ref-year">2023</td>
+              <td class="ref-note">Broader healthcare sector; includes acute care which inflates the range. SNF operators typically fall 1–1.5 percentage points below acute care averages.</td>
+              <td><div class="ref-pages"><span class="ref-page-tag">Exec Overview</span><span class="ref-page-tag">Budget</span></div></td>
+            </tr>
+            <tr>
+              <td><div class="ref-metric">Cross-source benchmark average</div><div class="ref-source">NorthPoint calculation<span class="ref-badge-internal">Internal</span></div></td>
+              <td class="ref-value">2.5–4.2%</td>
+              <td class="ref-note">Average of HIMSS, Advisory Board, and Deloitte ranges above</td>
+              <td class="ref-year">2024</td>
+              <td class="ref-note">Simple average of the three source ranges: low = avg(2.0, 2.5, 3.0) = 2.5%; high = avg(3.5, 4.0, 5.0) = 4.2%. Used when a single-source citation is insufficient.</td>
+              <td><div class="ref-pages"><span class="ref-page-tag">Exec Overview</span></div></td>
+            </tr>
+            <tr>
+              <td><div class="ref-metric">Compensation gap vs market</div><div class="ref-source">Internal analysis<span class="ref-badge-internal">Internal</span></div></td>
+              <td class="ref-value">~$180K</td>
+              <td class="ref-note">IT Director analysis · market rate comparison</td>
+              <td class="ref-year">2025</td>
+              <td class="ref-note">Estimated delta between current NACS IT salary band and comparable roles in the Southern/Northern CA market (Glassdoor, Levels.fyi, LinkedIn Salary). Approximate figure; formal comp study not yet completed.</td>
+              <td><div class="ref-pages"><span class="ref-page-tag">Budget</span><span class="ref-page-tag">Restructure</span></div></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <!-- ── Staffing & Facilities ── -->
+      <div class="ref-section">
+        <div class="ref-section-header">
+          <span class="ref-section-title">Staffing & Facilities</span>
+          <div class="ref-section-line"></div>
+        </div>
+        <table class="ref-table">
+          <thead>
+            <tr>
+              <th style="width:22%">Metric</th>
+              <th style="width:14%">Value</th>
+              <th style="width:22%">Source</th>
+              <th style="width:8%">Year</th>
+              <th style="width:20%">Methodology</th>
+              <th style="width:14%">Used On</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><div class="ref-metric">NACS Tech : Facility Ratio</div><div class="ref-source">Internal<span class="ref-badge-internal">Internal</span></div></td>
+              <td class="ref-value">4.0</td>
+              <td class="ref-note">NACS IT org structure</td>
+              <td class="ref-year">2025</td>
+              <td class="ref-note">Calculated as: total facilities (12) ÷ field technicians (3). Field technicians = locale IT staff with primary facility responsibility (AT, GD, TJ). Excludes Clinical Systems Specialist (RP) and DBA role — neither carries locale ownership.</td>
+              <td><div class="ref-pages"><span class="ref-page-tag">Exec Overview</span><span class="ref-page-tag">Team</span><span class="ref-page-tag">Staff Intel</span></div></td>
+            </tr>
+            <tr>
+              <td><div class="ref-metric">SNF Field Tech Benchmark</div><div class="ref-source">HIMSS<span class="ref-badge-external">External</span></div></td>
+              <td class="ref-value">1.5–2.0</td>
+              <td class="ref-note">HIMSS SNF IT Staffing Survey — facilities per field technician</td>
+              <td class="ref-year">2023</td>
+              <td class="ref-note">Reported as median range for skilled nursing facilities with 10–20 locations. Lower ratio = more IT coverage per facility. NACS at 4.0 is approximately 2–2.7x the high end of the benchmark range.</td>
+              <td><div class="ref-pages"><span class="ref-page-tag">Exec Overview</span><span class="ref-page-tag">Team</span><span class="ref-page-tag">Staff Intel</span></div></td>
+            </tr>
+            <tr>
+              <td><div class="ref-metric">Recommended field tech count</div><div class="ref-source">HIMSS benchmark applied<span class="ref-badge-internal">Internal</span></div></td>
+              <td class="ref-value">6–8</td>
+              <td class="ref-note">Derived: HIMSS benchmark applied to 12 facilities</td>
+              <td class="ref-year">2025</td>
+              <td class="ref-note">12 facilities ÷ 1.5 (high benchmark) = 8 techs; 12 ÷ 2.0 (low benchmark) = 6 techs. This represents what a benchmarked SNF would staff, not a NACS recommendation.</td>
+              <td><div class="ref-pages"><span class="ref-page-tag">Team</span></div></td>
+            </tr>
+            <tr>
+              <td><div class="ref-metric">NACS active headcount</div><div class="ref-source">UKG workforce data<span class="ref-badge-internal">Internal</span></div></td>
+              <td class="ref-value">~1,596</td>
+              <td class="ref-note">UKG HR system export · aggregated (no PII)</td>
+              <td class="ref-year">2025</td>
+              <td class="ref-note">Active employees as of export date, across all NACS facilities including corporate service center. Individual records not stored — aggregated to counts per facility and department grouping only.</td>
+              <td><div class="ref-pages"><span class="ref-page-tag">Staff Intel</span></div></td>
+            </tr>
+            <tr>
+              <td><div class="ref-metric">Facility onboarding cost — internal</div><div class="ref-source">IT Director estimate<span class="ref-badge-internal">Internal</span></div></td>
+              <td class="ref-value">~$85K</td>
+              <td class="ref-note">Internal cost modeling · IT Director</td>
+              <td class="ref-year">2025</td>
+              <td class="ref-note">Estimate based on hardware, connectivity setup, licensing, and internal labor for a typical SNF onboarding. Excludes extraordinary cases (e.g., facilities with no existing infrastructure).</td>
+              <td><div class="ref-pages"><span class="ref-page-tag">Facilities</span><span class="ref-page-tag">Onboarding Est.</span></div></td>
+            </tr>
+            <tr>
+              <td><div class="ref-metric">Facility onboarding cost — consultant</div><div class="ref-source">Industry range<span class="ref-badge-external">External</span></div></td>
+              <td class="ref-value">$200K+</td>
+              <td class="ref-note">Healthcare IT consulting market rates (general)</td>
+              <td class="ref-year">2024</td>
+              <td class="ref-note">General market range for third-party IT integration of a skilled nursing facility. Sourced from vendor proposals and industry conversations. Directional figure only.</td>
+              <td><div class="ref-pages"><span class="ref-page-tag">Facilities</span></div></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <!-- ── Software Portfolio ── -->
+      <div class="ref-section">
+        <div class="ref-section-header">
+          <span class="ref-section-title">Software Portfolio</span>
+          <div class="ref-section-line"></div>
+        </div>
+        <table class="ref-table">
+          <thead>
+            <tr>
+              <th style="width:22%">Metric</th>
+              <th style="width:14%">Value</th>
+              <th style="width:22%">Source</th>
+              <th style="width:8%">Year</th>
+              <th style="width:20%">Methodology</th>
+              <th style="width:14%">Used On</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><div class="ref-metric">Software portfolio count</div><div class="ref-source">SAM database<span class="ref-badge-internal">Internal</span></div></td>
+              <td class="ref-value">104</td>
+              <td class="ref-note">NorthPoint Software Asset Management DB</td>
+              <td class="ref-year">2025</td>
+              <td class="ref-note">Count of distinct software tools catalogued in the SAM database with status not equal to "decommissioned." Includes SaaS, licensed desktop, and internally managed tools. Does not include one-off utilities or OS components.</td>
+              <td><div class="ref-pages"><span class="ref-page-tag">Software</span><span class="ref-page-tag">Exec Overview</span></div></td>
+            </tr>
+            <tr>
+              <td><div class="ref-metric">Non-personnel IT spend</div><div class="ref-source">GL transaction analysis<span class="ref-badge-internal">Internal</span></div></td>
+              <td class="ref-value">$1.04M</td>
+              <td class="ref-note">NACS GL · IT cost center · non-personnel line items</td>
+              <td class="ref-year">2025</td>
+              <td class="ref-note">695 transactions extracted from GL. Excludes payroll and benefits. Estimated; verify against final FY2025 close.</td>
+              <td><div class="ref-pages"><span class="ref-page-tag">Budget</span></div></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <!-- ── Infrastructure ── -->
+      <div class="ref-section">
+        <div class="ref-section-header">
+          <span class="ref-section-title">Infrastructure</span>
+          <div class="ref-section-line"></div>
+        </div>
+        <table class="ref-table">
+          <thead>
+            <tr>
+              <th style="width:22%">Metric</th>
+              <th style="width:14%">Value</th>
+              <th style="width:22%">Source</th>
+              <th style="width:8%">Year</th>
+              <th style="width:20%">Methodology</th>
+              <th style="width:14%">Used On</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><div class="ref-metric">Network uptime — 30-day avg</div><div class="ref-source">IT-managed log<span class="ref-badge-internal">Internal</span></div></td>
+              <td class="ref-value">99.9%</td>
+              <td class="ref-note">Internal IT monitoring log · manually maintained</td>
+              <td class="ref-year">2025</td>
+              <td class="ref-note">Manually tracked by IT team based on known outage windows across all facilities. Automated telemetry pending NinjaOne API integration (Issue #23). Current figure is directional — formal SLA tracking not yet in place.</td>
+              <td><div class="ref-pages"><span class="ref-page-tag">Exec Overview</span></div></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div style="font-size:11px;color:var(--text-tertiary);line-height:1.7;padding-top:16px;border-top:1px solid var(--silver)">
+        Last reviewed by IT Director · March 2026 · Contact IT to flag a discrepancy or request a new source entry.
+      </div>
+
+    </div>
+    </div>
+  </div>
+</div>
+<script src="/nav.js"></script>
+<script>
+npInit(null).then(session => {
+  if (!session) return;
+  npPopulateTopbar();
+  renderNav(null);
+});
+</script>
+</body>
+</html>

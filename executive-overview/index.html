@@ -297,6 +297,37 @@
             border: 1px solid var(--silver);
         }
 
+        /* ── KPI ACCORDION ── */
+        .kpi-tile { cursor: pointer; user-select: none; transition: border-color 0.15s; }
+        .kpi-tile.expanded { border-color: var(--accent); }
+        .kpi-header { display: flex; justify-content: space-between; align-items: flex-start; gap: 6px; }
+        .kpi-chevron { font-size: 9px; color: var(--text-tertiary); transition: transform 0.2s; flex-shrink: 0; margin-top: 4px; }
+        .kpi-tile.expanded .kpi-chevron { transform: rotate(180deg); color: var(--accent); }
+        .kpi-detail { max-height: 0; overflow: hidden; opacity: 0; margin-top: 0; transition: max-height 0.35s ease, opacity 0.25s ease, margin-top 0.2s ease; }
+        .kpi-tile.expanded .kpi-detail { max-height: 480px; opacity: 1; margin-top: 12px; }
+        .kpi-divider { border: none; border-top: 1px solid var(--silver); margin: 0 0 10px; }
+        .kpi-foot { display: flex; justify-content: flex-end; margin-top: 10px; padding-top: 8px; border-top: 1px solid var(--silver-light); }
+        .kpi-foot a { font-size: 11px; font-weight: 700; color: var(--accent); text-decoration: none; }
+        .kpi-foot a:hover { opacity: 0.75; }
+
+        /* ── BENCH ROWS ── */
+        .bench-row { display: flex; align-items: center; gap: 6px; margin-bottom: 5px; }
+        .bench-label { font-size: 10px; color: var(--text-tertiary); width: 96px; flex-shrink: 0; }
+        .bench-range { font-size: 10px; color: var(--text-secondary); width: 52px; text-align: right; flex-shrink: 0; }
+        .bench-track { flex: 1; height: 4px; background: var(--silver); border-radius: 99px; }
+        .bench-fill  { height: 100%; border-radius: 99px; }
+
+        /* ── TOOLTIP ── */
+        .with-tooltip { position: relative; display: inline-flex; align-items: center; cursor: help; }
+        .with-tooltip .tip {
+            position: absolute; bottom: calc(100% + 8px); left: 0;
+            background: var(--card); border: 1px solid var(--silver); border-radius: 8px;
+            padding: 10px 12px; font-size: 11px; color: var(--text-secondary); line-height: 1.55;
+            width: 240px; opacity: 0; pointer-events: none; transition: opacity 0.15s;
+            z-index: 200; box-shadow: 0 4px 16px rgba(0,0,0,0.25);
+        }
+        .with-tooltip:hover .tip { opacity: 1; pointer-events: auto; }
+
         /* ── RESPONSIVE ── */
         @media (max-width: 960px) {
             .kpi-strip  { grid-template-columns: repeat(2, 1fr); }
@@ -337,26 +368,128 @@
 
             <!-- KPI STRIP -->
             <div class="kpi-strip animate-2">
-                <div class="kpi-tile">
-                    <div class="kpi-value">12</div>
-                    <div class="kpi-label">Facilities Supported</div>
-                    <div class="kpi-sub">Southern &amp; Northern CA</div>
+
+                <!-- Card 1: Active Initiatives -->
+                <div class="kpi-tile" onclick="this.classList.toggle('expanded')">
+                    <div class="kpi-header">
+                        <div>
+                            <div class="kpi-label">Active Initiatives</div>
+                            <div class="kpi-value" id="kpi-init-val">—</div>
+                            <div class="kpi-sub" id="kpi-init-sub">Loading…</div>
+                        </div>
+                        <span class="kpi-chevron">▼</span>
+                    </div>
+                    <div class="kpi-detail">
+                        <hr class="kpi-divider">
+                        <div id="kpi-init-list" style="display:flex;flex-direction:column;gap:4px;max-height:160px;overflow-y:auto"></div>
+                        <div class="kpi-foot"><a href="/projects/index.html" onclick="event.stopPropagation()">View all projects →</a></div>
+                    </div>
                 </div>
-                <div class="kpi-tile">
-                    <div class="kpi-value">6</div>
-                    <div class="kpi-label">IT Staff</div>
-                    <div class="kpi-sub">2 directors · 4 specialists</div>
+
+                <!-- Card 2: Risk Posture -->
+                <div class="kpi-tile" onclick="this.classList.toggle('expanded')">
+                    <div class="kpi-header">
+                        <div>
+                            <div class="kpi-label">Risk Posture</div>
+                            <div class="kpi-value" id="kpi-risk-val">—</div>
+                            <div class="kpi-sub" id="kpi-risk-sub">Loading…</div>
+                        </div>
+                        <span class="kpi-chevron">▼</span>
+                    </div>
+                    <div class="kpi-detail">
+                        <hr class="kpi-divider">
+                        <div style="display:flex;gap:14px;align-items:center;margin-bottom:8px">
+                            <div id="kpi-risk-donut" style="position:relative;width:72px;height:72px;flex-shrink:0"></div>
+                            <div id="kpi-risk-legend" style="flex:1;display:flex;flex-direction:column;gap:5px"></div>
+                        </div>
+                        <div id="kpi-risk-top3" style="display:flex;flex-direction:column;gap:4px"></div>
+                        <div class="kpi-foot"><a href="/risk-register/index.html" onclick="event.stopPropagation()">View risk register →</a></div>
+                    </div>
                 </div>
-                <div class="kpi-tile">
-                    <div class="kpi-value">104</div>
-                    <div class="kpi-label">Software Tools</div>
-                    <div class="kpi-sub">Across all platforms</div>
+
+                <!-- Card 3: IT Spend -->
+                <div class="kpi-tile" onclick="this.classList.toggle('expanded')">
+                    <div class="kpi-header">
+                        <div>
+                            <div class="kpi-label">IT Spend</div>
+                            <div class="kpi-value">$1.6M</div>
+                            <div class="kpi-sub">~1% of revenue · FY2025</div>
+                        </div>
+                        <span class="kpi-chevron">▼</span>
+                    </div>
+                    <div class="kpi-detail">
+                        <hr class="kpi-divider">
+                        <div class="mc-bar-row"><div class="mc-bar-label">Personnel</div><div class="mc-bar-track"><div class="mc-bar-fill" style="width:100%;background:#8b5cf6"></div></div><div class="mc-bar-count">$560K</div></div>
+                        <div class="mc-bar-row"><div class="mc-bar-label">SaaS / Licensing</div><div class="mc-bar-track"><div class="mc-bar-fill" style="width:72%;background:#3b82f6"></div></div><div class="mc-bar-count">$404K</div></div>
+                        <div class="mc-bar-row"><div class="mc-bar-label">Hardware</div><div class="mc-bar-track"><div class="mc-bar-fill" style="width:45%;background:#10b981"></div></div><div class="mc-bar-count">$252K</div></div>
+                        <hr class="kpi-divider" style="margin-top:8px">
+                        <div style="font-size:10px;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;color:var(--text-tertiary);margin-bottom:7px">% of Revenue — vs Industry</div>
+                        <div class="bench-row">
+                            <div class="bench-label" style="color:#ef4444;font-weight:700">NACS (actual)</div>
+                            <div class="bench-track"><div class="bench-fill" style="width:20%;background:#ef4444"></div></div>
+                            <div class="bench-range" style="color:#ef4444;font-weight:700">1.0%</div>
+                        </div>
+                        <div class="bench-row">
+                            <div class="bench-label">HIMSS SNF</div>
+                            <div class="bench-track"><div class="bench-fill" style="width:70%;background:rgba(16,185,129,0.65)"></div></div>
+                            <div class="bench-range">2.0–3.5%</div>
+                        </div>
+                        <div class="bench-row">
+                            <div class="bench-label">Advisory Board</div>
+                            <div class="bench-track"><div class="bench-fill" style="width:80%;background:rgba(59,130,246,0.65)"></div></div>
+                            <div class="bench-range">2.5–4.0%</div>
+                        </div>
+                        <div class="bench-row">
+                            <div class="bench-label">Deloitte</div>
+                            <div class="bench-track"><div class="bench-fill" style="width:100%;background:rgba(139,92,246,0.55)"></div></div>
+                            <div class="bench-range">3.0–5.0%</div>
+                        </div>
+                        <div style="font-size:10px;color:var(--text-tertiary);margin-top:5px;font-style:italic">Avg benchmark: 2.5–4.2% · <a href="/references/index.html" onclick="event.stopPropagation()" style="color:var(--accent);text-decoration:none">Sources →</a></div>
+                        <div class="kpi-foot"><a href="/budget/index.html" onclick="event.stopPropagation()">View full budget →</a></div>
+                    </div>
                 </div>
-                <div class="kpi-tile">
-                    <div class="kpi-value">99.9%</div>
-                    <div class="kpi-label">Network Uptime</div>
-                    <div class="kpi-sub">30-day avg</div>
+
+                <!-- Card 4: Infrastructure -->
+                <div class="kpi-tile" onclick="this.classList.toggle('expanded')">
+                    <div class="kpi-header">
+                        <div>
+                            <div class="kpi-label">Infrastructure</div>
+                            <div class="kpi-value">99.9%</div>
+                            <div class="kpi-sub">uptime · 30-day avg</div>
+                        </div>
+                        <span class="kpi-chevron">▼</span>
+                    </div>
+                    <div class="kpi-detail">
+                        <hr class="kpi-divider">
+                        <div style="display:grid;grid-template-columns:1fr 1fr;gap:5px;margin-bottom:10px">
+                            <div style="display:flex;align-items:center;gap:5px;font-size:11px;color:var(--text-secondary)"><span style="width:6px;height:6px;border-radius:50%;background:#10b981;flex-shrink:0"></span>EHR / PointClickCare</div>
+                            <div style="display:flex;align-items:center;gap:5px;font-size:11px;color:var(--text-secondary)"><span style="width:6px;height:6px;border-radius:50%;background:#10b981;flex-shrink:0"></span>ISP / Connectivity</div>
+                            <div style="display:flex;align-items:center;gap:5px;font-size:11px;color:var(--text-secondary)"><span style="width:6px;height:6px;border-radius:50%;background:#10b981;flex-shrink:0"></span>VPN / Remote Access</div>
+                            <div style="display:flex;align-items:center;gap:5px;font-size:11px;color:var(--text-secondary)"><span style="width:6px;height:6px;border-radius:50%;background:#10b981;flex-shrink:0"></span>Backup / DR</div>
+                        </div>
+                        <hr class="kpi-divider">
+                        <div style="display:flex;align-items:center;gap:5px;margin-bottom:6px">
+                            <div style="font-size:10px;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;color:var(--text-tertiary)">Tech : Facility Ratio</div>
+                            <span class="with-tooltip" onclick="event.stopPropagation()">
+                                <span style="font-size:12px;color:var(--text-tertiary)">ⓘ</span>
+                                <span class="tip">Calculated as total facilities ÷ field technicians. Excludes clinical systems specialist and DBA roles. NACS: 12 ÷ 3 = 4.0. Benchmark: HIMSS SNF IT Staffing Survey 2023. Lower is better. <a href="/references/index.html" style="color:var(--accent)">Full methodology →</a></span>
+                            </span>
+                        </div>
+                        <div class="mc-bar-row">
+                            <div class="mc-bar-label">NACS</div>
+                            <div class="mc-bar-track"><div class="mc-bar-fill" style="width:100%;background:#ef4444"></div></div>
+                            <div class="mc-bar-count" style="color:#ef4444">4.0</div>
+                        </div>
+                        <div class="mc-bar-row">
+                            <div class="mc-bar-label">SNF benchmark</div>
+                            <div class="mc-bar-track"><div class="mc-bar-fill" style="width:50%;background:#10b981"></div></div>
+                            <div class="mc-bar-count" style="color:#10b981">2.0</div>
+                        </div>
+                        <div style="font-size:10px;color:var(--text-tertiary);margin-top:3px;font-style:italic">12 facilities · 3 field techs · lower is better</div>
+                        <div class="kpi-foot"><a href="/references/index.html" onclick="event.stopPropagation()">Data methodology →</a></div>
+                    </div>
                 </div>
+
             </div>
 
             <!-- BUDGET + INITIATIVES -->
@@ -541,15 +674,35 @@
 <script>
 const INIT_STATUS_CLASS = { 'planning': 'init-planning', 'in-progress': 'init-in-progress', 'complete': 'init-complete' };
 const INIT_STATUS_LABEL = { 'planning': 'Planning', 'in-progress': 'In Progress', 'complete': 'Complete' };
+const SEV_ORDER  = ['critical','high','medium','low'];
+const SEV_COLORS = { critical:'#ef4444', high:'#f59e0b', medium:'#eab308', low:'#10b981' };
+
+function donutSVG(segments, total) {
+    const r = 26, circ = 2 * Math.PI * r;
+    let cumLen = 0;
+    const arcs = segments.map(seg => {
+        const len = (seg.value / total) * circ;
+        const arc = `<circle cx="36" cy="36" r="${r}" fill="none" stroke="${seg.color}" stroke-width="10"
+            stroke-dasharray="${Math.max(0, len - 2)} ${circ}" stroke-dashoffset="${-cumLen}" opacity="0.9"/>`;
+        cumLen += len;
+        return arc;
+    });
+    return `<svg width="72" height="72" viewBox="0 0 72 72" style="transform:rotate(-90deg);position:absolute;inset:0">
+        <circle cx="36" cy="36" r="${r}" fill="none" stroke="var(--silver)" stroke-width="10"/>
+        ${arcs.join('')}
+    </svg>`;
+}
 
 async function loadInitiatives() {
     const { data, error } = await _npSupabase
         .from('strategic_initiatives')
-        .select('title, status')
+        .select('title, status, lead')
         .order('sort_order');
     const el = document.getElementById('initiativesList');
     if (error || !data?.length) {
         el.innerHTML = '<div class="card-empty">No initiatives on record.</div>';
+        document.getElementById('kpi-init-val').textContent = '0';
+        document.getElementById('kpi-init-sub').textContent = 'No active initiatives';
         return;
     }
     el.innerHTML = data.map(i => `
@@ -558,6 +711,20 @@ async function loadInitiatives() {
             <span class="initiative-title">${i.title}</span>
         </div>
     `).join('');
+    const active     = data.filter(i => i.status !== 'complete');
+    const inProgress = data.filter(i => i.status === 'in-progress').length;
+    const complete   = data.filter(i => i.status === 'complete').length;
+    document.getElementById('kpi-init-val').textContent = active.length;
+    document.getElementById('kpi-init-sub').textContent = `${inProgress} in progress · ${complete} complete`;
+    document.getElementById('kpi-init-list').innerHTML = data.map(i => {
+        const lead     = i.lead || '';
+        const initials = lead.split(' ').filter(Boolean).map(w => w[0]).join('').toUpperCase().slice(0, 2);
+        return `<div style="display:flex;align-items:center;gap:7px;padding:5px 0;border-bottom:1px solid var(--silver-light)">
+            <span class="init-status ${INIT_STATUS_CLASS[i.status] || 'init-planning'}" style="font-size:9px;width:68px">${INIT_STATUS_LABEL[i.status] || i.status}</span>
+            <span style="font-size:12px;color:var(--text-primary);flex:1;line-height:1.3">${i.title}</span>
+            ${initials ? `<span style="width:22px;height:22px;border-radius:6px;background:var(--accent);opacity:0.75;display:flex;align-items:center;justify-content:center;font-size:9px;font-weight:700;color:#fff;flex-shrink:0">${initials}</span>` : ''}
+        </div>`;
+    }).join('');
 }
 
 async function loadRisks() {
@@ -569,6 +736,8 @@ async function loadRisks() {
     const el = document.getElementById('risksGrid');
     if (error || !data?.length) {
         el.innerHTML = '<div style="grid-column:1/-1;font-size:13px;color:var(--text-tertiary);text-align:center;padding:20px 0">No active risks on record.</div>';
+        document.getElementById('kpi-risk-val').textContent = '0';
+        document.getElementById('kpi-risk-sub').textContent = 'No active risks';
         return;
     }
     el.innerHTML = data.map(r => `
@@ -580,6 +749,32 @@ async function loadRisks() {
             ${r.description ? `<div class="risk-desc">${r.description}</div>` : ''}
         </div>
     `).join('');
+    const counts = {};
+    data.forEach(r => { const s = r.severity || 'medium'; counts[s] = (counts[s] || 0) + 1; });
+    const total    = data.length;
+    const highCrit = (counts.critical || 0) + (counts.high || 0);
+    document.getElementById('kpi-risk-val').textContent = total;
+    document.getElementById('kpi-risk-sub').textContent = `${highCrit} critical / high priority`;
+    const segments = SEV_ORDER.filter(s => counts[s]).map(s => ({ value: counts[s], color: SEV_COLORS[s] }));
+    document.getElementById('kpi-risk-donut').innerHTML =
+        donutSVG(segments, total) +
+        `<div style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-size:16px;font-weight:800;color:var(--text-primary)">${total}</div>`;
+    document.getElementById('kpi-risk-legend').innerHTML = SEV_ORDER.filter(s => counts[s]).map(s =>
+        `<div style="display:flex;align-items:center;gap:6px">
+            <span style="width:8px;height:8px;border-radius:2px;background:${SEV_COLORS[s]};flex-shrink:0"></span>
+            <span style="font-size:11px;color:var(--text-secondary);text-transform:capitalize;flex:1">${s}</span>
+            <span style="font-size:11px;font-weight:700;color:var(--text-primary)">${counts[s]}</span>
+        </div>`
+    ).join('');
+    const top3 = [...data]
+        .sort((a, b) => SEV_ORDER.indexOf(a.severity) - SEV_ORDER.indexOf(b.severity))
+        .slice(0, 3);
+    document.getElementById('kpi-risk-top3').innerHTML = top3.map(r =>
+        `<div style="display:flex;align-items:flex-start;gap:6px;padding:5px 0;border-top:1px solid var(--silver-light)">
+            <span style="font-size:9px;font-weight:700;padding:2px 7px;border-radius:99px;background:${SEV_COLORS[r.severity]}22;color:${SEV_COLORS[r.severity]};text-transform:uppercase;flex-shrink:0;margin-top:1px">${r.severity}</span>
+            <span style="font-size:11px;color:var(--text-secondary);line-height:1.4">${r.title}</span>
+        </div>`
+    ).join('');
 }
 
 npInit('executive').then(session => {
