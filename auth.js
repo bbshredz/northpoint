@@ -6,6 +6,7 @@
 // Uses body (not html) so html background is visible during view transition snapshots
 (function(){
   var t = localStorage.getItem('np-theme');
+  if (!t) t = window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
   if (t === 'dark') document.documentElement.setAttribute('data-theme', 'dark');
   var style = document.createElement('style');
   style.id = 'np-fouc';

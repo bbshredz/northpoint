@@ -1,0 +1,311 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>About NorthPoint — NACS IT</title>
+<link rel="stylesheet" href="/northpoint.css">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="/auth.js"></script>
+<style>
+.about-wrap { max-width: 760px; margin: 0 auto; padding: 48px 28px 100px; }
+
+/* ── Hero ── */
+.about-hero { margin-bottom: 64px; }
+.about-eyebrow {
+    font-size: 10px; font-weight: 700; letter-spacing: 0.16em; text-transform: uppercase;
+    color: var(--accent); margin-bottom: 20px;
+}
+.about-headline {
+    font-size: clamp(28px, 4vw, 42px); font-weight: 800; color: var(--text-primary);
+    line-height: 1.18; letter-spacing: -0.02em; margin-bottom: 24px;
+}
+.about-headline em { font-style: normal; color: var(--accent); }
+.about-lead {
+    font-size: 16px; color: var(--text-secondary); line-height: 1.75; max-width: 640px;
+}
+
+/* ── Section ── */
+.about-section { margin-bottom: 56px; }
+.about-section-label {
+    font-size: 10px; font-weight: 700; letter-spacing: 0.14em; text-transform: uppercase;
+    color: var(--text-tertiary); margin-bottom: 20px; display: flex; align-items: center; gap: 12px;
+}
+.about-section-label::after { content: ''; flex: 1; height: 1px; background: var(--silver); }
+.about-body {
+    font-size: 14px; color: var(--text-secondary); line-height: 1.8;
+}
+.about-body p { margin-bottom: 16px; }
+.about-body p:last-child { margin-bottom: 0; }
+.about-body strong { color: var(--text-primary); font-weight: 600; }
+
+/* ── Callout block ── */
+.about-callout {
+    background: rgba(139,92,246,0.06); border: 1px solid rgba(139,92,246,0.18);
+    border-left: 3px solid var(--accent); border-radius: 0 10px 10px 0;
+    padding: 20px 24px; margin: 24px 0;
+}
+.about-callout-label {
+    font-size: 9px; font-weight: 700; letter-spacing: 0.14em; text-transform: uppercase;
+    color: var(--accent); margin-bottom: 8px;
+}
+.about-callout-body {
+    font-size: 13px; color: var(--text-secondary); line-height: 1.7;
+}
+.about-callout-body strong { color: var(--text-primary); }
+
+/* ── Principle tiles ── */
+.about-tiles { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 12px; margin: 28px 0; }
+.about-tile {
+    background: var(--card); border: 1px solid var(--silver); border-radius: 12px;
+    padding: 18px 20px;
+}
+.about-tile-icon { font-size: 18px; margin-bottom: 8px; }
+.about-tile-title { font-size: 13px; font-weight: 700; color: var(--text-primary); margin-bottom: 4px; }
+.about-tile-desc  { font-size: 11px; color: var(--text-tertiary); line-height: 1.5; }
+
+/* ── Horizon section ── */
+.about-horizon {
+    background: var(--card); border: 1px solid var(--silver); border-radius: 14px;
+    padding: 28px 32px; margin-top: 32px;
+}
+.about-horizon-title {
+    font-size: 11px; font-weight: 700; letter-spacing: 0.12em; text-transform: uppercase;
+    color: var(--text-tertiary); margin-bottom: 20px;
+}
+.horizon-item {
+    display: flex; gap: 16px; padding: 14px 0; border-bottom: 1px solid var(--silver-light);
+    align-items: flex-start;
+}
+.horizon-item:last-child { border-bottom: none; padding-bottom: 0; }
+.horizon-dot {
+    width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; margin-top: 5px;
+}
+.horizon-label { font-size: 13px; font-weight: 600; color: var(--text-primary); margin-bottom: 2px; }
+.horizon-desc  { font-size: 12px; color: var(--text-tertiary); line-height: 1.5; }
+.horizon-status {
+    font-size: 9px; font-weight: 700; padding: 2px 7px; border-radius: 99px;
+    text-transform: uppercase; letter-spacing: 0.06em; margin-left: 8px; vertical-align: middle;
+}
+.h-live    { background: rgba(16,185,129,0.1);   color: #10b981; }
+.h-active  { background: rgba(59,130,246,0.1);   color: #3b82f6; }
+.h-planned { background: rgba(245,158,11,0.1);   color: #f59e0b; }
+.h-future  { background: rgba(100,116,139,0.1);  color: #64748b; }
+
+/* ── Attribution ── */
+.about-attr {
+    margin-top: 56px; padding-top: 24px; border-top: 1px solid var(--silver);
+    display: flex; align-items: center; gap: 14px;
+}
+.about-attr-avatar {
+    width: 40px; height: 40px; border-radius: 10px; flex-shrink: 0;
+    background: linear-gradient(135deg, #3b82f6, #6366f1);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 12px; font-weight: 700; color: #fff;
+}
+.about-attr-name  { font-size: 13px; font-weight: 700; color: var(--text-primary); }
+.about-attr-title { font-size: 11px; color: var(--text-tertiary); margin-top: 1px; }
+.about-attr-date  { font-size: 11px; color: var(--text-tertiary); margin-top: 4px; }
+</style>
+</head>
+<body class="mod-overview">
+<div class="layout">
+  <div id="rail-mount"></div>
+  <div class="main">
+    <header class="topbar">
+      <div class="topbar-left">
+        <a href="/index.html" class="topbar-name">NorthPoint</a>
+        <div class="topbar-sep"></div>
+        <span class="topbar-section">About</span>
+      </div>
+      <div class="topbar-right">
+        <span class="topbar-date" id="currentDate"></span>
+        <span class="topbar-role" id="topbarRole"></span>
+      </div>
+    </header>
+    <div class="content">
+    <div class="about-wrap">
+
+      <!-- Hero -->
+      <div class="about-hero">
+        <div class="about-eyebrow">NACS Information Technology · NorthPoint</div>
+        <h1 class="about-headline">
+          The answer to questions<br>
+          that <em>never had a place to live.</em>
+        </h1>
+        <p class="about-lead">
+          NorthPoint is a single point of truth for NACS IT — built internally, owned internally, and designed to grow with the organization. It exists because the data always existed. What was missing was a place to aggregate it, reason over it, and act on it.
+        </p>
+      </div>
+
+      <!-- The Problem -->
+      <div class="about-section">
+        <div class="about-section-label">The Problem</div>
+        <div class="about-body">
+          <p>
+            For years, NACS IT operated without a common operating picture. Data existed — in systems, in spreadsheets, in people's heads — but it was siloed, undocumented, or effectively abandoned. Questions that should have had immediate answers required weeks of cross-referencing disconnected sources, if they got answered at all.
+          </p>
+          <p>
+            Teams worked in parallel, occasionally working against each other — not out of intent, but out of <strong>obfuscation by structure</strong>. The information asymmetry was built in. No single person, let alone a leadership team, could see the full picture at once.
+          </p>
+          <p>
+            Long-standing needs went unaddressed. The business case for IT investment was hard to make without data. And without a compelling case, the investment didn't come — which meant the data continued to sit inaccessible, unlevered, and unrealized.
+          </p>
+        </div>
+      </div>
+
+      <!-- What NorthPoint Is -->
+      <div class="about-section">
+        <div class="about-section-label">What NorthPoint Is</div>
+        <div class="about-body">
+          <p>
+            NorthPoint is a platform for growth, change, and decision-making. A guide and a map. A toolbox. It is not a vendor product, not a consultant's deliverable, and not a project that ends when a contract does.
+          </p>
+          <p>
+            It is <strong>owned by NACS</strong> — which means its direction, its data model, and its user experience are determined by operational reality, not by a product team in another city optimizing for another customer's use case.
+          </p>
+        </div>
+
+        <div class="about-tiles">
+          <div class="about-tile">
+            <div class="about-tile-icon">🗺️</div>
+            <div class="about-tile-title">A Map</div>
+            <div class="about-tile-desc">Facilities, staff, systems, risks — visible and navigable from a single place.</div>
+          </div>
+          <div class="about-tile">
+            <div class="about-tile-icon">📐</div>
+            <div class="about-tile-title">A Guide</div>
+            <div class="about-tile-desc">Integration checklists, onboarding estimators, benchmarks — decision support baked in.</div>
+          </div>
+          <div class="about-tile">
+            <div class="about-tile-icon">🔧</div>
+            <div class="about-tile-title">A Toolbox</div>
+            <div class="about-tile-desc">Budget modeling, vendor governance, risk tracking — tools the team actually uses.</div>
+          </div>
+          <div class="about-tile">
+            <div class="about-tile-icon">📍</div>
+            <div class="about-tile-title">A Point of Truth</div>
+            <div class="about-tile-desc">One place where historically unavailable data is aggregated, levered, and alive.</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Own Your Data -->
+      <div class="about-section">
+        <div class="about-section-label">The Principle</div>
+        <div class="about-body">
+          <p>
+            Every data point on this platform was generated by NACS operations. It belongs to NACS. The insight it contains — about staffing ratios, software costs, facility onboarding, risk exposure — is valuable precisely because it is specific to this organization.
+          </p>
+          <p>
+            When that data lives exclusively inside vendor systems, the vendor controls the interface, the analytics, and the narrative. You pay for access to your own operational intelligence — on their terms, through their lens, and at their price point.
+          </p>
+        </div>
+
+        <div class="about-callout">
+          <div class="about-callout-label">Market Context — Ensign Group</div>
+          <div class="about-callout-body">
+            The Ensign Group, one of the largest and most operationally sophisticated SNF operators in the country, built <strong>Bridgeway Health Solutions</strong> — a proprietary clinical analytics platform — rather than relying solely on third-party EHR vendors for insight. The strategic logic: owning the data pipeline is more defensible than renting access to it. It eliminates vendor dependency on the analytics layer, enables custom UX and workflow decisions that improve staff adoption and retention, and surfaces intelligence that generic platforms aren't designed to surface. <strong>NorthPoint operates from the same principle, scaled to NACS.</strong>
+          </div>
+        </div>
+
+        <div class="about-body" style="margin-top:20px">
+          <p>
+            The near-term roadmap includes connecting NorthPoint to PointClickCare's API — pulling census, utilization, and operational data out of PCC and into a platform NACS controls. Not replacing PCC as the system of record. Building the <strong>intelligence layer above it</strong> that PCC's generic reporting was never designed to provide.
+          </p>
+        </div>
+      </div>
+
+      <!-- Where We're Going -->
+      <div class="about-section">
+        <div class="about-section-label">Where We're Going</div>
+        <div class="about-body" style="margin-bottom:20px">
+          <p>NorthPoint is a living platform. What exists today is the foundation. What follows is the aggregation layer — pulling data from the systems NACS already operates, surfacing it through interfaces NACS controls, and building the analytical capability that positions the organization to grow with confidence.</p>
+        </div>
+
+        <div class="about-horizon">
+          <div class="about-horizon-title">Roadmap</div>
+
+          <div class="horizon-item">
+            <div class="horizon-dot" style="background:#10b981"></div>
+            <div>
+              <div class="horizon-label">Core Platform <span class="horizon-status h-live">Live</span></div>
+              <div class="horizon-desc">Budget modeling, facility operations, team structure, vendor governance, risk register, SWOT — the foundation is built and in use.</div>
+            </div>
+          </div>
+
+          <div class="horizon-item">
+            <div class="horizon-dot" style="background:#3b82f6"></div>
+            <div>
+              <div class="horizon-label">Staff Intelligence <span class="horizon-status h-live">Live</span></div>
+              <div class="horizon-desc">Aggregated headcount from UKG by facility and department — no PII, structured for IT capacity modeling and device planning.</div>
+            </div>
+          </div>
+
+          <div class="horizon-item">
+            <div class="horizon-dot" style="background:#3b82f6"></div>
+            <div>
+              <div class="horizon-label">Phone & Directory Integration <span class="horizon-status h-active">In Progress</span></div>
+              <div class="horizon-desc">Unified contact directory pulling from Fireside UCx — replacing scattered spreadsheets with a live, searchable source.</div>
+            </div>
+          </div>
+
+          <div class="horizon-item">
+            <div class="horizon-dot" style="background:#f59e0b"></div>
+            <div>
+              <div class="horizon-label">PointClickCare API Integration <span class="horizon-status h-planned">Planned</span></div>
+              <div class="horizon-desc">Census, utilization, and operational metrics from PCC surfaced inside NorthPoint — aggregate-only, HIPAA-compliant architecture. Intelligence layer above the EHR, not a replacement of it.</div>
+            </div>
+          </div>
+
+          <div class="horizon-item">
+            <div class="horizon-dot" style="background:#f59e0b"></div>
+            <div>
+              <div class="horizon-label">NinjaOne Device Intelligence <span class="horizon-status h-planned">Planned</span></div>
+              <div class="horizon-desc">Live device count, alert feed, and patch status per facility — eliminating manual audits and giving IT a real-time hardware baseline.</div>
+            </div>
+          </div>
+
+          <div class="horizon-item">
+            <div class="horizon-dot" style="background:#64748b"></div>
+            <div>
+              <div class="horizon-label">Clinical Analytics Layer <span class="horizon-status h-future">Future</span></div>
+              <div class="horizon-desc">Cross-facility operational benchmarking from aggregated PCC data — readmission trends, acuity distribution, staffing efficiency. The Ensign model, at NACS scale.</div>
+            </div>
+          </div>
+
+          <div class="horizon-item">
+            <div class="horizon-dot" style="background:#64748b"></div>
+            <div>
+              <div class="horizon-label">30×30 Growth Infrastructure <span class="horizon-status h-future">Future</span></div>
+              <div class="horizon-desc">Platform scaling to support 30 facilities by 2030 — standardized onboarding workflows, multi-facility analytics, and IT capacity planning tied to growth milestones.</div>
+            </div>
+          </div>
+
+        </div>
+      </div>
+
+      <!-- Attribution -->
+      <div class="about-attr">
+        <div class="about-attr-avatar">AT</div>
+        <div>
+          <div class="about-attr-name">Anthony Trujillo</div>
+          <div class="about-attr-title">IT Director — North American Care Services</div>
+          <div class="about-attr-date">NorthPoint · Built 2025–present</div>
+        </div>
+      </div>
+
+    </div>
+    </div>
+  </div>
+</div>
+<script src="/nav.js"></script>
+<script>
+npInit(null).then(session => {
+  if (!session) return;
+  npPopulateTopbar();
+  renderNav(null);
+});
+</script>
+</body>
+</html>
