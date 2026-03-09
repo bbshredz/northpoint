@@ -134,6 +134,15 @@ table.ow-table { width: 100%; border-collapse: collapse; }
 .ratio-bar-fill { height: 100%; border-radius: 99px; }
 .ratio-note  { font-size: 10px; color: var(--text-tertiary); }
 
+/* ── Expandable si-card ── */
+.si-card.expandable { cursor: pointer; transition: border-color 0.15s; }
+.si-card.expandable.expanded { border-color: var(--accent); }
+.si-card-header { display: flex; justify-content: space-between; align-items: flex-start; }
+.si-chevron { font-size: 9px; color: var(--text-tertiary); transition: transform 0.2s; flex-shrink: 0; margin-top: 3px; }
+.si-card.expanded .si-chevron { transform: rotate(180deg); color: var(--accent); }
+.si-detail { max-height: 0; overflow: hidden; opacity: 0; margin-top: 0; transition: max-height 0.3s ease, opacity 0.25s ease, margin-top 0.2s ease; }
+.si-card.expanded .si-detail { max-height: 320px; opacity: 1; margin-top: 10px; }
+
 @view-transition { navigation: auto; }
 ::view-transition-old(root) { animation: 180ms ease-in vt-out; }
 ::view-transition-new(root) { animation: 260ms ease-out vt-in; }
@@ -314,11 +323,43 @@ function renderStrip(care, all) {
       <div class="si-value">${ftPct}%</div>
       <div class="si-sub">${totalFT.toLocaleString()} of ${totalStaff.toLocaleString()}</div>
     </div>
-    <div class="si-card">
-      <div class="si-label">Salaried</div>
-      <div class="si-value">${totalSalary.toLocaleString()}</div>
-      <div class="si-sub">Likely M365 Business seats</div>
+    <div class="si-card expandable" onclick="this.classList.toggle('expanded')">
+      <div class="si-card-header">
+        <div>
+          <div class="si-label">Salaried</div>
+          <div class="si-value">${totalSalary.toLocaleString()}</div>
+          <div class="si-sub">Likely M365 Business seats</div>
+        </div>
+        <span class="si-chevron">▼</span>
+      </div>
+      <div class="si-detail">
+        <hr class="mc-divider">
+        ${platformCostHTML(totalSalary)}
+      </div>
     </div>`;
+}
+
+// ── Platform cost comparison ───────────────────────────────────────────────
+function platformCostHTML(seats) {
+  const plans = [
+    { label: 'M365 Basic',    price: 6.00,  color: '#0078d4' },
+    { label: 'M365 Standard', price: 12.50, color: '#0ea5e9' },
+    { label: 'M365 Premium',  price: 22.00, color: '#0369a1' },
+    { label: 'GWS Starter',   price: 6.00,  color: '#34a853' },
+    { label: 'GWS Standard',  price: 12.00, color: '#1a7f37' },
+  ];
+  const fmt = n => '$' + (n >= 1000 ? Math.round(n / 1000) + 'K' : Math.round(n));
+  const maxAnnual = Math.max(...plans.map(p => p.price * seats * 12));
+  return plans.map(p => {
+    const annual = p.price * seats * 12;
+    const pct    = Math.round(annual / maxAnnual * 100);
+    return `<div class="mc-bar-row">
+      <div class="mc-bar-label" style="width:94px">${p.label}</div>
+      <div class="mc-bar-track"><div class="mc-bar-fill" style="width:${pct}%;background:${p.color}"></div></div>
+      <div class="mc-bar-count" style="width:50px">${fmt(annual)}/yr</div>
+    </div>`;
+  }).join('') +
+  `<div style="font-size:10px;color:var(--text-tertiary);margin-top:6px">${seats} seats · annual estimate · per-user/mo pricing</div>`;
 }
 
 // ── Insight ────────────────────────────────────────────────────────────────

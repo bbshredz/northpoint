@@ -7,10 +7,6 @@
     <link rel="stylesheet" href="/northpoint.css">
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script src="/auth.js"></script>
-    <script>(function(){
-      // Inherit site-wide np-theme before first paint
-      if (localStorage.getItem('np-theme') !== 'dark') document.body.classList.add('light');
-    }());</script>
     <script src="https://unpkg.com/react@18/umd/react.production.min.js" crossorigin></script>
     <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js" crossorigin></script>
     <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
@@ -2054,7 +2050,8 @@ function App({ prefillName, isGuest }) {
         if (av) { av.textContent = npGetInitials(); av.style.display = 'flex'; }
     }
 
-    document.documentElement.style.opacity = '';
+    const fouc = document.getElementById('np-fouc');
+    if (fouc) fouc.remove();
     const root = ReactDOM.createRoot(document.getElementById('app-root'));
     root.render(<App prefillName={prefillName} isGuest={isGuest} />);
 })();
