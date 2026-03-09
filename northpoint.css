@@ -482,6 +482,21 @@ html { background: var(--navy); }
     box-shadow: 0 0 0 3px var(--accent-dim), 0 4px 16px rgba(0,0,0,0.06);
 }
 
+/* ── METRIC CARD ACCORDION ── */
+.metric-card.expandable          { cursor: pointer; }
+.metric-card.expandable.expanded { border-color: var(--accent); }
+.mc-header   { display: flex; justify-content: space-between; align-items: flex-start; gap: 6px; }
+.mc-chevron  { font-size: 10px; color: var(--text-tertiary); transition: transform 0.2s; flex-shrink: 0; margin-top: 3px; }
+.metric-card.expanded .mc-chevron { transform: rotate(180deg); color: var(--accent); }
+.mc-detail   { max-height: 0; overflow: hidden; opacity: 0; margin-top: 0; transition: max-height 0.28s ease, opacity 0.22s ease, margin-top 0.2s ease; }
+.metric-card.expanded .mc-detail { max-height: 240px; opacity: 1; margin-top: 10px; }
+.mc-divider  { border: none; border-top: 1px solid var(--silver); margin: 0 0 9px; }
+.mc-bar-row  { display: flex; align-items: center; gap: 6px; margin-bottom: 5px; }
+.mc-bar-label { font-size: 10px; color: var(--text-tertiary); width: 86px; flex-shrink: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.mc-bar-track { flex: 1; height: 4px; border-radius: 99px; background: var(--silver); }
+.mc-bar-fill  { height: 100%; border-radius: 99px; background: var(--accent); }
+.mc-bar-count { font-size: 10px; color: var(--text-secondary); width: 24px; text-align: right; flex-shrink: 0; }
+
 .metric-label {
     font-size: 10px;
     text-transform: uppercase;

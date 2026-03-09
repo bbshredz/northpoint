@@ -43,11 +43,20 @@
             </div>
 
             <div class="metric-row cols-4 animate-2">
-                <div class="metric-card">
-                    <div class="metric-label">Current Facilities</div>
-                    <div class="metric-value">12</div>
-                    <div class="metric-sub">Skilled nursing facilities</div>
-                    <span class="metric-badge badge-good">Fully operational</span>
+                <div class="metric-card expandable" onclick="toggleMC(this)" id="fac-count-card">
+                    <div class="mc-header">
+                        <div>
+                            <div class="metric-label">Current Facilities</div>
+                            <div class="metric-value">12</div>
+                            <div class="metric-sub">Skilled nursing facilities</div>
+                            <span class="metric-badge badge-good">Fully operational</span>
+                        </div>
+                        <span class="mc-chevron">▼</span>
+                    </div>
+                    <div class="mc-detail" id="fac-region-detail">
+                        <hr class="mc-divider">
+                        <div style="font-size:10px;color:var(--text-tertiary)">Loading&hellip;</div>
+                    </div>
                 </div>
                 <div class="metric-card">
                     <div class="metric-label">Incoming via Merger</div>
@@ -151,10 +160,33 @@
 </div>
 <script src="/nav.js"></script>
 <script>
-npInit(null).then(session => {
+function toggleMC(card) { card.classList.toggle('expanded'); }
+npInit(null).then(async session => {
   if (!session) return;
   npPopulateTopbar();
   renderNav('facilities');
+
+  // Region breakdown for Current Facilities accordion
+  const { data } = await _npSupabase
+    .from('facilities')
+    .select('region')
+    .eq('is_incoming', false);
+  if (data && data.length) {
+    const counts = {};
+    data.forEach(f => { const r = f.region || 'Unknown'; counts[r] = (counts[r] || 0) + 1; });
+    const sorted = Object.entries(counts).sort((a,b) => b[1] - a[1]);
+    const max = sorted[0][1];
+    const COLORS = ['#8b5cf6','#10b981','#3b82f6','#f59e0b','#a78bfa'];
+    document.getElementById('fac-region-detail').innerHTML =
+      '<hr class="mc-divider">' +
+      sorted.map(([region, count], i) =>
+        `<div class="mc-bar-row">
+          <div class="mc-bar-label">${region}</div>
+          <div class="mc-bar-track"><div class="mc-bar-fill" style="width:${Math.round(count/max*100)}%;background:${COLORS[i%COLORS.length]}"></div></div>
+          <div class="mc-bar-count">${count}</div>
+        </div>`
+      ).join('');
+  }
 });
 </script>
 </body>

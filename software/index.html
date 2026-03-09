@@ -32,11 +32,20 @@
             </div>
 
             <div class="metric-row cols-4 animate-2">
-                <div class="metric-card">
-                    <div class="metric-label">Software Portfolio</div>
-                    <div class="metric-value">104</div>
-                    <div class="metric-sub">Tools tracked in SAM DB</div>
-                    <span class="metric-badge badge-warn">2 of 104 have pricing</span>
+                <div class="metric-card expandable" onclick="toggleMC(this)">
+                    <div class="mc-header">
+                        <div>
+                            <div class="metric-label">Software Portfolio</div>
+                            <div class="metric-value">104</div>
+                            <div class="metric-sub">Tools tracked in SAM DB</div>
+                            <span class="metric-badge badge-warn">2 of 104 have pricing</span>
+                        </div>
+                        <span class="mc-chevron">▼</span>
+                    </div>
+                    <div class="mc-detail" id="sw-cat-detail">
+                        <hr class="mc-divider">
+                        <div style="font-size:10px;color:var(--text-tertiary)">Loading&hellip;</div>
+                    </div>
                 </div>
                 <div class="metric-card">
                     <div class="metric-label">Unowned Tools</div>
@@ -125,10 +134,33 @@
 </div>
 <script src="/nav.js"></script>
 <script>
-npInit(null).then(session => {
+function toggleMC(card) { card.classList.toggle('expanded'); }
+npInit(null).then(async session => {
   if (!session) return;
   npPopulateTopbar();
   renderNav('software');
+
+  // Category breakdown for Software Portfolio accordion
+  const { data } = await _npSupabase
+    .from('software_assets')
+    .select('category')
+    .is('deleted_at', null);
+  if (data && data.length) {
+    const counts = {};
+    data.forEach(r => { const c = r.category || 'Uncategorized'; counts[c] = (counts[c] || 0) + 1; });
+    const sorted = Object.entries(counts).sort((a,b) => b[1] - a[1]).slice(0, 8);
+    const max = sorted[0][1];
+    const COLORS = ['#8b5cf6','#3b82f6','#10b981','#f59e0b','#a78bfa','#06b6d4','#ec4899','#6b7280'];
+    document.getElementById('sw-cat-detail').innerHTML =
+      '<hr class="mc-divider">' +
+      sorted.map(([cat, count], i) =>
+        `<div class="mc-bar-row">
+          <div class="mc-bar-label">${cat}</div>
+          <div class="mc-bar-track"><div class="mc-bar-fill" style="width:${Math.round(count/max*100)}%;background:${COLORS[i]}"></div></div>
+          <div class="mc-bar-count">${count}</div>
+        </div>`
+      ).join('');
+  }
 });
 </script>
 </body>

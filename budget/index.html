@@ -32,11 +32,25 @@
             </div>
 
             <div class="metric-row cols-4 animate-2">
-                <div class="metric-card">
-                    <div class="metric-label">2025 Actual Spend</div>
-                    <div class="metric-value">$1.6M</div>
-                    <div class="metric-sub">Personnel + non-personnel</div>
-                    <span class="metric-badge badge-warn">1% of revenue</span>
+                <div class="metric-card expandable" onclick="toggleMC(this)">
+                    <div class="mc-header">
+                        <div>
+                            <div class="metric-label">2025 Actual Spend</div>
+                            <div class="metric-value">$1.6M</div>
+                            <div class="metric-sub">Personnel + non-personnel</div>
+                            <span class="metric-badge badge-warn">1% of revenue</span>
+                        </div>
+                        <span class="mc-chevron">▼</span>
+                    </div>
+                    <div class="mc-detail">
+                        <hr class="mc-divider">
+                        <div class="mc-bar-row"><div class="mc-bar-label">Personnel</div><div class="mc-bar-track"><div class="mc-bar-fill" style="width:100%;background:#8b5cf6"></div></div><div class="mc-bar-count">$560K</div></div>
+                        <div class="mc-bar-row"><div class="mc-bar-label">SaaS / Licensing</div><div class="mc-bar-track"><div class="mc-bar-fill" style="width:72%;background:#3b82f6"></div></div><div class="mc-bar-count">$404K</div></div>
+                        <div class="mc-bar-row"><div class="mc-bar-label">Hardware</div><div class="mc-bar-track"><div class="mc-bar-fill" style="width:45%;background:#10b981"></div></div><div class="mc-bar-count">$252K</div></div>
+                        <div class="mc-bar-row"><div class="mc-bar-label">Services</div><div class="mc-bar-track"><div class="mc-bar-fill" style="width:35%;background:#f59e0b"></div></div><div class="mc-bar-count">$196K</div></div>
+                        <div class="mc-bar-row"><div class="mc-bar-label">Connectivity</div><div class="mc-bar-track"><div class="mc-bar-fill" style="width:27%;background:#6b7280"></div></div><div class="mc-bar-count">$152K</div></div>
+                        <div style="font-size:10px;color:var(--text-tertiary);margin-top:4px">Breakdown estimated · verify against GL</div>
+                    </div>
                 </div>
                 <div class="metric-card">
                     <div class="metric-label">2026 Proposed</div>
@@ -116,6 +130,7 @@
 </div>
 <script src="/nav.js"></script>
 <script>
+function toggleMC(card) { card.classList.toggle('expanded'); }
 npInit('budget').then(session => {
   if (!session) return;
   npPopulateTopbar();

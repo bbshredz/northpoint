@@ -38,11 +38,23 @@
                     <div class="metric-sub">5 salary · 1 hourly</div>
                     <span class="metric-badge badge-warn">Benchmark sourcing in progress</span>
                 </div>
-                <div class="metric-card">
-                    <div class="metric-label">Field Tech Ratio</div>
-                    <div class="metric-value">4.0</div>
-                    <div class="metric-sub">12 facilities ÷ 3 field techs</div>
-                    <span class="metric-badge badge-warn">SNF avg 1.5–2:1</span>
+                <div class="metric-card expandable" onclick="toggleMC(this)">
+                    <div class="mc-header">
+                        <div>
+                            <div class="metric-label">Field Tech Ratio</div>
+                            <div class="metric-value">4.0</div>
+                            <div class="metric-sub">12 facilities ÷ 3 field techs</div>
+                            <span class="metric-badge badge-warn">SNF avg 1.5–2:1</span>
+                        </div>
+                        <span class="mc-chevron">▼</span>
+                    </div>
+                    <div class="mc-detail">
+                        <hr class="mc-divider">
+                        <div class="mc-bar-row"><div class="mc-bar-label">NACS (current)</div><div class="mc-bar-track"><div class="mc-bar-fill" style="width:100%;background:#ef4444"></div></div><div class="mc-bar-count" style="color:#ef4444">4.0</div></div>
+                        <div class="mc-bar-row"><div class="mc-bar-label">SNF avg (high)</div><div class="mc-bar-track"><div class="mc-bar-fill" style="width:50%;background:#f59e0b"></div></div><div class="mc-bar-count" style="color:#f59e0b">2.0</div></div>
+                        <div class="mc-bar-row"><div class="mc-bar-label">SNF avg (low)</div><div class="mc-bar-track"><div class="mc-bar-fill" style="width:37.5%;background:#10b981"></div></div><div class="mc-bar-count" style="color:#10b981">1.5</div></div>
+                        <div style="font-size:10px;color:var(--text-tertiary);margin-top:4px;line-height:1.5">Each tech owns 4 facilities. Industry standard would require 6–8 techs for this census.</div>
+                    </div>
                 </div>
                 <div class="metric-card">
                     <div class="metric-label">Role Coverage</div>
@@ -177,6 +189,7 @@
 </div>
 <script src="/nav.js"></script>
 <script>
+function toggleMC(card) { card.classList.toggle('expanded'); }
 npInit(null).then(session => {
   if (!session) return;
   npPopulateTopbar();
