@@ -517,7 +517,7 @@
 
 <script src="/nav.js"></script>
 <script>
-npInit(null).then(session => {
+npInit('field-guide').then(session => {
     if (!session) return;
     npPopulateTopbar();
     renderNav('field-guide');

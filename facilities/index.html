@@ -161,7 +161,7 @@
 <script src="/nav.js"></script>
 <script>
 function toggleMC(card) { card.classList.toggle('expanded'); }
-npInit(null).then(async session => {
+npInit('facilities').then(async session => {
   if (!session) return;
   npPopulateTopbar();
   renderNav('facilities');

@@ -497,7 +497,7 @@
 <script src="/nav.js"></script>
 <script>
 // ── Auth + init ──────────────────────────────────────────────────────────────
-npInit(null).then(session => {
+npInit('facilities').then(session => {
     if (!session) return;
     npPopulateTopbar();
     renderNav('facilities');

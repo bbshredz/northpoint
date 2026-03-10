@@ -33,24 +33,24 @@ for (const rowMatch of rows) {
   const n = c.length;
 
   let r = {
-    entry_type:      '',
-    name:            c[0] || '',
-    first_name:      '',
-    last_name:       '',
-    phone_did:       '',
-    extension:       '',
-    email_personal:  '',
-    email_generated: '',
-    facility_id:     '',
-    location:        '',
-    sub_location:    '',
-    job_title:       '',
-    timezone:        '',
-    street:          '',
-    city:            '',
-    state:           '',
-    zip_code:        '',
-    country:         '',
+    entry_type:        '',
+    name:              c[0] || '',
+    first_name:        '',
+    last_name:         '',
+    phone_did:         '',
+    extension:         '',
+    email_personal:    '',
+    email_generated:   '',
+    ucx_facility_code: '',
+    location:          '',
+    sub_location:      '',
+    job_title:         '',
+    timezone:          '',
+    street:            '',
+    city:              '',
+    state:             '',
+    zip_code:          '',
+    country:           '',
   };
 
   if (n === 10) {
@@ -58,7 +58,7 @@ for (const rowMatch of rows) {
     r.entry_type      = 'generic';
     r.phone_did       = c[1];
     r.extension       = c[2];
-    r.facility_id     = c[4];
+    r.ucx_facility_code =c[4];
     r.email_generated = c[5];
     r.location        = c[7];
     r.sub_location    = c[8];
@@ -69,7 +69,7 @@ for (const rowMatch of rows) {
     r.entry_type      = 'equipment';
     r.phone_did       = c[1];
     r.extension       = c[2];
-    r.facility_id     = c[4];
+    r.ucx_facility_code =c[4];
     r.email_generated = c[5];
     r.location        = c[7];
     r.sub_location    = c[8];
@@ -79,7 +79,7 @@ for (const rowMatch of rows) {
     // Room entry — extension only (no DID), with address
     r.entry_type      = 'room';
     r.extension       = c[1];  // col 1 is extension here, no DID
-    r.facility_id     = c[3];
+    r.ucx_facility_code =c[3];
     r.email_generated = c[4];
     r.location        = c[6];
     r.sub_location    = c[7];
@@ -95,7 +95,7 @@ for (const rowMatch of rows) {
     r.entry_type      = 'room';
     r.phone_did       = c[1];
     r.extension       = c[2];
-    r.facility_id     = c[4];
+    r.ucx_facility_code =c[4];
     r.email_generated = c[5];
     r.location        = c[7];
     r.sub_location    = c[8];
@@ -112,7 +112,7 @@ for (const rowMatch of rows) {
     r.phone_did       = c[1];
     r.extension       = c[2];
     r.email_personal  = c[3];
-    r.facility_id     = c[5];
+    r.ucx_facility_code =c[5];
     r.email_generated = c[6];
     r.first_name      = c[8];
     r.last_name       = c[9];
@@ -129,7 +129,7 @@ for (const rowMatch of rows) {
     r.phone_did       = c[1];
     r.extension       = c[2];
     r.email_personal  = c[3];
-    r.facility_id     = c[5];
+    r.ucx_facility_code =c[5];
     r.email_generated = c[6];
     r.first_name      = c[8];
     r.last_name       = c[9];
@@ -148,7 +148,7 @@ for (const rowMatch of rows) {
 const COLS = [
   'entry_type','name','first_name','last_name',
   'phone_did','extension','email_personal','email_generated',
-  'facility_id','location','sub_location','job_title',
+  'ucx_facility_code','location','sub_location','job_title',
   'timezone','street','city','state','zip_code','country'
 ];
 
@@ -168,11 +168,11 @@ console.log('By type:', byType);
 
 const staff = results.filter(r => r.entry_type === 'staff').slice(0, 4);
 console.log('\nSample staff:');
-staff.forEach(r => console.log(`  ${r.name} | ext:${r.extension} | did:${r.phone_did} | ${r.email_personal} | fac:${r.facility_id}`));
+staff.forEach(r => console.log(`  ${r.name} | ext:${r.extension} | did:${r.phone_did} | ${r.email_personal} | fac:${r.ucx_facility_code}`));
 
 const rooms = results.filter(r => r.entry_type === 'room').slice(0, 3);
 console.log('\nSample rooms:');
-rooms.forEach(r => console.log(`  ${r.name} | ext:${r.extension} | did:${r.phone_did} | loc:${r.location} | fac:${r.facility_id} | ${r.city}`));
+rooms.forEach(r => console.log(`  ${r.name} | ext:${r.extension} | did:${r.phone_did} | loc:${r.location} | fac:${r.ucx_facility_code} | ${r.city}`));
 
-const facIds = [...new Set(results.map(r => r.facility_id).filter(Boolean).filter(v => /^\d{6,}$/.test(v)))].sort();
+const facIds = [...new Set(results.map(r => r.ucx_facility_code).filter(Boolean).filter(v => /^\d{6,}$/.test(v)))].sort();
 console.log(`\n${facIds.length} numeric facility IDs:`, facIds.join(', '));

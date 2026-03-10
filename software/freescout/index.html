@@ -413,7 +413,7 @@ let _fsUrl = '';
 let _fsKey = '';
 let _mailboxMap = {};
 
-npInit(null).then(session => {
+npInit('software').then(session => {
     if (!session) return;
     npPopulateTopbar();
     renderNav('software');

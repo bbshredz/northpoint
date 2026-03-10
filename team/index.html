@@ -190,7 +190,7 @@
 <script src="/nav.js"></script>
 <script>
 function toggleMC(card) { card.classList.toggle('expanded'); }
-npInit(null).then(session => {
+npInit('team').then(session => {
   if (!session) return;
   npPopulateTopbar();
   renderNav('team');

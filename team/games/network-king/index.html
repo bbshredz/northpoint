@@ -868,7 +868,7 @@ function buildLegend() {
 }
 
 // ── BOOT ─────────────────────────────────────────────────────────────────────
-npInit(null).then(session => {
+npInit('team').then(session => {
   if (!session) return;
   npPopulateTopbar();
   renderNav('team');

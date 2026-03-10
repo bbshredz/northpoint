@@ -284,7 +284,7 @@
 </div>
 <script src="/nav.js"></script>
 <script>
-npInit(null).then(session => {
+npInit('team').then(session => {
     if (!session) return;
     npPopulateTopbar();
     renderNav('team');

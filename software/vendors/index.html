@@ -632,7 +632,7 @@ function exportToExcel() {
 
 // ── INIT ────────────────────────────────────────────
 
-npInit(null).then(session => {
+npInit('software').then(session => {
   if (!session) return;
   npPopulateTopbar();
   renderNav('software');

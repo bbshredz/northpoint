@@ -450,7 +450,7 @@ function App() {
   const [ready, setReady] = useState(false);
 
   useEffect(() => {
-    npInit(null).then(session => {
+    npInit('projects').then(session => {
       if (!session) { window.location.href = '/login.html'; return; }
       npPopulateTopbar();
       renderNav('projects');
