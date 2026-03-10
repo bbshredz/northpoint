@@ -839,11 +839,12 @@
         body.light .es-page-sub { color: #64748b; }
         body.light .es-section-line { background: #e5e7eb; }
         body.light .es-section-label { color: #6b7280; }
-        body.light .rec-banner { background: #0f172a; border-color: #0d9488; }
-        body.light .rec-title { color: #f1f5f9; }
-        body.light .rec-sub { color: #94a3b8; }
-        body.light .rec-points li { color: #94a3b8; }
-        body.light .rec-caveat { border-top-color: #0d9488; color: #475569; }
+        body.light .rec-banner { background: #ffffff; border: 1px solid #e5e7eb; border-left: 4px solid #0d9488; box-shadow: 0 1px 4px rgba(0,0,0,0.06); }
+        body.light .rec-banner::before { display: none; }
+        body.light .rec-title { color: #0f172a; }
+        body.light .rec-sub { color: #475569; }
+        body.light .rec-points li { color: #374151; }
+        body.light .rec-caveat { border-top-color: #e5e7eb; color: #6b7280; }
         body.light .wizard-card { background: #ffffff; border: none; box-shadow: 0 1px 3px rgba(0,0,0,0.08), 0 0 0 1px rgba(0,0,0,0.05); }
         body.light .wizard-title { color: #0f172a; }
         body.light .wizard-desc { color: #64748b; }
@@ -1399,6 +1400,7 @@ function Step1({ data, onChange, onNext, prefillName }) {
                     <option>Operations</option>
                     <option>Finance</option>
                     <option>Human Resources</option>
+                    <option>Legal</option>
                     <option>Administration</option>
                     <option>Information Technology</option>
                     <option>Other</option>
@@ -1974,33 +1976,9 @@ function App({ prefillName, isGuest }) {
 
     return (
         <div className="es-wrap">
-            <div className="battle-arena">
-                <div className="battle-glow-left" />
-                <div className="battle-glow-right" />
-                <div className="battle-divider-line" />
-                <div className="battle-row">
-                    <div className="battle-contestant">
-                        <div className="battle-logo adobe">A</div>
-                        <div>
-                            <div className="battle-name adobe">Adobe Sign</div>
-                            <div className="battle-tagline">Seat-based · PDF-native · M365</div>
-                        </div>
-                    </div>
-                    <div className="battle-vs">
-                        <div className="vs-badge">VS</div>
-                    </div>
-                    <div className="battle-contestant right">
-                        <div className="battle-logo docusign">D</div>
-                        <div>
-                            <div className="battle-name docusign">DocuSign</div>
-                            <div className="battle-tagline">Incumbent · PCC-native · Volume risk</div>
-                        </div>
-                    </div>
-                </div>
-                <div className="battle-footer">
-                    <span className="battle-decision-badge">Decision Required</span>
-                    <span>eSignature governance &nbsp;·&nbsp; March 2026 renewal</span>
-                </div>
+            <div className="es-page-header">
+                <div className="es-page-title">eSignature Platform Review</div>
+                <div className="es-page-sub">DocuSign · Adobe Sign · PandaDoc &nbsp;—&nbsp; March 2026 renewal</div>
             </div>
 
             {isGuest && (
@@ -2011,6 +1989,8 @@ function App({ prefillName, isGuest }) {
 
             <RecBanner />
             <StrategicAccordion />
+            <OverageCalculator />
+            <UnifiedMatrix />
 
             <div id="discovery" style={{scrollMarginTop:'16px'}}>
                 <div className="es-section" style={{marginBottom:'18px'}}>
@@ -2022,9 +2002,6 @@ function App({ prefillName, isGuest }) {
                 </div>
                 <DiscoveryWizard prefillName={prefillName} />
             </div>
-
-            <OverageCalculator />
-            <UnifiedMatrix />
         </div>
     );
 }
