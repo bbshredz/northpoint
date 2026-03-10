@@ -82,7 +82,7 @@ function renderNav(active) {
     </button>
     <div class="rail-logo-row">
       <a href="/index.html" class="rail-logo" title="NorthPoint">
-        <svg viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.5"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+        <svg viewBox="0 0 24 24" fill="white" stroke="none"><polygon points="12,2 13.4,10.2 12,9.2 10.6,10.2" opacity="1"/><polygon points="12,22 13.4,13.8 12,14.8 10.6,13.8" opacity="0.55"/><polygon points="22,12 13.8,10.6 14.8,12 13.8,13.4" opacity="0.55"/><polygon points="2,12 10.2,10.6 9.2,12 10.2,13.4" opacity="0.55"/><circle cx="12" cy="12" r="1.6"/></svg>
       </a>
       <span class="rail-logo-label">NorthPoint</span>
     </div>
