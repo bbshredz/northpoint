@@ -703,7 +703,7 @@
         }
         .tool-pill:hover { border-color: #475569; color: #94a3b8; }
         .tool-pill.on-current  { border-color: #3b82f6; color: #3b82f6; background: rgba(59,130,246,0.07); }
-        .tool-pill.on-proposed { border-color: #ef4444; color: #ef4444; background: rgba(239,68,68,0.07); }
+        .tool-pill.on-proposed { border-color: #f97316; color: #f97316; background: rgba(249,115,22,0.07); }
         .tool-pill.on-alt      { border-color: #a855f7; color: #a855f7; background: rgba(168,85,247,0.07); }
         .tool-pill.on-ent      { border-color: #f59e0b; color: #f59e0b; background: rgba(245,158,11,0.07); }
 
@@ -958,10 +958,10 @@
             display: flex; align-items: center; justify-content: center;
             font-size: 18px; font-weight: 900; flex-shrink: 0;
         }
-        .battle-logo.adobe   { background: rgba(227,66,52,0.12); border: 1px solid rgba(227,66,52,0.25); color: #e34234; }
+        .battle-logo.adobe   { background: rgba(249,115,22,0.12); border: 1px solid rgba(249,115,22,0.25); color: #f97316; }
         .battle-logo.docusign{ background: rgba(75,100,210,0.12); border: 1px solid rgba(75,100,210,0.25); color: #6b7fe8; }
         .battle-name { font-size: 18px; font-weight: 800; letter-spacing: -0.01em; }
-        .battle-name.adobe   { color: #e34234; }
+        .battle-name.adobe   { color: #f97316; }
         .battle-name.docusign{ color: #6b7fe8; }
         .battle-tagline { font-size: 11px; color: #334155; margin-top: 3px; }
         .battle-contestant.right .battle-tagline { text-align: right; }
@@ -1650,7 +1650,7 @@ function OverageCalculator() {
             </div>
 
             <div className="slider-row">
-                <span className="slider-lbl"><span style={{color:'#f87171'}}>Adobe Sign</span> Seats</span>
+                <span className="slider-lbl"><span style={{color:'#f97316'}}>Adobe Sign</span> Seats</span>
                 <input type="range" className="es-range" min="5" max="150" value={abSeats}
                     onChange={e => setAbSeats(Number(e.target.value))} />
                 <span className="slider-val">{abSeats} users</span>
@@ -1677,9 +1677,9 @@ function OverageCalculator() {
                     {isDanger && <div className="cost-badge bad">⚠ +{fmt(overage * DS_OVER * 12)}/yr bleed</div>}
                     {!isDanger && dsAnnual === cheapest && <div className="cost-badge good">Lowest cost at this volume</div>}
                 </div>
-                <div className="cost-card" style={{borderTop:'2px solid #ef4444'}}>
+                <div className="cost-card" style={{borderTop:'2px solid #f97316'}}>
                     <div className="cost-eyebrow">Proposed</div>
-                    <div className="cost-vendor" style={{color:'#f87171'}}>Adobe Sign</div>
+                    <div className="cost-vendor" style={{color:'#f97316'}}>Adobe Sign</div>
                     <div className={`cost-amount${abAnnual === cheapest ? ' safe' : ''}`}>{fmt(abAnnual)}/yr</div>
                     <div className="cost-detail">
                         {abSeats} seats × $50/mo × 12<br />
@@ -1714,8 +1714,8 @@ function OverageCalculator() {
                     <div className="bar-col-lbl" style={{color:'#60a5fa'}}>DocuSign</div>
                 </div>
                 <div className="bar-col">
-                    <div className="bar-rect" style={{ height: `${abH}px`, minHeight: '4px', background: '#ef4444' }} />
-                    <div className="bar-col-lbl" style={{color:'#f87171'}}>Adobe Sign</div>
+                    <div className="bar-rect" style={{ height: `${abH}px`, minHeight: '4px', background: '#f97316' }} />
+                    <div className="bar-col-lbl" style={{color:'#f97316'}}>Adobe Sign</div>
                 </div>
                 <div className="bar-col">
                     <div className="bar-rect" style={{ height: `${pdH}px`, minHeight: '4px', background: '#a855f7' }} />
@@ -1726,7 +1726,7 @@ function OverageCalculator() {
                         AT {monthly.toLocaleString()} ENVELOPES/MO
                     </div>
                     <span style={{color:'#60a5fa'}}>DocuSign:</span> <span style={{color:'var(--text-primary)', fontWeight:600}}>{fmt(dsAnnual)}/yr</span>{isDanger && <span style={{color:'#ef4444', fontSize:'11px'}}> ⚠ overage</span>}<br />
-                    <span style={{color:'#f87171'}}>Adobe</span> <span style={{color:'var(--text-muted)', fontSize:'11px'}}>({abSeats} seats):</span> <span style={{color:'var(--text-primary)', fontWeight:600}}>{fmt(abAnnual)}/yr</span><br />
+                    <span style={{color:'#f97316'}}>Adobe</span> <span style={{color:'var(--text-muted)', fontSize:'11px'}}>({abSeats} seats):</span> <span style={{color:'var(--text-primary)', fontWeight:600}}>{fmt(abAnnual)}/yr</span><br />
                     <span style={{color:'#c084fc'}}>PandaDoc</span> <span style={{color:'var(--text-muted)', fontSize:'11px'}}>({pdSeats} seats):</span> <span style={{color:'var(--text-primary)', fontWeight:600}}>{fmt(pdAnnual)}/yr</span><br />
                     <span style={{color:'#0d9488', fontSize:'11px', marginTop:'4px', display:'inline-block'}}>
                         Cheapest: {dsAnnual === cheapest ? 'DocuSign' : abAnnual === cheapest ? 'Adobe Sign' : 'PandaDoc'} at {fmt(cheapest)}/yr
@@ -1741,7 +1741,7 @@ function OverageCalculator() {
 
 const TAG_CLS  = { current: 'tag-current', proposed: 'tag-proposed', alt: 'tag-alt', ent: 'tag-ent' };
 const PILL_ON  = { current: 'on-current', proposed: 'on-proposed', alt: 'on-alt', ent: 'on-ent' };
-const TOOL_COL = { docusign: '#3b82f6', adobe: '#ef4444', pandadoc: '#a855f7', ironclad: '#f59e0b', contractsafe: '#64748b' };
+const TOOL_COL = { docusign: '#3b82f6', adobe: '#f97316', pandadoc: '#a855f7', ironclad: '#f59e0b', contractsafe: '#64748b' };
 
 function ToolLogo({ domain, alt }) {
     return (
