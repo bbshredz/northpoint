@@ -58,8 +58,8 @@
                         <div style="font-size:10px;color:var(--text-tertiary)">Loading&hellip;</div>
                     </div>
                 </div>
-                <div class="metric-card">
-                    <div class="metric-label">Incoming via Merger</div>
+                <div class="metric-card js-exec-only">
+                    <div class="metric-label">Incoming</div>
                     <div class="metric-value">+4</div>
                     <div class="metric-sub">Next 24 months</div>
                     <span class="metric-badge badge-accent">Integration planning active</span>
@@ -70,7 +70,7 @@
                     <div class="metric-sub">Facilities by 2030</div>
                     <span class="metric-badge badge-purple">Strategic initiative</span>
                 </div>
-                <div class="metric-card">
+                <div class="metric-card js-exec-only">
                     <div class="metric-label">Est. Onboarding Cost</div>
                     <div class="metric-value">~$85K</div>
                     <div class="metric-sub">Per facility · Internal led</div>
@@ -96,7 +96,7 @@
                         <span class="card-arrow">→</span>
                     </div>
                 </a>
-                <a href="/facilities/onboarding/index.html" class="tool-card clickable">
+                <a href="/facilities/onboarding/index.html" class="tool-card clickable js-exec-only">
                     <div class="card-top">
                         <div class="card-icon">🧮</div>
                         <span class="card-status status-live">Live</span>
@@ -108,7 +108,7 @@
                         <span class="card-arrow">→</span>
                     </div>
                 </a>
-                <a href="/facilities/integration-checklist/index.html" class="tool-card clickable">
+                <a href="/facilities/integration-checklist/index.html" class="tool-card clickable js-exec-only">
                     <div class="card-top">
                         <div class="card-icon">✅</div>
                         <span class="card-status status-live">Live</span>
@@ -120,7 +120,7 @@
                         <span class="card-arrow">→</span>
                     </div>
                 </a>
-                <a href="/facilities/staff-intel/index.html" class="tool-card clickable">
+                <a href="/facilities/staff-intel/index.html" class="tool-card clickable js-exec-only">
                     <div class="card-top">
                         <div class="card-icon">👥</div>
                         <span class="card-status status-live">Live</span>
@@ -132,7 +132,7 @@
                         <span class="card-arrow">→</span>
                     </div>
                 </a>
-                <a href="/facilities/editor/index.html" class="tool-card clickable">
+                <a href="/facilities/editor/index.html" class="tool-card clickable js-exec-only">
                     <div class="card-top">
                         <div class="card-icon">🏗️</div>
                         <span class="card-status status-live">Live</span>
@@ -165,6 +165,13 @@ npInit('facilities').then(async session => {
   if (!session) return;
   npPopulateTopbar();
   renderNav('facilities');
+
+  // Hide exec-only cards from staff/limited users
+  const role = npGetRole();
+  const isExecOrAbove = role === 'admin' || role === 'exec' || role === 'director';
+  if (!isExecOrAbove) {
+    document.querySelectorAll('.js-exec-only').forEach(el => el.style.display = 'none');
+  }
 
   // Region breakdown for Current Facilities accordion
   const { data } = await _npSupabase

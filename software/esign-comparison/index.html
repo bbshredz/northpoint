@@ -950,7 +950,7 @@
             flex: 1; display: flex; align-items: center; gap: 14px;
         }
         .battle-contestant.right {
-            justify-content: flex-end; flex-direction: row-reverse;
+            justify-content: flex-start; flex-direction: row-reverse;
         }
         .battle-logo {
             width: 42px; height: 42px; border-radius: 10px;
@@ -994,6 +994,7 @@
     </style>
 </head>
 <body class="mod-software">
+<script>if(localStorage.getItem('np-theme')!=='dark')document.body.classList.add('light');</script>
 <div class="layout">
     <div id="rail-mount"></div>
     <div class="main">
