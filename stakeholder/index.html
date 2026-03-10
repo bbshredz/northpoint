@@ -43,32 +43,28 @@
         }
         .stat-card-value { font-size: 28px; font-weight: 700; color: var(--text-primary); }
 
-        /* ── Tab bar ── */
-        .tab-bar {
-            display: flex;
-            gap: 0;
-            margin-bottom: 16px;
-            border-bottom: 1px solid var(--border);
+        /* ── Split layout ── */
+        .split-layout {
+            display: grid;
+            grid-template-columns: 320px 1fr;
+            gap: 20px;
+            align-items: start;
         }
-        .tab-btn {
-            padding: 8px 18px;
-            font-size: 13px;
-            font-weight: 500;
-            color: var(--text-tertiary);
-            background: none;
-            border: none;
-            border-bottom: 2px solid transparent;
-            cursor: pointer;
-            font-family: inherit;
-            transition: color 0.15s, border-color 0.15s;
-            margin-bottom: -1px;
+        .split-col { min-width: 0; }
+        .split-col-header {
             display: flex;
             align-items: center;
-            gap: 7px;
+            gap: 8px;
+            margin-bottom: 10px;
         }
-        .tab-btn:hover { color: var(--text-primary); }
-        .tab-btn.active { color: var(--accent); border-bottom-color: var(--accent); font-weight: 600; }
-        .tab-count {
+        .split-col-title {
+            font-size: 11px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            color: var(--text-tertiary);
+        }
+        .col-count {
             font-size: 10px;
             font-weight: 700;
             padding: 1px 6px;
@@ -399,96 +395,69 @@
                 </div>
             </div>
 
-            <!-- Tabs -->
-            <div class="tab-bar">
-                <button class="tab-btn active" id="tab-btn-responses" onclick="switchTab('responses')">
-                    Responses
-                    <span class="tab-count" id="tab-count-responses">0</span>
-                </button>
-                <button class="tab-btn" id="tab-btn-calllist" onclick="switchTab('calllist')">
-                    Call List
-                    <span class="tab-count" id="tab-count-calllist">0</span>
-                </button>
-            </div>
+            <!-- ── Split layout ── -->
+            <div class="split-layout">
 
-            <!-- ── Responses pane ── -->
-            <div id="pane-responses">
-                <!-- Filters -->
-                <div class="filter-bar">
-                    <span class="filter-label">Filter:</span>
-                    <select class="filter-select" id="filter-region">
-                        <option value="">All Regions</option>
-                        <option value="west">West</option>
-                        <option value="north">North</option>
-                        <option value="east">East</option>
-                        <option value="service-center">Service Center</option>
-                        <option value="corporate">Corporate</option>
-                        <option value="other">Other</option>
-                    </select>
-                    <select class="filter-select" id="filter-followup">
-                        <option value="">All</option>
-                        <option value="true">Follow-up needed</option>
-                        <option value="false">No follow-up</option>
-                    </select>
+                <!-- Call List -->
+                <div class="split-col">
+                    <div class="split-col-header">
+                        <span class="split-col-title">Call List</span>
+                        <span class="col-count" id="col-count-calllist">0</span>
+                    </div>
+                    <div class="table-wrap">
+                        <table class="np-table">
+                            <thead>
+                                <tr>
+                                    <th>Name &amp; Title</th>
+                                    <th>Status</th>
+                                    <th></th>
+                                </tr>
+                            </thead>
+                            <tbody id="contacts-tbody">
+                                <tr><td colspan="3"><div class="empty-state"><div class="empty-state-text">Loading…</div></div></td></tr>
+                            </tbody>
+                        </table>
+                    </div>
                 </div>
 
-                <!-- Table -->
-                <div class="table-wrap">
-                    <table class="np-table">
-                        <thead>
-                            <tr>
-                                <th>Name &amp; Title</th>
-                                <th>Facility / Region</th>
-                                <th>Date</th>
-                                <th>Pain Points</th>
-                                <th>Follow-up</th>
-                            </tr>
-                        </thead>
-                        <tbody id="responses-tbody"></tbody>
-                    </table>
-                </div>
-
-                <!-- Related tool -->
-                <div class="section-header" style="margin-top:36px">
-                    <span class="section-title">Mass Intake</span>
-                    <div class="section-line"></div>
-                </div>
-                <div class="tools-grid" style="margin-top:12px;grid-template-columns:repeat(auto-fill,minmax(280px,1fr))">
-                    <a href="/team/pain-points/index.html" class="tool-card clickable">
-                        <div class="card-top">
-                            <div class="card-icon">📋</div>
-                            <span class="card-status status-live">Live</span>
+                <!-- Responses -->
+                <div class="split-col">
+                    <div class="split-col-header">
+                        <span class="split-col-title">Responses</span>
+                        <span class="col-count" id="col-count-responses">0</span>
+                        <div class="filter-bar" style="margin:0 0 0 auto">
+                            <select class="filter-select" id="filter-region">
+                                <option value="">All Regions</option>
+                                <option value="west">West</option>
+                                <option value="north">North</option>
+                                <option value="east">East</option>
+                                <option value="service-center">Service Center</option>
+                                <option value="corporate">Corporate</option>
+                                <option value="other">Other</option>
+                            </select>
+                            <select class="filter-select" id="filter-followup">
+                                <option value="">All</option>
+                                <option value="true">Follow-up needed</option>
+                                <option value="false">No follow-up</option>
+                            </select>
                         </div>
-                        <div class="card-title">Leadership Pain Points</div>
-                        <div class="card-desc">Quick-capture form for pain points from all dept heads, directors, and VPs. Use this when you need broad coverage fast — stakeholder interviews are for depth.</div>
-                        <div class="card-footer">
-                            <div class="card-tags"><span class="card-tag">All Departments</span><span class="card-tag">Quick Capture</span></div>
-                            <span class="card-arrow">→</span>
-                        </div>
-                    </a>
+                    </div>
+                    <div class="table-wrap">
+                        <table class="np-table">
+                            <thead>
+                                <tr>
+                                    <th>Name &amp; Title</th>
+                                    <th>Facility</th>
+                                    <th>Date</th>
+                                    <th>Pain Points</th>
+                                    <th>Follow-up</th>
+                                </tr>
+                            </thead>
+                            <tbody id="responses-tbody"></tbody>
+                        </table>
+                    </div>
                 </div>
-            </div>
 
-            <!-- ── Call List pane ── -->
-            <div id="pane-calllist" style="display:none">
-                <p style="font-size:13px;color:var(--text-tertiary);margin-bottom:16px">
-                    People to contact for stakeholder interviews. Mark each as Called once you've spoken with them — then log their response using the button above.
-                </p>
-                <div class="table-wrap">
-                    <table class="np-table">
-                        <thead>
-                            <tr>
-                                <th>Name &amp; Title</th>
-                                <th>Facility / Region</th>
-                                <th>Status</th>
-                                <th></th>
-                            </tr>
-                        </thead>
-                        <tbody id="contacts-tbody">
-                            <tr><td colspan="4"><div class="empty-state"><div class="empty-state-text">Loading…</div></div></td></tr>
-                        </tbody>
-                    </table>
-                </div>
             </div>
 
         </div>
@@ -643,14 +612,6 @@ let _editId     = null;
 let _facilities = [];
 let _contacts   = [];
 
-// ── Tabs ──────────────────────────────────────────────────────────────────────
-function switchTab(tab) {
-    document.getElementById('pane-responses').style.display = tab === 'responses' ? '' : 'none';
-    document.getElementById('pane-calllist').style.display  = tab === 'calllist'  ? '' : 'none';
-    document.getElementById('tab-btn-responses').classList.toggle('active', tab === 'responses');
-    document.getElementById('tab-btn-calllist').classList.toggle('active',  tab === 'calllist');
-}
-
 // ── Facility datalist ─────────────────────────────────────────────────────────
 async function loadFacilities() {
     const { data } = await _npSupabase
@@ -679,7 +640,7 @@ async function loadResponses() {
     _responses = data || [];
     renderStats(_responses);
     renderTable(_responses);
-    document.getElementById('tab-count-responses').textContent = _responses.length;
+    document.getElementById('col-count-responses').textContent = _responses.length;
 }
 
 function renderStats(data) {
@@ -755,7 +716,8 @@ async function loadContacts() {
     }
 
     _contacts = data || [];
-    document.getElementById('tab-count-calllist').textContent = _contacts.filter(c => c.status === 'pending').length || _contacts.length;
+    const pending = _contacts.filter(c => c.status === 'pending').length;
+    document.getElementById('col-count-calllist').textContent = pending || _contacts.length;
     renderContacts(_contacts);
 }
 
@@ -779,15 +741,11 @@ function renderContacts(data) {
         <tr>
             <td>
                 <div class="cell-name">${c.name}</div>
-                <div class="cell-sub">${c.title || '—'}</div>
-            </td>
-            <td>
-                <div>${c.facility || '—'}</div>
-                <div class="cell-sub" style="text-transform:capitalize">${c.region || ''}</div>
+                <div class="cell-sub">${c.title || ''}${c.facility ? ' · ' + c.facility : ''}</div>
             </td>
             <td>${statusBadge(c.status)}</td>
-            <td>
-                ${c.status === 'pending' ? `<button class="btn btn-secondary btn-sm" onclick="markCalled('${c.id}')">Mark Called</button>` : ''}
+            <td style="white-space:nowrap">
+                ${c.status === 'pending' ? `<button class="btn btn-secondary btn-sm" onclick="markCalled('${c.id}')">Called</button>` : ''}
                 ${c.status === 'called'  ? `<button class="btn btn-secondary btn-sm" onclick="markPending('${c.id}')">Undo</button>` : ''}
             </td>
         </tr>
