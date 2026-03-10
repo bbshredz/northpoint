@@ -300,11 +300,7 @@ function renderRow(u, idx) {
 }
 
 async function loadUsers() {
-  // Load user_roles table. email column is optional — add it to user_roles for better UX.
-  const { data: roles, error } = await _npSupabase
-    .from('user_roles')
-    .select('user_id, role, modules')
-    .order('role');
+  const { data, error } = await _npSupabase.rpc('get_all_users');
 
   if (error) {
     document.getElementById('iamBody').innerHTML =
@@ -312,7 +308,7 @@ async function loadUsers() {
     return;
   }
 
-  _users = roles || [];
+  _users = data || [];
   document.getElementById('statTotal').textContent = _users.length;
   document.getElementById('statRoled').textContent = _users.filter(u => u.role && u.role !== 'staff').length;
   document.getElementById('statStaff').textContent = _users.filter(u => !u.role || u.role === 'staff').length;
@@ -400,16 +396,19 @@ function attachHandlers() {
       return;
     }
 
-    // Pre-create the user_roles row so role is set when they first sign in.
-    // Uses email as a placeholder — row will be linked when the user completes sign-in.
-    // This is a best-effort: if the user already exists, upsert will update their role.
-    const { data: existingUsers } = await _npSupabase
-      .from('user_roles')
-      .select('user_id')
-      .eq('user_id', email); // email lookup won't match uuid — role row created on first login by the user if needed
+    // Look up the user's UUID from auth.users via RPC (available immediately after OTP send)
+    // and pre-create/update their user_roles row with the selected role.
+    const { data: allUsers } = await _npSupabase.rpc('get_all_users');
+    const match = allUsers?.find(u => u.email === email);
+    if (match) {
+      await _npSupabase
+        .from('user_roles')
+        .upsert({ user_id: match.user_id, role, modules: [] }, { onConflict: 'user_id' });
+    }
 
-    alert(`Magic link sent to ${email}.\n\nOnce they sign in, set their role from this page.`);
+    alert(`Magic link sent to ${email}.\nRole set to ${role}.${!match ? '\n\nCould not pre-set role — update manually once they appear.' : ''}`);
     document.getElementById('inviteEmail').value = '';
+    loadUsers();
   });
 }
 

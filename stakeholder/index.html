@@ -524,8 +524,8 @@
                     <div class="contact-context-name" id="ctx-name"></div>
                     <div class="contact-context-meta" id="ctx-meta"></div>
                 </div>
-                <div class="framing-prompt">
-                    <strong>Opening:</strong> <em>"Hi, this is Monique — I'm a business analyst working on an IT improvement initiative across NACS. I'm having quick conversations with leaders at each facility to understand how things are working from your side. Do you have about 10 minutes?"</em>
+                <div class="framing-prompt" id="framing-prompt">
+                    <strong>Opening:</strong> <em id="framing-text">"Hi, this is Monique — I'm a business analyst working on an IT improvement initiative across NACS. I'm having quick conversations with leaders at each facility to understand how things are working from your side. Do you have about 10 minutes?"</em>
                     <br><br>Let them lead. If something interesting comes up, follow it — don't rush back to the list. "What does that look like day-to-day?" goes further than any scripted question.
                 </div>
                 <div class="form-row">
@@ -814,6 +814,11 @@ function openFormFromContact(contactId) {
     document.getElementById('f-title').value    = c.title || '';
     document.getElementById('f-facility').value = c.facility || '';
     document.getElementById('f-region').value   = c.region || '';
+
+    // Personalize the opening prompt with their first name
+    const firstName = c.name.trim().split(/[\s,]+/)[0];
+    document.getElementById('framing-text').textContent =
+        `"Hi ${firstName}, this is Monique — I'm a business analyst working on an IT improvement initiative across NACS. I'm having quick conversations with leaders at each facility to understand how things are working from your side. Do you have about 10 minutes?"`;
 }
 
 function viewContactResponse(responseId) {
@@ -880,6 +885,8 @@ function closeForm() {
     document.getElementById('response-modal').classList.remove('open');
     document.getElementById('contact-context').style.display = 'none';
     document.getElementById('modal-no-answer-btn').style.display = 'none';
+    document.getElementById('framing-text').textContent =
+        '"Hi, this is Monique — I\'m a business analyst working on an IT improvement initiative across NACS. I\'m having quick conversations with leaders at each facility to understand how things are working from your side. Do you have about 10 minutes?"';
     _editId        = null;
     _fromContactId = null;
 }
