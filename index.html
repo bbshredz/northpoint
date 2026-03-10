@@ -280,7 +280,7 @@
                     <div class="module-card-title">Facility Operations</div>
                     <div class="module-card-desc">Onboarding forecaster, integration checklists, and the 30×30 roadmap.</div>
                     <div class="module-metrics">
-                        <div class="module-metric">
+                        <div class="module-metric js-exec-only">
                             <div class="module-metric-value">+4</div>
                             <div class="module-metric-label">Incoming</div>
                         </div>
@@ -420,6 +420,12 @@ npInit(null).then(session => {
     document.getElementById('hub-signout').style.display = '';
   } else {
     renderNav('hub');
+  }
+
+  // Hide exec-only metrics from non-exec/director/admin
+  const isExecOrAbove = role === 'admin' || role === 'exec' || role === 'director';
+  if (!isExecOrAbove) {
+    document.querySelectorAll('.js-exec-only').forEach(el => el.style.display = 'none');
   }
 
   // Show spend stat for exec/admin
