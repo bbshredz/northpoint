@@ -101,6 +101,14 @@
         .mod-chip.inactive { background: var(--silver-light); color: var(--text-tertiary); }
         .mod-chip:hover { border-color: var(--accent); }
         .mod-chip.no-extras { background: none; color: var(--text-tertiary); cursor: default; font-style: italic; border: none; padding: 2px 0; }
+        /* Role-granted chips — visible but non-interactive, outlined style */
+        .mod-chip-role {
+            font-size: 10px; font-weight: 600;
+            padding: 2px 8px; border-radius: 20px;
+            background: transparent; color: var(--text-tertiary);
+            border: 1px solid var(--border);
+            cursor: default; white-space: nowrap;
+        }
 
         .role-name-cell { font-weight: 600; font-size: 13px; min-width: 90px; }
         .role-desc { font-size: 11px; color: var(--text-tertiary); margin-top: 2px; font-weight: 400; }
@@ -183,12 +191,12 @@
             </div>
 
             <div class="iam-tabs animate-3">
-                <button class="iam-tab active" data-tab="users">Users</button>
-                <button class="iam-tab" data-tab="roles">Roles</button>
+                <button class="iam-tab active" data-tab="roles">Roles</button>
+                <button class="iam-tab" data-tab="users">Users</button>
             </div>
 
             <!-- ── Users panel ── -->
-            <div class="iam-panel active animate-3" id="panel-users">
+            <div class="iam-panel animate-3" id="panel-users">
 
                 <div class="section-header">
                     <span class="section-title">Invite User</span>
@@ -215,7 +223,7 @@
                             <tr>
                                 <th>User</th>
                                 <th>Role</th>
-                                <th>Extra Modules <span style="font-weight:400;text-transform:none;letter-spacing:0;opacity:0.6">— beyond role baseline</span></th>
+                                <th>Modules <span style="font-weight:400;text-transform:none;letter-spacing:0;opacity:0.6">— outlined = role baseline · filled = extra</span></th>
                                 <th></th>
                             </tr>
                         </thead>
@@ -227,7 +235,7 @@
             </div>
 
             <!-- ── Roles panel ── -->
-            <div class="iam-panel" id="panel-roles">
+            <div class="iam-panel active animate-3" id="panel-roles">
                 <div class="section-header animate-3">
                     <span class="section-title">Role Definitions</span>
                     <div class="section-line"></div>
@@ -293,11 +301,15 @@ function renderUserRow(u) {
   if (role === 'admin') {
     extrasCell = `<span class="mod-chip no-extras">All access via role</span>`;
   } else {
-    const available = extrasAvailable(role);
-    extrasCell = available.map(m => {
+    const roleGrants = _roleDefs[role] || [];
+    const roleChips  = roleGrants.map(m =>
+      `<span class="mod-chip-role" title="Granted by ${ROLE_LABELS[role] || role} role">${m}</span>`
+    ).join('');
+    const extraChips = extrasAvailable(role).map(m => {
       const active = mods.includes(m);
       return `<span class="mod-chip ${active ? '' : 'inactive'}" data-uid="${uid}" data-mod="${m}">${m}</span>`;
-    }).join('') || `<span class="mod-chip no-extras">No extras available</span>`;
+    }).join('');
+    extrasCell = roleChips + extraChips;
   }
 
   return `
@@ -338,11 +350,15 @@ function refreshExtrasCell(uid) {
     cell.innerHTML = `<span class="mod-chip no-extras">All access via role</span>`;
     return;
   }
-  const available = extrasAvailable(role);
-  cell.innerHTML = available.map(m => {
+  const roleGrants = _roleDefs[role] || [];
+  const roleChips  = roleGrants.map(m =>
+    `<span class="mod-chip-role" title="Granted by ${ROLE_LABELS[role] || role} role">${m}</span>`
+  ).join('');
+  const extraChips = extrasAvailable(role).map(m => {
     const active = savedMods.includes(m);
     return `<span class="mod-chip ${active ? '' : 'inactive'}" data-uid="${uid}" data-mod="${m}">${m}</span>`;
-  }).join('') || `<span class="mod-chip no-extras">No extras available</span>`;
+  }).join('');
+  cell.innerHTML = roleChips + extraChips;
 
   // Re-attach chip toggle listeners for this cell
   cell.querySelectorAll('.mod-chip:not(.no-extras)').forEach(chip => {
