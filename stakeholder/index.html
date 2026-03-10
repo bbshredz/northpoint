@@ -525,8 +525,8 @@
                     <div class="contact-context-meta" id="ctx-meta"></div>
                 </div>
                 <div class="framing-prompt">
-                    <strong>How to introduce yourself:</strong> <em>"Hi, my name is Monique — I'm conducting a confidential survey on behalf of our IT improvement initiative. I'm reaching out to leaders across all facilities to get honest feedback about your experience with IT. This is completely independent — your responses are anonymous and won't be tied back to you personally. There are no wrong answers and nobody gets in trouble. I'm just here to listen."</em>
-                    <br><br>Let them set the tone. If they're busy, offer to call back. If they're open, follow the questions on the left — but don't rush. The goal is to make them feel heard.
+                    <strong>Opening:</strong> <em>"Hi, this is Monique — I'm a business analyst working on an IT improvement initiative across NACS. I'm having quick conversations with leaders at each facility to understand how things are working from your side. Do you have about 10 minutes?"</em>
+                    <br><br>Let them lead. If something interesting comes up, follow it — don't rush back to the list. "What does that look like day-to-day?" goes further than any scripted question.
                 </div>
                 <div class="form-row">
                     <div class="form-group">
@@ -975,8 +975,14 @@ async function deleteResponse(id) {
     if (!confirm('Delete this response? This cannot be undone.')) return;
     const { error } = await _npSupabase.from('stakeholder_responses').delete().eq('id', id);
     if (error) { alert('Error: ' + error.message); return; }
+
+    // Reset any linked contact back to pending
+    await _npSupabase.from('stakeholder_contacts')
+        .update({ status: 'pending', response_id: null })
+        .eq('response_id', id);
+
     closeDetail();
-    await loadResponses();
+    await Promise.all([loadResponses(), loadContacts()]);
 }
 
 document.getElementById('detail-close-btn').addEventListener('click', closeDetail);
