@@ -1276,13 +1276,15 @@ html { background: var(--navy); }
 
 /* Frosted tile — applies to both tool cards and hub module cards */
 .tool-card.tile-locked,
-.module-card.tile-locked {
+.module-card.tile-locked,
+.metric-card.tile-locked {
     pointer-events: none;
     position: relative;
     overflow: hidden;
 }
 .tool-card.tile-locked::after,
-.module-card.tile-locked::after {
+.module-card.tile-locked::after,
+.metric-card.tile-locked::after {
     content: '';
     position: absolute;
     inset: 0;

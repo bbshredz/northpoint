@@ -170,7 +170,7 @@ npInit('facilities').then(async session => {
   const role = npGetRole();
   const isExecOrAbove = role === 'admin' || role === 'exec' || role === 'director';
   if (!isExecOrAbove) {
-    document.querySelectorAll('.js-exec-only').forEach(el => el.style.display = 'none');
+    document.querySelectorAll('.js-exec-only').forEach(el => el.classList.add('tile-locked'));
   }
 
   // Region breakdown for Current Facilities accordion

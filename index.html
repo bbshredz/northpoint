@@ -88,7 +88,7 @@
         body.hub-limited .layout                { grid-template-columns: 1fr; }
         body.hub-limited .hub-hero              { display: none; }
         body.hub-limited .section-header        { display: none; }
-        body.hub-limited .tile-locked           { display: none !important; }
+        body.hub-limited .tile-locked           { opacity: 0.55; pointer-events: none; }
         body.hub-limited .main                  { display: flex; flex-direction: column; align-items: center; justify-content: center; min-height: 100vh; }
         body.hub-limited .content               { width: 100%; max-width: 560px; padding: 60px 24px 40px; }
         body.hub-limited .hub-limited-greeting  { text-align: center; margin-bottom: 32px; }
@@ -442,8 +442,10 @@ npInit(null).then(session => {
     const available = cards.filter(c => !c.classList.contains('tile-locked'));
     const locked    = cards.filter(c =>  c.classList.contains('tile-locked'));
     if (stripped) {
-      locked.forEach(c => c.remove());
+      // Show accessible cards first, then frosted locked cards (so user knows more exists)
       available.forEach(c => grid.appendChild(c));
+      locked.slice(0, 3).forEach(c => grid.appendChild(c));
+      locked.slice(3).forEach(c => c.remove());
     } else {
       [...available, ...locked].forEach(c => grid.appendChild(c));
     }

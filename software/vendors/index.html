@@ -533,7 +533,7 @@ function render() {
   });
 
   if (!filtered.length) {
-    body.innerHTML = `<tr><td colspan="10" style="padding:40px;text-align:center;color:var(--text-tertiary);font-size:13px;">No vendors found.</td></tr>`;
+    body.innerHTML = `<tr><td colspan="${window._vcShowSpend ? 10 : 9}" style="padding:40px;text-align:center;color:var(--text-tertiary);font-size:13px;">No vendors found.</td></tr>`;
     updateSummary();
     return;
   }
@@ -550,7 +550,7 @@ function render() {
       <td class="editable" data-field="contact_name" style="min-width:130px;">${renderContact(v.contact_name||'', v.contact_email||'', v.contact_phone||'')}</td>
       <td class="editable" data-field="contract_type">${v.contract_type ? `<span class="vc-contract">${esc(v.contract_type)}</span>` : '<span style="color:var(--text-tertiary);font-size:11px">—</span>'}</td>
       <td class="editable" data-field="renewal_date">${renderRenewal(v.renewal_date)}</td>
-      <td class="editable" data-field="annual_spend">${v.annual_spend ? `<span class="vc-spend">$${Number(v.annual_spend).toLocaleString('en-US',{minimumFractionDigits:0,maximumFractionDigits:0})}</span>` : '<span class="vc-spend zero">—</span>'}</td>
+      ${window._vcShowSpend ? `<td class="editable" data-field="annual_spend">${v.annual_spend ? `<span class="vc-spend">$${Number(v.annual_spend).toLocaleString('en-US',{minimumFractionDigits:0,maximumFractionDigits:0})}</span>` : '<span class="vc-spend zero">—</span>'}</td>` : ''}
       <td>${swCountHtml(v.id, v.name)}</td>
       <td class="editable" data-field="notes" style="max-width:200px;font-size:12px;color:var(--text-tertiary);">${esc(v.notes||'')}</td>
       <td>${showTrash
@@ -602,7 +602,7 @@ function updateSummary() {
 
   el.innerHTML = `
     <div class="vc-stat"><div class="vc-stat-label">Total Vendors</div><div class="vc-stat-value">${total}</div><div class="vc-stat-sub">Tracked relationships</div></div>
-    <div class="vc-stat"><div class="vc-stat-label">Annual Spend</div><div class="vc-stat-value" style="font-size:22px">${totalSpend ? '$'+totalSpend.toLocaleString('en-US',{maximumFractionDigits:0}) : '—'}</div><div class="vc-stat-sub">Where known</div></div>
+    ${window._vcShowSpend ? `<div class="vc-stat"><div class="vc-stat-label">Annual Spend</div><div class="vc-stat-value" style="font-size:22px">${totalSpend ? '$'+totalSpend.toLocaleString('en-US',{maximumFractionDigits:0}) : '—'}</div><div class="vc-stat-sub">Where known</div></div>` : ''}
     <div class="vc-stat"><div class="vc-stat-label">Renewals ≤ 90 Days</div><div class="vc-stat-value" style="color:${upcoming?'#f97316':'var(--text-primary)'}">${upcoming}</div><div class="vc-stat-sub">Upcoming contracts</div></div>
     <div class="vc-stat"><div class="vc-stat-label">No Contact</div><div class="vc-stat-value" style="color:${noContact?'#f59e0b':'var(--green)'}">${noContact}</div><div class="vc-stat-sub">Missing contact info</div></div>
   `;
@@ -637,6 +637,12 @@ npInit('software').then(session => {
   npPopulateTopbar();
   renderNav('software');
   document.getElementById('topbarAvatar').textContent = npGetInitials();
+
+  const _vcRole = npGetRole();
+  window._vcShowSpend = _vcRole === 'admin' || _vcRole === 'exec' || _vcRole === 'director';
+  if (!window._vcShowSpend) {
+    document.querySelectorAll('th').forEach(th => { if (th.textContent.trim() === 'Annual Spend') th.style.display = 'none'; });
+  }
 
   document.getElementById('vcSearch').addEventListener('input', e => {
     searchQ = e.target.value.trim();
