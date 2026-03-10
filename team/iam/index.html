@@ -8,6 +8,31 @@
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script src="/auth.js"></script>
     <style>
+        .iam-tabs {
+            display: flex;
+            gap: 0;
+            border-bottom: 1px solid var(--border);
+            margin-bottom: 28px;
+        }
+        .iam-tab {
+            padding: 9px 20px;
+            border: none;
+            background: none;
+            font-family: inherit;
+            font-size: 13px;
+            font-weight: 600;
+            color: var(--text-tertiary);
+            cursor: pointer;
+            border-bottom: 2px solid transparent;
+            margin-bottom: -1px;
+            transition: color 0.15s, border-color 0.15s;
+        }
+        .iam-tab:hover { color: var(--text-primary); }
+        .iam-tab.active { color: var(--accent); border-bottom-color: var(--accent); }
+
+        .iam-panel { display: none; }
+        .iam-panel.active { display: block; }
+
         .iam-table-wrap {
             background: var(--card);
             border: 1px solid var(--border);
@@ -20,9 +45,7 @@
             border-collapse: collapse;
             font-size: 13px;
         }
-        .iam-table thead tr {
-            border-bottom: 1px solid var(--border);
-        }
+        .iam-table thead tr { border-bottom: 1px solid var(--border); }
         .iam-table th {
             text-align: left;
             padding: 12px 18px;
@@ -41,23 +64,13 @@
         .iam-table tbody tr:last-child td { border-bottom: none; }
         .iam-table tbody tr:hover { background: var(--card-hover); }
 
-        .user-ident {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-        }
+        .user-ident { display: flex; align-items: center; gap: 10px; }
         .user-chip {
-            width: 32px;
-            height: 32px;
+            width: 32px; height: 32px;
             border-radius: 8px;
             background: linear-gradient(135deg, var(--accent), #6366f1);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            color: white;
-            font-size: 11px;
-            font-weight: 700;
-            flex-shrink: 0;
+            display: flex; align-items: center; justify-content: center;
+            color: white; font-size: 11px; font-weight: 700; flex-shrink: 0;
         }
         .user-email { font-size: 13px; color: var(--text-primary); }
         .user-id    { font-size: 10px; color: var(--text-tertiary); font-family: monospace; }
@@ -76,93 +89,56 @@
         }
         .role-select:focus { outline: none; border-color: var(--accent); }
 
-        .modules-cell {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 4px;
-            max-width: 280px;
-        }
+        .modules-cell { display: flex; flex-wrap: wrap; gap: 4px; max-width: 340px; }
         .mod-chip {
-            font-size: 10px;
-            font-weight: 600;
-            padding: 2px 8px;
-            border-radius: 20px;
-            background: var(--accent-dim);
-            color: var(--accent);
+            font-size: 10px; font-weight: 600;
+            padding: 2px 8px; border-radius: 20px;
+            background: var(--accent-dim); color: var(--accent);
             border: 1px solid transparent;
-            cursor: pointer;
-            transition: all 0.15s;
+            cursor: pointer; transition: all 0.15s;
+            white-space: nowrap;
         }
-        .mod-chip.inactive {
-            background: var(--silver-light);
-            color: var(--text-tertiary);
-        }
+        .mod-chip.inactive { background: var(--silver-light); color: var(--text-tertiary); }
         .mod-chip:hover { border-color: var(--accent); }
+        .mod-chip.no-extras { background: none; color: var(--text-tertiary); cursor: default; font-style: italic; border: none; padding: 2px 0; }
+
+        .role-name-cell { font-weight: 600; font-size: 13px; min-width: 90px; }
+        .role-desc { font-size: 11px; color: var(--text-tertiary); margin-top: 2px; font-weight: 400; }
+        .role-admin-note { font-size: 11px; color: var(--text-tertiary); font-style: italic; }
 
         .save-btn {
-            font-size: 11px;
-            font-weight: 600;
-            padding: 5px 12px;
-            border-radius: 6px;
+            font-size: 11px; font-weight: 600;
+            padding: 5px 12px; border-radius: 6px;
             border: 1px solid var(--accent);
-            background: var(--accent-dim);
-            color: var(--accent);
-            cursor: pointer;
-            font-family: inherit;
-            transition: all 0.18s;
-            white-space: nowrap;
+            background: var(--accent-dim); color: var(--accent);
+            cursor: pointer; font-family: inherit;
+            transition: all 0.18s; white-space: nowrap;
         }
         .save-btn:hover { background: var(--accent); color: white; }
         .save-btn:disabled { opacity: 0.4; cursor: default; }
-        .save-btn.saved { background: var(--green-dim); border-color: var(--green); color: var(--green); }
+        .save-btn.saved  { background: var(--green-dim); border-color: var(--green); color: var(--green); }
+        .save-btn.errored { background: transparent; border-color: var(--red); color: var(--red); }
 
-        .iam-empty {
-            text-align: center;
-            padding: 40px;
-            color: var(--text-tertiary);
-            font-size: 13px;
-        }
+        .iam-empty { text-align: center; padding: 40px; color: var(--text-tertiary); font-size: 13px; }
 
-        .invite-row {
-            display: flex;
-            gap: 10px;
-            align-items: center;
-            margin-bottom: 40px;
-        }
+        .invite-row { display: flex; gap: 10px; align-items: center; margin-bottom: 36px; }
         .invite-input {
             flex: 1;
-            background: var(--card);
-            border: 1px solid var(--border);
-            border-radius: 8px;
-            padding: 9px 14px;
-            font-size: 13px;
-            color: var(--text-primary);
-            font-family: inherit;
+            background: var(--card); border: 1px solid var(--border);
+            border-radius: 8px; padding: 9px 14px;
+            font-size: 13px; color: var(--text-primary); font-family: inherit;
             transition: border-color 0.18s;
         }
         .invite-input::placeholder { color: var(--text-tertiary); }
         .invite-input:focus { outline: none; border-color: var(--accent); }
         .invite-btn {
-            padding: 9px 18px;
-            border-radius: 8px;
-            border: 1px solid var(--accent);
-            background: var(--accent);
-            color: white;
-            font-size: 13px;
-            font-weight: 600;
-            font-family: inherit;
-            cursor: pointer;
-            transition: opacity 0.18s;
-            white-space: nowrap;
+            padding: 9px 18px; border-radius: 8px;
+            border: 1px solid var(--accent); background: var(--accent);
+            color: white; font-size: 13px; font-weight: 600;
+            font-family: inherit; cursor: pointer; transition: opacity 0.18s; white-space: nowrap;
         }
         .invite-btn:hover { opacity: 0.85; }
-
-        .all-modules {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 5px;
-            padding: 10px 0;
-        }
+        .invite-btn:disabled { opacity: 0.5; cursor: default; }
     </style>
 </head>
 <body class="mod-team">
@@ -185,10 +161,10 @@
             <div class="page-header animate-1">
                 <h1 class="page-title">Identity & Access</h1>
                 <p class="page-subtitle">User management · NorthPoint Admin</p>
-                <p class="page-desc">View all NorthPoint users, assign roles, and control module access — without touching Supabase directly.</p>
+                <p class="page-desc">Manage users, assign roles, and customize per-user module access beyond their role baseline.</p>
             </div>
 
-            <div class="metric-row cols-3 animate-2" id="iamStats">
+            <div class="metric-row cols-3 animate-2">
                 <div class="metric-card">
                     <div class="metric-label">Total Users</div>
                     <div class="metric-value" id="statTotal">—</div>
@@ -197,7 +173,7 @@
                 <div class="metric-card">
                     <div class="metric-label">Roles Assigned</div>
                     <div class="metric-value" id="statRoled">—</div>
-                    <div class="metric-sub">With role records</div>
+                    <div class="metric-sub">Non-staff roles</div>
                 </div>
                 <div class="metric-card">
                     <div class="metric-label">Staff (default)</div>
@@ -206,40 +182,70 @@
                 </div>
             </div>
 
-            <div class="section-header animate-3">
-                <span class="section-title">Invite User</span>
-                <div class="section-line"></div>
-            </div>
-            <div class="invite-row animate-3">
-                <input type="email" class="invite-input" id="inviteEmail" placeholder="user@nacsnaz.com">
-                <select class="role-select" id="inviteRole">
-                    <option value="staff">Staff</option>
-                    <option value="director">Director</option>
-                    <option value="exec">Executive</option>
-                    <option value="admin">Admin</option>
-                </select>
-                <button class="invite-btn" id="inviteBtn">Send Invite</button>
+            <div class="iam-tabs animate-3">
+                <button class="iam-tab active" data-tab="users">Users</button>
+                <button class="iam-tab" data-tab="roles">Roles</button>
             </div>
 
-            <div class="section-header animate-3">
-                <span class="section-title">All Users</span>
-                <div class="section-line"></div>
+            <!-- ── Users panel ── -->
+            <div class="iam-panel active animate-3" id="panel-users">
+
+                <div class="section-header">
+                    <span class="section-title">Invite User</span>
+                    <div class="section-line"></div>
+                </div>
+                <div class="invite-row">
+                    <input type="email" class="invite-input" id="inviteEmail" placeholder="user@nacsnaz.com">
+                    <select class="role-select" id="inviteRole">
+                        <option value="staff">Staff</option>
+                        <option value="director">Director</option>
+                        <option value="exec">Executive</option>
+                        <option value="admin">Admin</option>
+                    </select>
+                    <button class="invite-btn" id="inviteBtn">Send Invite</button>
+                </div>
+
+                <div class="section-header">
+                    <span class="section-title">All Users</span>
+                    <div class="section-line"></div>
+                </div>
+                <div class="iam-table-wrap">
+                    <table class="iam-table">
+                        <thead>
+                            <tr>
+                                <th>User</th>
+                                <th>Role</th>
+                                <th>Extra Modules <span style="font-weight:400;text-transform:none;letter-spacing:0;opacity:0.6">— beyond role baseline</span></th>
+                                <th></th>
+                            </tr>
+                        </thead>
+                        <tbody id="usersBody">
+                            <tr><td colspan="4" class="iam-empty">Loading…</td></tr>
+                        </tbody>
+                    </table>
+                </div>
             </div>
 
-            <div class="iam-table-wrap animate-3">
-                <table class="iam-table">
-                    <thead>
-                        <tr>
-                            <th>User</th>
-                            <th>Role</th>
-                            <th>Extra Modules</th>
-                            <th></th>
-                        </tr>
-                    </thead>
-                    <tbody id="iamBody">
-                        <tr><td colspan="4" class="iam-empty">Loading…</td></tr>
-                    </tbody>
-                </table>
+            <!-- ── Roles panel ── -->
+            <div class="iam-panel" id="panel-roles">
+                <div class="section-header animate-3">
+                    <span class="section-title">Role Definitions</span>
+                    <div class="section-line"></div>
+                </div>
+                <div class="iam-table-wrap">
+                    <table class="iam-table">
+                        <thead>
+                            <tr>
+                                <th style="width:120px">Role</th>
+                                <th>Modules</th>
+                                <th></th>
+                            </tr>
+                        </thead>
+                        <tbody id="rolesBody">
+                            <tr><td colspan="3" class="iam-empty">Loading…</td></tr>
+                        </tbody>
+                    </table>
+                </div>
             </div>
 
         </div>
@@ -254,23 +260,45 @@ const ALL_MODULES = [
 ];
 
 const ROLE_LABELS = { admin: 'Admin', exec: 'Executive', director: 'Director', staff: 'Staff' };
+const ROLE_DESCS  = {
+  admin:    'Full platform access — all modules unconditionally.',
+  exec:     'Leadership view — financials, planning, and org tools.',
+  director: 'Operational modules — team, facilities, software.',
+  staff:    'Default access — team, facilities, software, projects, field guide.',
+};
 
-let _users = [];
+let _users    = [];
+let _roleDefs = {}; // role → modules[] from Supabase
 
 function initials(email) {
   return email ? email.split('@')[0].slice(0,2).toUpperCase() : '?';
 }
 
-function renderRow(u, idx) {
-  const role    = u.role || 'staff';
-  const mods    = u.modules || [];
-  const uid     = u.user_id;
-  const email   = u.email || uid;
+// Modules available as extras for a given role (everything the role doesn't already grant)
+function extrasAvailable(role) {
+  if (role === 'admin') return [];
+  const granted = _roleDefs[role] || [];
+  return ALL_MODULES.filter(m => !granted.includes(m));
+}
 
-  const modChips = ALL_MODULES.map(m => {
-    const active = mods.includes(m);
-    return `<span class="mod-chip ${active ? '' : 'inactive'}" data-uid="${uid}" data-mod="${m}" title="${m}">${m}</span>`;
-  }).join('');
+// ── Users tab ────────────────────────────────────────────────────────────────
+
+function renderUserRow(u) {
+  const role  = u.role || 'staff';
+  const mods  = u.modules || [];
+  const uid   = u.user_id;
+  const email = u.email || uid;
+
+  let extrasCell;
+  if (role === 'admin') {
+    extrasCell = `<span class="mod-chip no-extras">All access via role</span>`;
+  } else {
+    const available = extrasAvailable(role);
+    extrasCell = available.map(m => {
+      const active = mods.includes(m);
+      return `<span class="mod-chip ${active ? '' : 'inactive'}" data-uid="${uid}" data-mod="${m}">${m}</span>`;
+    }).join('') || `<span class="mod-chip no-extras">No extras available</span>`;
+  }
 
   return `
   <tr data-uid="${uid}">
@@ -284,27 +312,49 @@ function renderRow(u, idx) {
       </div>
     </td>
     <td>
-      <select class="role-select" data-uid="${uid}" id="role-${uid}">
+      <select class="role-select user-role-select" data-uid="${uid}" id="role-${uid}">
         ${['staff','director','exec','admin'].map(r =>
           `<option value="${r}" ${role === r ? 'selected' : ''}>${ROLE_LABELS[r]}</option>`
         ).join('')}
       </select>
     </td>
     <td>
-      <div class="modules-cell">${modChips}</div>
+      <div class="modules-cell" id="extras-${uid}">${extrasCell}</div>
     </td>
     <td>
-      <button class="save-btn" data-uid="${uid}" id="save-${uid}">Save</button>
+      <button class="save-btn user-save-btn" data-uid="${uid}">Save</button>
     </td>
   </tr>`;
 }
 
+function refreshExtrasCell(uid) {
+  const role      = document.getElementById(`role-${uid}`)?.value || 'staff';
+  const user      = _users.find(u => u.user_id === uid);
+  const savedMods = user?.modules || [];
+  const cell      = document.getElementById(`extras-${uid}`);
+  if (!cell) return;
+
+  if (role === 'admin') {
+    cell.innerHTML = `<span class="mod-chip no-extras">All access via role</span>`;
+    return;
+  }
+  const available = extrasAvailable(role);
+  cell.innerHTML = available.map(m => {
+    const active = savedMods.includes(m);
+    return `<span class="mod-chip ${active ? '' : 'inactive'}" data-uid="${uid}" data-mod="${m}">${m}</span>`;
+  }).join('') || `<span class="mod-chip no-extras">No extras available</span>`;
+
+  // Re-attach chip toggle listeners for this cell
+  cell.querySelectorAll('.mod-chip:not(.no-extras)').forEach(chip => {
+    chip.addEventListener('click', () => chip.classList.toggle('inactive'));
+  });
+}
+
 async function loadUsers() {
   const { data, error } = await _npSupabase.rpc('get_all_users');
-
   if (error) {
-    document.getElementById('iamBody').innerHTML =
-      `<tr><td colspan="4" class="iam-empty">Error loading users: ${error.message}</td></tr>`;
+    document.getElementById('usersBody').innerHTML =
+      `<tr><td colspan="4" class="iam-empty">Error: ${error.message}</td></tr>`;
     return;
   }
 
@@ -314,109 +364,195 @@ async function loadUsers() {
   document.getElementById('statStaff').textContent = _users.filter(u => !u.role || u.role === 'staff').length;
 
   if (!_users.length) {
-    document.getElementById('iamBody').innerHTML =
-      '<tr><td colspan="4" class="iam-empty">No user records found.</td></tr>';
+    document.getElementById('usersBody').innerHTML =
+      '<tr><td colspan="4" class="iam-empty">No users found.</td></tr>';
     return;
   }
 
-  document.getElementById('iamBody').innerHTML = _users.map(renderRow).join('');
-  attachHandlers();
+  document.getElementById('usersBody').innerHTML = _users.map(renderUserRow).join('');
+  attachUserHandlers();
 }
 
-function attachHandlers() {
-  // Module chip toggles
-  document.querySelectorAll('.mod-chip').forEach(chip => {
-    chip.addEventListener('click', () => {
-      chip.classList.toggle('inactive');
-    });
+function attachUserHandlers() {
+  // Chip toggles
+  document.querySelectorAll('#usersBody .mod-chip:not(.no-extras)').forEach(chip => {
+    chip.addEventListener('click', () => chip.classList.toggle('inactive'));
   });
 
-  // Save buttons
-  document.querySelectorAll('.save-btn').forEach(btn => {
-    btn.addEventListener('click', async () => {
-      const uid = btn.dataset.uid;
-      const roleEl = document.getElementById(`role-${uid}`);
-      const newRole = roleEl?.value || 'staff';
+  // Role dropdown change → refresh extras column
+  document.querySelectorAll('.user-role-select').forEach(sel => {
+    sel.addEventListener('change', () => refreshExtrasCell(sel.dataset.uid));
+  });
 
-      // Collect active modules for this user
-      const activeMods = [...document.querySelectorAll(`.mod-chip[data-uid="${uid}"]`)]
-        .filter(c => !c.classList.contains('inactive'))
+  // Save
+  document.querySelectorAll('.user-save-btn').forEach(btn => {
+    btn.addEventListener('click', async () => {
+      const uid     = btn.dataset.uid;
+      const newRole = document.getElementById(`role-${uid}`)?.value || 'staff';
+      const extras  = [...document.querySelectorAll(`#extras-${uid} .mod-chip:not(.no-extras):not(.inactive)`)]
         .map(c => c.dataset.mod);
 
-      btn.disabled = true;
-      btn.textContent = 'Saving…';
+      btn.disabled = true; btn.textContent = 'Saving…';
 
       const { error } = await _npSupabase.rpc('set_user_role', {
-        p_user_id: uid, p_role: newRole, p_modules: activeMods
+        p_user_id: uid, p_role: newRole, p_modules: extras
       });
 
       if (error) {
-        btn.textContent = 'Error';
-        btn.style.borderColor = 'var(--red)';
-        btn.style.color = 'var(--red)';
-        setTimeout(() => {
-          btn.disabled = false;
-          btn.textContent = 'Save';
-          btn.style.borderColor = '';
-          btn.style.color = '';
-        }, 2000);
+        btn.textContent = 'Error'; btn.classList.add('errored');
+        setTimeout(() => { btn.disabled = false; btn.textContent = 'Save'; btn.classList.remove('errored'); }, 2500);
       } else {
-        btn.classList.add('saved');
-        btn.textContent = 'Saved';
-        setTimeout(() => {
-          btn.disabled = false;
-          btn.classList.remove('saved');
-          btn.textContent = 'Save';
-        }, 2000);
+        // Update local cache so refreshExtrasCell uses fresh saved modules
+        const u = _users.find(x => x.user_id === uid);
+        if (u) { u.role = newRole; u.modules = extras; }
+        btn.classList.add('saved'); btn.textContent = 'Saved';
+        setTimeout(() => { btn.disabled = false; btn.classList.remove('saved'); btn.textContent = 'Save'; }, 2000);
       }
     });
   });
+}
 
-  // Invite — sends a magic link (OTP). No service-role key required.
-  // The user clicks the link, signs in, and their role is pre-created so they land correctly.
+// ── Roles tab ────────────────────────────────────────────────────────────────
+
+function renderRoleRow(roleKey, mods) {
+  const chips = ALL_MODULES.map(m => {
+    const active = mods.includes(m);
+    return `<span class="mod-chip ${active ? '' : 'inactive'}" data-role="${roleKey}" data-mod="${m}">${m}</span>`;
+  }).join('');
+
+  const adminNote = roleKey === 'admin'
+    ? `<div class="role-admin-note">Admins always get full access in code — this definition is for reference only.</div>`
+    : '';
+
+  return `
+  <tr data-role="${roleKey}">
+    <td>
+      <div class="role-name-cell">${ROLE_LABELS[roleKey] || roleKey}</div>
+      <div class="role-desc">${ROLE_DESCS[roleKey] || ''}</div>
+      ${adminNote}
+    </td>
+    <td><div class="modules-cell">${chips}</div></td>
+    <td><button class="save-btn role-save-btn" data-role="${roleKey}">Save</button></td>
+  </tr>`;
+}
+
+async function loadRoles() {
+  const { data, error } = await _npSupabase.from('role_definitions').select('role, modules').order('role');
+  if (error) {
+    document.getElementById('rolesBody').innerHTML =
+      `<tr><td colspan="3" class="iam-empty">Error: ${error.message}</td></tr>`;
+    return;
+  }
+
+  const rows = data || [];
+  // Ensure display order: admin, exec, director, staff
+  const ordered = ['admin','exec','director','staff']
+    .map(r => rows.find(x => x.role === r))
+    .filter(Boolean);
+
+  if (!ordered.length) {
+    document.getElementById('rolesBody').innerHTML =
+      '<tr><td colspan="3" class="iam-empty">No role definitions found.</td></tr>';
+    return;
+  }
+
+  // Sync _roleDefs
+  ordered.forEach(r => { _roleDefs[r.role] = r.modules || []; });
+
+  document.getElementById('rolesBody').innerHTML = ordered.map(r => renderRoleRow(r.role, r.modules)).join('');
+  attachRoleHandlers();
+}
+
+function attachRoleHandlers() {
+  document.querySelectorAll('#rolesBody .mod-chip').forEach(chip => {
+    chip.addEventListener('click', () => chip.classList.toggle('inactive'));
+  });
+
+  document.querySelectorAll('.role-save-btn').forEach(btn => {
+    btn.addEventListener('click', async () => {
+      const roleKey = btn.dataset.role;
+      const newMods = [...document.querySelectorAll(`.mod-chip[data-role="${roleKey}"]:not(.inactive)`)]
+        .map(c => c.dataset.mod);
+
+      btn.disabled = true; btn.textContent = 'Saving…';
+
+      const { error } = await _npSupabase.rpc('set_role_definition', {
+        p_role: roleKey, p_modules: newMods
+      });
+
+      if (error) {
+        btn.textContent = 'Error'; btn.classList.add('errored');
+        setTimeout(() => { btn.disabled = false; btn.textContent = 'Save'; btn.classList.remove('errored'); }, 2500);
+      } else {
+        _roleDefs[roleKey] = newMods;
+        btn.classList.add('saved'); btn.textContent = 'Saved';
+        setTimeout(() => { btn.disabled = false; btn.classList.remove('saved'); btn.textContent = 'Save'; }, 2000);
+      }
+    });
+  });
+}
+
+// ── Invite ───────────────────────────────────────────────────────────────────
+
+function attachInviteHandler() {
   document.getElementById('inviteBtn')?.addEventListener('click', async () => {
     const email = document.getElementById('inviteEmail').value.trim();
     const role  = document.getElementById('inviteRole').value;
     if (!email) return;
 
     const btn = document.getElementById('inviteBtn');
-    btn.textContent = 'Sending…';
-    btn.disabled = true;
+    btn.textContent = 'Sending…'; btn.disabled = true;
 
     const { error } = await _npSupabase.auth.signInWithOtp({
-      email,
-      options: { shouldCreateUser: true }
+      email, options: { shouldCreateUser: true }
     });
 
-    btn.textContent = 'Send Invite';
-    btn.disabled = false;
+    btn.textContent = 'Send Invite'; btn.disabled = false;
 
-    if (error) {
-      alert(`Failed to send invite: ${error.message}`);
-      return;
-    }
+    if (error) { alert(`Failed to send invite: ${error.message}`); return; }
 
-    // Look up the user's UUID from auth.users via RPC (available immediately after OTP send)
-    // and pre-create/update their user_roles row with the selected role.
+    // Pre-set role via RPC (works immediately after OTP send creates the auth.users row)
     const { data: allUsers } = await _npSupabase.rpc('get_all_users');
     const match = allUsers?.find(u => u.email === email);
     if (match) {
-      await _npSupabase
-        .from('user_roles')
-        .upsert({ user_id: match.user_id, role, modules: [] }, { onConflict: 'user_id' });
+      await _npSupabase.rpc('set_user_role', {
+        p_user_id: match.user_id, p_role: role, p_modules: []
+      });
     }
 
-    alert(`Magic link sent to ${email}.\nRole set to ${role}.${!match ? '\n\nCould not pre-set role — update manually once they appear.' : ''}`);
+    alert(`Magic link sent to ${email}.\nRole: ${ROLE_LABELS[role] || role}.${!match ? '\n\nRole could not be pre-set — assign it manually once they appear.' : ''}`);
     document.getElementById('inviteEmail').value = '';
     loadUsers();
   });
 }
 
+// ── Tab switching ─────────────────────────────────────────────────────────────
+
+function initTabs() {
+  document.querySelectorAll('.iam-tab').forEach(tab => {
+    tab.addEventListener('click', () => {
+      document.querySelectorAll('.iam-tab').forEach(t => t.classList.remove('active'));
+      document.querySelectorAll('.iam-panel').forEach(p => p.classList.remove('active'));
+      tab.classList.add('active');
+      document.getElementById(`panel-${tab.dataset.tab}`).classList.add('active');
+    });
+  });
+}
+
+// ── Init ──────────────────────────────────────────────────────────────────────
+
 npInit('iam').then(session => {
   if (!session) return;
   npPopulateTopbar();
   renderNav('team');
+
+  // Seed _roleDefs from what auth.js already loaded
+  _roleDefs = { ...npGetRoleModules() };
+
+  initTabs();
+  attachInviteHandler();
   loadUsers();
+  loadRoles();
 });
 </script>
 </body>

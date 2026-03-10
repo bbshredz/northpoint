@@ -34,18 +34,21 @@ async function npInit(requireModule = null) {
 
   _npUser = session.user;
 
-  const { data: roleData } = await _npSupabase
-    .from('user_roles')
-    .select('role, modules')
-    .eq('user_id', _npUser.id)
-    .single();
+  const [{ data: roleData }, { data: roleDefs }] = await Promise.all([
+    _npSupabase.from('user_roles').select('role, modules').eq('user_id', _npUser.id).single(),
+    _npSupabase.from('role_definitions').select('role, modules'),
+  ]);
+
+  if (roleDefs?.length) {
+    roleDefs.forEach(r => { _npRoleModules[r.role] = r.modules || []; });
+  }
 
   if (roleData) {
     _npRole    = roleData.role;
     _npModules = roleData.modules || [];
   } else {
     _npRole    = 'staff';
-    _npModules = ['team','facilities','software','projects','field-guide'];
+    _npModules = [];
   }
 
   if (requireModule) {
@@ -61,16 +64,20 @@ async function npInit(requireModule = null) {
   return { user: _npUser, role: _npRole, modules: _npModules };
 }
 
-// Modules automatically granted by role (no Supabase modules column entry required)
-const ROLE_MODULES = {
-  exec: ['executive', 'budget', 'restructure', 'budget-planner', 'responsibility-planner', 'swot', 'risk-register', 'succession', 'pain-points'],
+// Role → modules map. Loaded from role_definitions table in npInit; these are fallbacks.
+let _npRoleModules = {
+  exec:     ['executive','budget','restructure','budget-planner','responsibility-planner','swot','risk-register'],
+  director: ['team','facilities','software','projects','field-guide'],
+  staff:    ['team','facilities','software','projects','field-guide'],
 };
 
 function npHasModule(module) {
   if (_npRole === 'admin') return true;
-  if (ROLE_MODULES[_npRole]?.includes(module)) return true;
+  if (_npRoleModules[_npRole]?.includes(module)) return true;
   return _npModules.includes(module);
 }
+
+function npGetRoleModules() { return _npRoleModules; }
 
 // Allow pages with custom init flows to populate auth context for npHasModule / nav rendering
 function npSetAuthContext(role, modules) {
