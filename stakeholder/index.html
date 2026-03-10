@@ -268,6 +268,38 @@
         }
         .form-check input { width: 14px; height: 14px; cursor: pointer; }
 
+        /* ── Contact context banner ── */
+        .contact-context {
+            display: none;
+            background: var(--accent-dim);
+            border: 1px solid rgba(59,130,246,0.22);
+            border-left: 3px solid var(--accent);
+            border-radius: 8px;
+            padding: 12px 16px;
+        }
+        .contact-context-eyebrow {
+            font-size: 9px;
+            font-weight: 700;
+            letter-spacing: 0.12em;
+            text-transform: uppercase;
+            color: var(--accent);
+            margin-bottom: 4px;
+        }
+        .contact-context-name {
+            font-size: 16px;
+            font-weight: 700;
+            color: var(--text-primary);
+            margin-bottom: 2px;
+        }
+        .contact-context-meta {
+            font-size: 12px;
+            color: var(--text-secondary);
+        }
+
+        /* ── No answer badge ── */
+        .badge-no-answer { background: rgba(239,68,68,0.1); color: #dc2626; }
+        html[data-theme="dark"] .badge-no-answer { background: rgba(239,68,68,0.15); color: #f87171; }
+
         /* ── Framing prompt ── */
         .framing-prompt {
             background: rgba(59,130,246,0.07);
@@ -487,8 +519,14 @@
             </div>
             <!-- Form -->
             <div class="modal-form">
+                <div class="contact-context" id="contact-context">
+                    <div class="contact-context-eyebrow">You're speaking with</div>
+                    <div class="contact-context-name" id="ctx-name"></div>
+                    <div class="contact-context-meta" id="ctx-meta"></div>
+                </div>
                 <div class="framing-prompt">
-                    <strong>Before you dial:</strong> Frame yourself as a VP of IT, Quality, or Care — not just tech support. Tell them you're gathering input to understand their experience and improve IT from the ground up. This gives people permission to be honest. Lead with curiosity. <em>"I'm here to listen, not defend."</em>
+                    <strong>How to introduce yourself:</strong> <em>"Hi, my name is Monique — I'm conducting a confidential survey on behalf of our IT improvement initiative. I'm reaching out to leaders across all facilities to get honest feedback about your experience with IT. This is completely independent — your responses are anonymous and won't be tied back to you personally. There are no wrong answers and nobody gets in trouble. I'm just here to listen."</em>
+                    <br><br>Let them set the tone. If they're busy, offer to call back. If they're open, follow the questions on the left — but don't rush. The goal is to make them feel heard.
                 </div>
                 <div class="form-row">
                     <div class="form-group">
@@ -574,6 +612,7 @@
             </div>
         </div>
         <div class="modal-footer">
+            <button class="btn btn-danger" id="modal-no-answer-btn" style="display:none;margin-right:auto">No Answer</button>
             <button class="btn btn-secondary" id="modal-cancel-btn">Cancel</button>
             <button class="btn btn-primary" id="modal-save-btn">Save Response</button>
         </div>
@@ -607,10 +646,11 @@ npInit('stakeholder').then(session => {
     loadContacts();
 });
 
-let _responses  = [];
-let _editId     = null;
-let _facilities = [];
-let _contacts   = [];
+let _responses      = [];
+let _editId         = null;
+let _fromContactId  = null;
+let _facilities     = [];
+let _contacts       = [];
 
 // ── Facility datalist ─────────────────────────────────────────────────────────
 async function loadFacilities() {
@@ -711,63 +751,77 @@ async function loadContacts() {
 
     if (error) {
         document.getElementById('contacts-tbody').innerHTML =
-            `<tr><td colspan="4"><div class="empty-state"><div class="empty-state-text">Error loading contacts: ${error.message}</div></div></td></tr>`;
+            `<tr><td colspan="3"><div class="empty-state"><div class="empty-state-text">Error: ${error.message}</div></div></td></tr>`;
         return;
     }
 
     _contacts = data || [];
-    const pending = _contacts.filter(c => c.status === 'pending').length;
-    document.getElementById('col-count-calllist').textContent = pending || _contacts.length;
+    const remaining = _contacts.filter(c => c.status === 'pending' || c.status === 'no_answer').length;
+    document.getElementById('col-count-calllist').textContent = remaining;
     renderContacts(_contacts);
 }
 
 function renderContacts(data) {
     const tbody = document.getElementById('contacts-tbody');
     if (!data.length) {
-        tbody.innerHTML = `<tr><td colspan="4"><div class="empty-state">
+        tbody.innerHTML = `<tr><td colspan="3"><div class="empty-state">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/></svg>
-            <div class="empty-state-text">No contacts in the call list yet — ask Anthony to add them in Supabase.</div>
+            <div class="empty-state-text">No contacts yet.</div>
         </div></td></tr>`;
         return;
     }
 
-    const statusBadge = s => {
-        if (s === 'called')  return '<span class="badge badge-called">Called</span>';
-        if (s === 'logged')  return '<span class="badge badge-logged">Logged</span>';
-        return '<span class="badge badge-tocall">To Call</span>';
-    };
+    tbody.innerHTML = data.map(c => {
+        const attempts = c.attempt_count > 0 ? ` ×${c.attempt_count}` : '';
+        const badge =
+            c.status === 'logged'    ? `<span class="badge badge-logged">Done</span>` :
+            c.status === 'no_answer' ? `<span class="badge badge-no-answer">No Answer${attempts}</span>` :
+                                       `<span class="badge badge-tocall">To Call</span>`;
 
-    tbody.innerHTML = data.map(c => `
-        <tr>
+        const actions =
+            c.status === 'logged'
+                ? (c.response_id
+                    ? `<button class="btn btn-ghost btn-sm" onclick="viewContactResponse('${c.response_id}')">View →</button>`
+                    : '')
+                : `<button class="btn btn-secondary btn-sm" onclick="openFormFromContact('${c.id}')">Log Call</button>`;
+
+        return `<tr>
             <td>
                 <div class="cell-name">${c.name}</div>
                 <div class="cell-sub">${c.title || ''}${c.facility ? ' · ' + c.facility : ''}</div>
             </td>
-            <td>${statusBadge(c.status)}</td>
-            <td style="white-space:nowrap">
-                ${c.status === 'pending' ? `<button class="btn btn-secondary btn-sm" onclick="markCalled('${c.id}')">Called</button>` : ''}
-                ${c.status === 'called'  ? `<button class="btn btn-secondary btn-sm" onclick="markPending('${c.id}')">Undo</button>` : ''}
-            </td>
-        </tr>
-    `).join('');
+            <td>${badge}</td>
+            <td style="white-space:nowrap">${actions}</td>
+        </tr>`;
+    }).join('');
 }
 
-async function markCalled(id) {
-    const { error } = await _npSupabase
-        .from('stakeholder_contacts')
-        .update({ status: 'called' })
-        .eq('id', id);
-    if (error) { alert('Error: ' + error.message); return; }
-    await loadContacts();
+function openFormFromContact(contactId) {
+    const c = _contacts.find(x => x.id === contactId);
+    if (!c) return;
+    _fromContactId = contactId;
+
+    // Show context banner
+    document.getElementById('ctx-name').textContent = c.name;
+    document.getElementById('ctx-meta').textContent =
+        [c.title, c.facility, c.region].filter(Boolean).join(' · ');
+    document.getElementById('contact-context').style.display = '';
+    document.getElementById('modal-no-answer-btn').style.display = '';
+
+    // Open blank form then pre-fill from contact
+    openForm(null);
+    document.getElementById('f-name').value     = c.name;
+    document.getElementById('f-title').value    = c.title || '';
+    document.getElementById('f-facility').value = c.facility || '';
+    document.getElementById('f-region').value   = c.region || '';
 }
 
-async function markPending(id) {
-    const { error } = await _npSupabase
-        .from('stakeholder_contacts')
-        .update({ status: 'pending' })
-        .eq('id', id);
-    if (error) { alert('Error: ' + error.message); return; }
-    await loadContacts();
+function viewContactResponse(responseId) {
+    // Ensure responses are loaded before trying to open
+    const r = _responses.find(x => x.id === responseId);
+    if (r) { openDetail(responseId); return; }
+    // Response not in memory yet — reload then open
+    loadResponses().then(() => openDetail(responseId));
 }
 
 // ── Modal ─────────────────────────────────────────────────────────────────────
@@ -776,44 +830,58 @@ document.getElementById('modal-close-btn').addEventListener('click', closeForm);
 document.getElementById('modal-cancel-btn').addEventListener('click', closeForm);
 document.getElementById('modal-save-btn').addEventListener('click', saveResponse);
 
+document.getElementById('modal-no-answer-btn').addEventListener('click', async () => {
+    if (!_fromContactId) return;
+    const c = _contacts.find(x => x.id === _fromContactId);
+    const attempts = (c?.attempt_count || 0) + 1;
+    await _npSupabase.from('stakeholder_contacts')
+        .update({ status: 'no_answer', attempt_count: attempts })
+        .eq('id', _fromContactId);
+    closeForm();
+    await loadContacts();
+});
+
 function openForm(id) {
     _editId = id;
     document.getElementById('modal-title').textContent = id ? 'Edit Response' : 'Log a Response';
     if (id) {
         const r = _responses.find(x => x.id === id);
         if (r) {
-            document.getElementById('f-name').value        = r.name || '';
-            document.getElementById('f-title').value       = r.title || '';
-            document.getElementById('f-facility').value    = r.facility || '';
-            document.getElementById('f-region').value      = r.region || '';
-            document.getElementById('f-date').value        = r.date_contacted || '';
+            document.getElementById('f-name').value               = r.name || '';
+            document.getElementById('f-title').value              = r.title || '';
+            document.getElementById('f-facility').value           = r.facility || '';
+            document.getElementById('f-region').value             = r.region || '';
+            document.getElementById('f-date').value               = r.date_contacted || '';
             document.getElementById('f-experience').value         = r.it_experience || '';
             document.getElementById('f-positives').value          = r.it_positives || '';
             document.getElementById('f-pain').value               = r.pain_points || '';
             document.getElementById('f-systems').value            = r.systems_used || '';
             document.getElementById('f-ticket-awareness').value   = r.ticket_awareness || '';
-            document.getElementById('f-expectations').value= r.expectations || '';
-            document.getElementById('f-shared').value      = r.what_you_shared || '';
-            document.getElementById('f-strategic').value   = r.strategic_notes || '';
-            document.getElementById('f-notes').value       = r.notes || '';
-            document.getElementById('f-followup').checked  = r.follow_up || false;
+            document.getElementById('f-expectations').value       = r.expectations || '';
+            document.getElementById('f-shared').value             = r.what_you_shared || '';
+            document.getElementById('f-strategic').value          = r.strategic_notes || '';
+            document.getElementById('f-notes').value              = r.notes || '';
+            document.getElementById('f-followup').checked         = r.follow_up || false;
         }
     } else {
         ['f-name','f-title','f-facility','f-region','f-experience','f-positives',
-         'f-pain','f-systems','f-expectations','f-shared','f-strategic','f-notes'].forEach(id => {
-            const el = document.getElementById(id);
-            el.tagName === 'SELECT' ? el.value = '' : el.value = '';
+         'f-pain','f-systems','f-expectations','f-shared','f-strategic','f-notes'].forEach(fid => {
+            const el = document.getElementById(fid);
+            if (el) el.value = '';
         });
-        document.getElementById('f-date').value              = new Date().toISOString().split('T')[0];
-        document.getElementById('f-ticket-awareness').value  = '';
-        document.getElementById('f-followup').checked        = false;
+        document.getElementById('f-date').value             = new Date().toISOString().split('T')[0];
+        document.getElementById('f-ticket-awareness').value = '';
+        document.getElementById('f-followup').checked       = false;
     }
     document.getElementById('response-modal').classList.add('open');
 }
 
 function closeForm() {
     document.getElementById('response-modal').classList.remove('open');
-    _editId = null;
+    document.getElementById('contact-context').style.display = 'none';
+    document.getElementById('modal-no-answer-btn').style.display = 'none';
+    _editId        = null;
+    _fromContactId = null;
 }
 
 async function saveResponse() {
@@ -822,31 +890,40 @@ async function saveResponse() {
 
     const payload = {
         name,
-        title:           document.getElementById('f-title').value.trim()       || null,
-        facility:        document.getElementById('f-facility').value.trim()    || null,
-        region:          document.getElementById('f-region').value             || null,
-        date_contacted:  document.getElementById('f-date').value               || null,
-        it_experience:   document.getElementById('f-experience').value.trim()        || null,
-        it_positives:    document.getElementById('f-positives').value.trim()        || null,
-        pain_points:     document.getElementById('f-pain').value.trim()             || null,
-        systems_used:    document.getElementById('f-systems').value.trim()          || null,
-        ticket_awareness:document.getElementById('f-ticket-awareness').value        || null,
-        expectations:    document.getElementById('f-expectations').value.trim()|| null,
-        what_you_shared: document.getElementById('f-shared').value.trim()      || null,
-        strategic_notes: document.getElementById('f-strategic').value.trim()   || null,
-        notes:           document.getElementById('f-notes').value.trim()       || null,
-        follow_up:       document.getElementById('f-followup').checked,
+        title:            document.getElementById('f-title').value.trim()        || null,
+        facility:         document.getElementById('f-facility').value.trim()     || null,
+        region:           document.getElementById('f-region').value              || null,
+        date_contacted:   document.getElementById('f-date').value                || null,
+        it_experience:    document.getElementById('f-experience').value.trim()   || null,
+        it_positives:     document.getElementById('f-positives').value.trim()    || null,
+        pain_points:      document.getElementById('f-pain').value.trim()         || null,
+        systems_used:     document.getElementById('f-systems').value.trim()      || null,
+        ticket_awareness: document.getElementById('f-ticket-awareness').value    || null,
+        expectations:     document.getElementById('f-expectations').value.trim() || null,
+        what_you_shared:  document.getElementById('f-shared').value.trim()       || null,
+        strategic_notes:  document.getElementById('f-strategic').value.trim()    || null,
+        notes:            document.getElementById('f-notes').value.trim()        || null,
+        follow_up:        document.getElementById('f-followup').checked,
     };
 
     const btn = document.getElementById('modal-save-btn');
     btn.disabled = true; btn.textContent = 'Saving…';
 
-    const { error } = _editId
-        ? await _npSupabase.from('stakeholder_responses').update(payload).eq('id', _editId)
-        : await _npSupabase.from('stakeholder_responses').insert(payload);
+    const { data: saved, error } = _editId
+        ? await _npSupabase.from('stakeholder_responses').update(payload).eq('id', _editId).select().single()
+        : await _npSupabase.from('stakeholder_responses').insert(payload).select().single();
 
     btn.disabled = false; btn.textContent = 'Save Response';
     if (error) { alert('Error: ' + error.message); return; }
+
+    // Auto-mark contact as logged and link the response
+    if (_fromContactId && saved?.id) {
+        await _npSupabase.from('stakeholder_contacts')
+            .update({ status: 'logged', response_id: saved.id })
+            .eq('id', _fromContactId);
+        await loadContacts();
+    }
+
     closeForm();
     await loadResponses();
 }
