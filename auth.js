@@ -99,7 +99,7 @@ function npPopulateTopbar() {
   const roleEl = document.getElementById('topbarRole');
   const date   = document.getElementById('currentDate');
   if (roleEl) {
-    const labels = { admin: 'Admin', staff: 'Staff', director: 'Director', exec: 'Executive', executive: 'Executive' };
+    const labels = { admin: 'Admin', staff: 'Staff', director: 'Director', exec: 'Executive', executive: 'Executive', limited: 'Limited' };
     roleEl.textContent = labels[_npRole] || _npRole || '';
   }
   if (date) date.textContent = new Date().toLocaleDateString('en-US', {

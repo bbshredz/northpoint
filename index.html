@@ -82,6 +82,20 @@
             color: #34d399;
             font-weight: 500;
         }
+
+        /* ── Stripped hub for limited-access users ── */
+        body.hub-limited #rail-mount            { display: none; }
+        body.hub-limited .hub-hero              { display: none; }
+        body.hub-limited .section-header        { display: none; }
+        body.hub-limited .tile-locked           { display: none !important; }
+        body.hub-limited .main                  { display: flex; flex-direction: column; align-items: center; justify-content: center; min-height: 100vh; }
+        body.hub-limited .content               { width: 100%; max-width: 560px; padding: 60px 24px 40px; }
+        body.hub-limited .hub-limited-greeting  { text-align: center; margin-bottom: 32px; }
+        body.hub-limited .hub-limited-greeting h2 { font-family: 'DM Serif Display', serif; font-size: 26px; font-weight: 400; color: var(--text-primary); margin-bottom: 6px; }
+        body.hub-limited .hub-limited-greeting p  { font-size: 13px; color: var(--text-tertiary); }
+        body.hub-limited .modules-grid          { grid-template-columns: 1fr; }
+        body.hub-limited .hub-signout           { display: block; text-align: center; margin-top: 24px; font-size: 12px; color: var(--text-tertiary); cursor: pointer; }
+        body.hub-limited .hub-signout:hover     { color: var(--text-primary); }
     </style>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script src="/auth.js"></script>
@@ -143,8 +157,28 @@
                 <div class="section-line"></div>
             </div>
 
+            <div class="hub-limited-greeting" id="limited-greeting" style="display:none">
+                <h2 id="limited-welcome">Welcome back</h2>
+                <p>Select a tool below to get started.</p>
+            </div>
+
             <div class="modules-grid animate-2">
-                
+
+                <a href="stakeholder/index.html" class="module-card" data-mod="stakeholder">
+                    <div class="module-card-top">
+                        <div class="module-card-icon" style="background:rgba(251,191,36,0.15)">🗂️</div>
+                        <span class="module-card-arrow">→</span>
+                    </div>
+                    <div class="module-card-title">Stakeholder Outreach</div>
+                    <div class="module-card-desc">Call list and response log for the IT improvement initiative.</div>
+                    <div class="module-metrics">
+                        <div class="module-metric">
+                            <div class="module-metric-value" style="color:#34d399">Live</div>
+                            <div class="module-metric-label">Status</div>
+                        </div>
+                    </div>
+                </a>
+
                 <a href="executive-overview/index.html" class="module-card" data-mod="executive">
                     <div class="module-card-top">
                         <div class="module-card-icon" style="background:rgba(59,130,246,0.15)">📋</div>
@@ -333,6 +367,8 @@
 
             </div>
 
+            <span class="hub-signout" id="hub-signout" style="display:none" onclick="npSignOut()">Sign out</span>
+
             <!-- Platform footer links -->
             <div style="display:flex;gap:20px;justify-content:flex-end;padding-top:12px;margin-top:8px;border-top:1px solid var(--silver)">
                 <a href="/about/index.html" style="font-size:11px;color:var(--text-tertiary);text-decoration:none;font-weight:600;">About NorthPoint →</a>
@@ -345,20 +381,52 @@
 
 <script src="/nav.js"></script>
 <script>
-// Modules that require explicit access — anything not in this list is always visible
-const GATED_MODULES = ['executive','budget','team','facilities','software','projects','field-guide','it-overview'];
+const GATED_MODULES = ['stakeholder','executive','budget','team','facilities','software','projects','field-guide','it-overview'];
+
+const MODULE_URLS = {
+  'stakeholder':            '/stakeholder/index.html',
+  'executive':              '/executive-overview/index.html',
+  'budget':                 '/budget/index.html',
+  'team':                   '/team/index.html',
+  'facilities':             '/facilities/index.html',
+  'software':               '/software/index.html',
+  'projects':               '/projects/index.html',
+  'field-guide':            '/field-guide/index.html',
+  'it-overview':            '/it-overview/index.html',
+};
 
 npInit(null).then(session => {
   if (!session) return;
   npPopulateTopbar();
-  renderNav('hub');
 
-  // Show spend stat only for exec/admin
+  const accessible = GATED_MODULES.filter(m => npHasModule(m));
+  const role = npGetRole();
+
+  // Single accessible module → go straight there, no hub needed
+  if (accessible.length === 1 && MODULE_URLS[accessible[0]]) {
+    window.location.replace(MODULE_URLS[accessible[0]]);
+    return;
+  }
+
+  // Limited role (or ≤3 accessible modules) → stripped hub, no rail
+  const stripped = role === 'limited' || accessible.length <= 3;
+  if (stripped) {
+    document.body.classList.add('hub-limited');
+    const name = npGetDisplayName();
+    document.getElementById('limited-welcome').textContent =
+      name ? `Welcome, ${name}` : 'Welcome back';
+    document.getElementById('limited-greeting').style.display = '';
+    document.getElementById('hub-signout').style.display = '';
+  } else {
+    renderNav('hub');
+  }
+
+  // Show spend stat for exec/admin
   if (npHasModule('executive') || npHasModule('budget')) {
     document.getElementById('stat-spend').style.display = '';
   }
 
-  // Frost inaccessible cards, then sort available ones to the front
+  // Gate cards
   document.querySelectorAll('[data-mod]').forEach(card => {
     const mod = card.dataset.mod;
     if (GATED_MODULES.includes(mod) && !npHasModule(mod)) {
@@ -366,12 +434,18 @@ npInit(null).then(session => {
     }
   });
 
+  // Sort/hide cards
   const grid = document.querySelector('.modules-grid');
   if (grid) {
-    const cards = [...grid.querySelectorAll('.module-card')];
+    const cards    = [...grid.querySelectorAll('.module-card')];
     const available = cards.filter(c => !c.classList.contains('tile-locked'));
     const locked    = cards.filter(c =>  c.classList.contains('tile-locked'));
-    [...available, ...locked].forEach(c => grid.appendChild(c));
+    if (stripped) {
+      locked.forEach(c => c.remove());
+      available.forEach(c => grid.appendChild(c));
+    } else {
+      [...available, ...locked].forEach(c => grid.appendChild(c));
+    }
   }
 });
 </script>

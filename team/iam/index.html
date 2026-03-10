@@ -206,6 +206,7 @@
                     <input type="email" class="invite-input" id="inviteEmail" placeholder="user@nacsnaz.com">
                     <select class="role-select" id="inviteRole">
                         <option value="staff">Staff</option>
+                        <option value="limited">Limited</option>
                         <option value="director">Director</option>
                         <option value="exec">Executive</option>
                         <option value="admin">Admin</option>
@@ -267,7 +268,7 @@ const ALL_MODULES = [
   'team','facilities','software','projects','field-guide','iam'
 ];
 
-const ROLE_LABELS = { admin: 'Admin', exec: 'Executive', director: 'Director', staff: 'Staff' };
+const ROLE_LABELS = { admin: 'Admin', exec: 'Executive', director: 'Director', staff: 'Staff', limited: 'Limited' };
 const ROLE_DESCS  = {
   admin:    'Full platform access — all modules unconditionally.',
   exec:     'Leadership view — financials, planning, and org tools.',
@@ -325,7 +326,7 @@ function renderUserRow(u) {
     </td>
     <td>
       <select class="role-select user-role-select" data-uid="${uid}" id="role-${uid}">
-        ${['staff','director','exec','admin'].map(r =>
+        ${['staff','limited','director','exec','admin'].map(r =>
           `<option value="${r}" ${role === r ? 'selected' : ''}>${ROLE_LABELS[r]}</option>`
         ).join('')}
       </select>
