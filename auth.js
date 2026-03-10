@@ -101,7 +101,7 @@ function npSetAuthContext(role, modules) {
 function npGetUser()        { return _npUser; }
 function npGetRole()        { return _npRole; }
 function npGetInitials()    { if (!_npUser?.email) return '?'; const n = _npDisplayName || _npUser.user_metadata?.full_name; if (n) { const p = n.trim().split(/\s+/); return (p[0][0] + (p[1]?.[0] || '')).toUpperCase(); } return _npUser.email.split('@')[0].slice(0,2).toUpperCase(); }
-function npGetDisplayName() { if (!_npUser?.email) return ''; return _npDisplayName || _npUser.user_metadata?.full_name || _npUser.email.split('@')[0]; }
+function npGetDisplayName() { if (!_npUser?.email) return ''; const n = _npDisplayName || _npUser.user_metadata?.full_name || _npUser.email.split('@')[0]; return n.split(' ')[0]; }
 
 async function npSignOut() {
   await _npSupabase.auth.signOut();
