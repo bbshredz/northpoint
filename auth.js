@@ -20,9 +20,10 @@ const LOGIN_URL = '/login/index.html';
 
 const _npSupabase = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
-let _npUser    = null;
-let _npRole    = null;
-let _npModules = [];
+let _npUser        = null;
+let _npRole        = null;
+let _npModules     = [];
+let _npDisplayName = null;
 
 async function npInit(requireModule = null) {
   const { data: { session } } = await _npSupabase.auth.getSession();
@@ -49,6 +50,18 @@ async function npInit(requireModule = null) {
   } else {
     _npRole    = 'staff';
     _npModules = [];
+  }
+
+  // Look up display name from employees table by email
+  const { data: empData } = await _npSupabase
+    .from('employees')
+    .select('first_name, last_name, name')
+    .eq('email', _npUser.email)
+    .maybeSingle();
+  if (empData) {
+    _npDisplayName = (empData.first_name && empData.last_name)
+      ? `${empData.first_name} ${empData.last_name}`
+      : empData.name || null;
   }
 
   if (requireModule) {
@@ -87,8 +100,8 @@ function npSetAuthContext(role, modules) {
 
 function npGetUser()        { return _npUser; }
 function npGetRole()        { return _npRole; }
-function npGetInitials()    { if (!_npUser?.email) return '?'; const n = _npUser.user_metadata?.full_name; if (n) { const p = n.trim().split(/\s+/); return (p[0][0] + (p[1]?.[0] || '')).toUpperCase(); } return _npUser.email.split('@')[0].slice(0,2).toUpperCase(); }
-function npGetDisplayName() { if (!_npUser?.email) return ''; return _npUser.user_metadata?.full_name || _npUser.email.split('@')[0]; }
+function npGetInitials()    { if (!_npUser?.email) return '?'; const n = _npDisplayName || _npUser.user_metadata?.full_name; if (n) { const p = n.trim().split(/\s+/); return (p[0][0] + (p[1]?.[0] || '')).toUpperCase(); } return _npUser.email.split('@')[0].slice(0,2).toUpperCase(); }
+function npGetDisplayName() { if (!_npUser?.email) return ''; return _npDisplayName || _npUser.user_metadata?.full_name || _npUser.email.split('@')[0]; }
 
 async function npSignOut() {
   await _npSupabase.auth.signOut();
