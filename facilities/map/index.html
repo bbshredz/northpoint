@@ -65,6 +65,18 @@
         .s-service .dot  { background: #3b82f6; box-shadow: 0 0 6px #3b82f688; }
         .s-service .ring { border: 2px solid #3b82f6; }
 
+        /* Survey overlay — outer amber ring on any marker */
+        .s-survey .survey-ring {
+            position: absolute;
+            inset: -9px;
+            border-radius: 50%;
+            z-index: 0;
+            border: 2px solid #eab308;
+            box-shadow: 0 0 8px #eab30866;
+            animation: np-pulse 3.4s ease-out infinite 0.8s;
+            opacity: 0;
+        }
+
         @keyframes np-pulse {
             0%   { transform: scale(0.6); opacity: 0.8; }
             70%  { transform: scale(2.4); opacity: 0; }
@@ -432,6 +444,7 @@
                 <div class="legend-item"><div class="legend-dot s-offline"></div> Offline</div>
                 <div class="legend-item"><div class="legend-dot s-service"></div> Service Center</div>
                 <div class="legend-item"><div class="legend-dot s-incoming"></div> Incoming</div>
+                <div class="legend-item"><div class="legend-dot" style="background:transparent;border:2px solid #eab308;box-shadow:0 0 5px #eab30866;"></div> Survey Active</div>
             </div>
 
             <!-- Facility detail panel -->
@@ -451,7 +464,10 @@
                 <div class="panel-detail-col">
                     <div class="panel-region" id="panel-region"></div>
                     <div class="panel-name" id="panel-name"></div>
-                    <span class="panel-status-badge" id="panel-status"></span>
+                    <div style="display:flex;gap:6px;align-items:center;flex-wrap:wrap">
+                        <span class="panel-status-badge" id="panel-status"></span>
+                        <span id="panel-survey-badge" style="display:none;font-size:10px;font-weight:700;padding:3px 9px;border-radius:20px;background:rgba(234,179,8,0.12);color:#eab308;border:1px solid rgba(234,179,8,0.3);">Survey Active</span>
+                    </div>
                     <div class="panel-detail-rows">
                         <div class="panel-row">
                             <span class="panel-row-label">Address</span>
@@ -574,9 +590,10 @@ function statusClass(f) {
 
 function addMarker(f) {
     const sc = statusClass(f);
+    const survey = f.survey_active ? 's-survey' : '';
     const icon = L.divIcon({
         className: '',
-        html: `<div class="np-marker ${sc}"><div class="ring"></div><div class="dot"></div></div>`,
+        html: `<div class="np-marker ${sc} ${survey}"><div class="ring"></div>${survey ? '<div class="survey-ring"></div>' : ''}<div class="dot"></div></div>`,
         iconSize: [14, 14],
         iconAnchor: [7, 7],
     });
@@ -631,6 +648,9 @@ function populatePanel(f) {
       }
     };
     photoImg.src = `/facilities/photos/${photoNum}.${photoExts[0]}`;
+
+    const surveyBadge = document.getElementById('panel-survey-badge');
+    surveyBadge.style.display = f.survey_active ? '' : 'none';
 
     document.getElementById('panel-maps-btn').href = mapsUrl;
     const ticketsBtn = document.getElementById('panel-tickets-btn');
