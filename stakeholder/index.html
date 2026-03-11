@@ -365,9 +365,19 @@
             font-size: 12px;
             color: var(--text-secondary);
         }
+        .contact-context-phone {
+            font-size: 12px;
+            margin-top: 4px;
+        }
+        .ctx-phone-link {
+            color: var(--accent);
+            text-decoration: none;
+            font-weight: 600;
+        }
+        .ctx-phone-link:hover { text-decoration: underline; }
 
         /* ── No answer badge ── */
-        .badge-no-answer { background: rgba(239,68,68,0.1); color: #dc2626; }
+        .badge-no-answer { background: rgba(239,68,68,0.1); color: #dc2626; white-space: nowrap; }
         html[data-theme="dark"] .badge-no-answer { background: rgba(239,68,68,0.15); color: #f87171; }
 
         /* ── Framing prompt ── */
@@ -511,7 +521,7 @@
                             <thead>
                                 <tr>
                                     <th>Name &amp; Title</th>
-                                    <th>Status</th>
+                                    <th style="width:110px">Status</th>
                                     <th></th>
                                 </tr>
                             </thead>
@@ -581,6 +591,7 @@
                     <div class="contact-context-eyebrow">You're speaking with</div>
                     <div class="contact-context-name" id="ctx-name"></div>
                     <div class="contact-context-meta" id="ctx-meta"></div>
+                    <div class="contact-context-phone" id="ctx-phone"></div>
                 </div>
                 <details class="framing-details" open>
                     <summary><span>Opening Script</span><span class="fd-chevron">▸</span></summary>
@@ -906,6 +917,14 @@ function openFormFromContact(contactId) {
     document.getElementById('ctx-name').textContent = c.name;
     document.getElementById('ctx-meta').textContent =
         [c.title, c.facility, c.region].filter(Boolean).join(' · ');
+    const phoneEl = document.getElementById('ctx-phone');
+    if (c.phone) {
+        phoneEl.innerHTML = `<a href="tel:${c.phone}" class="ctx-phone-link">${c.phone}</a>`;
+        phoneEl.style.display = '';
+    } else {
+        phoneEl.innerHTML = '';
+        phoneEl.style.display = 'none';
+    }
     document.getElementById('contact-context').style.display = '';
     document.getElementById('modal-no-answer-btn').style.display = '';
 

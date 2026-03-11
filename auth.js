@@ -20,10 +20,11 @@ const LOGIN_URL = '/login/index.html';
 
 const _npSupabase = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
-let _npUser        = null;
-let _npRole        = null;
-let _npModules     = [];
-let _npDisplayName = null;
+let _npUser          = null;
+let _npRole          = null;
+let _npModules       = [];
+let _npDisplayName   = null;
+let _npModuleControl = {}; // moduleId → 'live' | 'hidden' | 'maintenance'
 
 async function npInit(requireModule = null) {
   const { data: { session } } = await _npSupabase.auth.getSession();
@@ -35,9 +36,10 @@ async function npInit(requireModule = null) {
 
   _npUser = session.user;
 
-  const [{ data: roleData }, { data: roleDefs }] = await Promise.all([
+  const [{ data: roleData }, { data: roleDefs }, { data: mcData }] = await Promise.all([
     _npSupabase.from('user_roles').select('role, modules').eq('user_id', _npUser.id).single(),
     _npSupabase.from('role_definitions').select('role, modules'),
+    _npSupabase.from('module_control').select('module_id, state'),
   ]);
 
   if (roleDefs?.length) {
@@ -51,6 +53,8 @@ async function npInit(requireModule = null) {
     _npRole    = 'staff';
     _npModules = [];
   }
+
+  if (mcData) mcData.forEach(r => { _npModuleControl[r.module_id] = r.state; });
 
   // Look up display name from employees table by email
   const { data: empData } = await _npSupabase
@@ -86,8 +90,14 @@ let _npRoleModules = {
 
 function npHasModule(module) {
   if (_npRole === 'admin') return true;
+  const ctrl = _npModuleControl[module] || 'live';
+  if (ctrl !== 'live') return false;
   if (_npRoleModules[_npRole]?.includes(module)) return true;
   return _npModules.includes(module);
+}
+
+function npGetModuleState(module) {
+  return _npModuleControl[module] || 'live';
 }
 
 function npGetRoleModules() { return _npRoleModules; }

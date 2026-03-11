@@ -129,6 +129,22 @@
 
         .iam-empty { text-align: center; padding: 40px; color: var(--text-tertiary); font-size: 13px; }
 
+        .state-select { transition: border-color 0.18s, color 0.18s; }
+        .state-select[data-state="live"]        { border-color: var(--green);  color: var(--green); }
+        .state-select[data-state="hidden"]      { border-color: var(--border); color: var(--text-tertiary); }
+        .state-select[data-state="maintenance"] { border-color: var(--amber);  color: var(--amber); }
+
+        .module-id { font-size: 10px; color: var(--text-tertiary); font-family: monospace; margin-top: 2px; }
+        .module-notes-input {
+            width: 100%; box-sizing: border-box;
+            background: var(--card); border: 1px solid var(--border);
+            border-radius: 6px; padding: 5px 10px;
+            font-size: 12px; color: var(--text-primary); font-family: inherit;
+            transition: border-color 0.18s;
+        }
+        .module-notes-input::placeholder { color: var(--text-tertiary); }
+        .module-notes-input:focus { outline: none; border-color: var(--accent); }
+
         .invite-row { display: flex; gap: 10px; align-items: center; margin-bottom: 36px; }
         .invite-input {
             flex: 1;
@@ -193,6 +209,7 @@
             <div class="iam-tabs animate-3">
                 <button class="iam-tab active" data-tab="roles">Roles</button>
                 <button class="iam-tab" data-tab="users">Users</button>
+                <button class="iam-tab" data-tab="modules">Modules</button>
             </div>
 
             <!-- ── Users panel ── -->
@@ -257,6 +274,32 @@
                 </div>
             </div>
 
+            <!-- ── Modules panel ── -->
+            <div class="iam-panel animate-3" id="panel-modules">
+                <div class="section-header">
+                    <span class="section-title">Module Control</span>
+                    <div class="section-line"></div>
+                </div>
+                <p style="margin:-12px 0 24px;font-size:13px;color:var(--text-tertiary)">
+                    Global override — Hidden and Maintenance block all non-admin access regardless of role. Live restores normal role rules.
+                </p>
+                <div class="iam-table-wrap">
+                    <table class="iam-table">
+                        <thead>
+                            <tr>
+                                <th style="width:180px">Module</th>
+                                <th style="width:170px">State</th>
+                                <th>Notes</th>
+                                <th></th>
+                            </tr>
+                        </thead>
+                        <tbody id="modulesBody">
+                            <tr><td colspan="4" class="iam-empty">Loading…</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
         </div>
     </div>
 </div>
@@ -264,9 +307,26 @@
 <script>
 const ALL_MODULES = [
   'executive','budget','budget-planner','restructure',
-  'responsibility-planner','swot','stakeholder',
+  'responsibility-planner','swot','stakeholder','risk-register',
   'team','facilities','software','projects','field-guide','iam'
 ];
+
+const MODULE_LABELS = {
+  'executive':              'Executive Overview',
+  'budget':                 'Budget',
+  'budget-planner':         'Budget Planner',
+  'restructure':            'Case for Restructure',
+  'responsibility-planner': 'Responsibility Planner',
+  'swot':                   'SWOT',
+  'stakeholder':            'Stakeholder',
+  'risk-register':          'Risk Register',
+  'team':                   'Team',
+  'facilities':             'Facilities',
+  'software':               'Software & Vendors',
+  'projects':               'Projects',
+  'field-guide':            'Field Guide',
+  'iam':                    'Identity & Access',
+};
 
 const ROLE_LABELS = { admin: 'Admin', exec: 'Executive', director: 'Director', staff: 'Staff', limited: 'Limited' };
 const ROLE_DESCS  = {
@@ -509,6 +569,81 @@ function attachRoleHandlers() {
   });
 }
 
+// ── Modules tab ──────────────────────────────────────────────────────────────
+
+let _mcData = {}; // moduleId → { state, notes }
+
+function renderModuleRow(moduleId) {
+  const d     = _mcData[moduleId] || { state: 'live', notes: '' };
+  const label = MODULE_LABELS[moduleId] || moduleId;
+  const notesEscaped = (d.notes || '').replace(/"/g, '&quot;');
+  return `
+  <tr data-module="${moduleId}">
+    <td>
+      <div style="font-weight:600">${label}</div>
+      <div class="module-id">${moduleId}</div>
+    </td>
+    <td>
+      <select class="state-select role-select" data-module="${moduleId}" data-state="${d.state}">
+        <option value="live"        ${d.state === 'live'        ? 'selected' : ''}>Live</option>
+        <option value="hidden"      ${d.state === 'hidden'      ? 'selected' : ''}>Hidden</option>
+        <option value="maintenance" ${d.state === 'maintenance' ? 'selected' : ''}>Maintenance</option>
+      </select>
+    </td>
+    <td>
+      <input type="text" class="module-notes-input" data-module="${moduleId}"
+             value="${notesEscaped}" placeholder="Optional note…">
+    </td>
+    <td>
+      <button class="save-btn module-save-btn" data-module="${moduleId}">Save</button>
+    </td>
+  </tr>`;
+}
+
+async function loadModules() {
+  const { data, error } = await _npSupabase.from('module_control').select('*');
+  if (error) {
+    document.getElementById('modulesBody').innerHTML =
+      `<tr><td colspan="4" class="iam-empty">Error: ${error.message}</td></tr>`;
+    return;
+  }
+  _mcData = {};
+  (data || []).forEach(r => { _mcData[r.module_id] = { state: r.state, notes: r.notes || '' }; });
+  document.getElementById('modulesBody').innerHTML = ALL_MODULES.map(renderModuleRow).join('');
+  attachModuleHandlers();
+}
+
+function attachModuleHandlers() {
+  document.querySelectorAll('.state-select').forEach(sel => {
+    sel.addEventListener('change', () => { sel.dataset.state = sel.value; });
+  });
+
+  document.querySelectorAll('.module-save-btn').forEach(btn => {
+    btn.addEventListener('click', async () => {
+      const moduleId = btn.dataset.module;
+      const sel      = document.querySelector(`.state-select[data-module="${moduleId}"]`);
+      const notesEl  = document.querySelector(`.module-notes-input[data-module="${moduleId}"]`);
+      const state    = sel?.value || 'live';
+      const notes    = notesEl?.value || null;
+
+      btn.disabled = true; btn.textContent = 'Saving…';
+
+      const { error } = await _npSupabase.from('module_control').upsert({
+        module_id: moduleId, state, notes, updated_at: new Date().toISOString()
+      });
+
+      if (error) {
+        btn.textContent = 'Error'; btn.classList.add('errored');
+        setTimeout(() => { btn.disabled = false; btn.textContent = 'Save'; btn.classList.remove('errored'); }, 2500);
+      } else {
+        _mcData[moduleId] = { state, notes: notes || '' };
+        btn.classList.add('saved'); btn.textContent = 'Saved';
+        setTimeout(() => { btn.disabled = false; btn.classList.remove('saved'); btn.textContent = 'Save'; }, 2000);
+      }
+    });
+  });
+}
+
 // ── Invite ───────────────────────────────────────────────────────────────────
 
 function attachInviteHandler() {
@@ -570,6 +705,7 @@ npInit('iam').then(session => {
   attachInviteHandler();
   loadUsers();
   loadRoles();
+  loadModules();
 });
 </script>
 </body>
