@@ -397,14 +397,16 @@
             color: var(--text-secondary);
         }
         .contact-context-phone {
-            font-size: 12px;
-            margin-top: 4px;
+            margin-top: 8px;
         }
         .ctx-phone-link {
+            display: inline-flex; align-items: center; gap: 6px;
+            font-size: 15px; font-weight: 700;
             color: var(--accent);
             text-decoration: none;
-            font-weight: 600;
+            letter-spacing: 0.01em;
         }
+        .ctx-phone-link::before { content: '📞'; font-size: 13px; }
         .ctx-phone-link:hover { text-decoration: underline; }
 
         /* ── No answer badge ── */
@@ -1087,21 +1089,13 @@ function renderContacts(data) {
                     : '')
                 : `<button class="btn btn-secondary btn-sm" onclick="openFormFromContact('${c.id}')">Log Call</button>`;
 
-        const phone = c.phone || c._phone;
-        const phoneHtml = phone
-            ? `<div style="margin-bottom:4px"><a href="tel:${phone}" class="cell-phone-link" onclick="event.stopPropagation()">${phone}</a></div>`
-            : '';
-
         return `<tr>
             <td>
                 <div class="cell-name">${c.name}</div>
                 <div class="cell-sub">${c.title || ''}${c.facility ? ' · ' + c.facility : ''}</div>
             </td>
             <td>${badge}</td>
-            <td style="white-space:nowrap;text-align:right">
-                ${phoneHtml}
-                ${actions}
-            </td>
+            <td style="white-space:nowrap">${actions}</td>
         </tr>`;
     }).join('');
 }
