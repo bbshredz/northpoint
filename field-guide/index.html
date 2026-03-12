@@ -104,7 +104,7 @@
                 <div class="section-line"></div>
             </div>
             <div class="article-grid animate-2">
-                <a href="/field-guide/network-outage/index.html" class="article-card">
+                <a href="/field-guide/network-outage/index.html" class="article-card" data-tool-id="field-guide-network-outage">
                     <div class="article-tag">
                         <span class="atag atag-runbook">Runbook</span>
                         <span class="atag atag-critical">Critical</span>
@@ -198,6 +198,7 @@ npInit('field-guide').then(session => {
   if (!session) return;
   npPopulateTopbar();
   renderNav('field-guide');
+  npApplyToolCards();
 });
 </script>
 </body>

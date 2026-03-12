@@ -73,7 +73,7 @@
             </div>
 
             <div class="tools-grid animate-3">
-                <a href="/software/vendors/index.html" class="tool-card clickable">
+                <a href="/software/vendors/index.html" class="tool-card clickable" data-tool-id="software-vendors">
                     <div class="card-top">
                         <div class="card-icon">🏢</div>
                         <span class="card-status status-live">Live</span>
@@ -85,7 +85,7 @@
                         <span class="card-arrow">→</span>
                     </div>
                 </a>
-                <a href="/software/sam/index.html" class="tool-card clickable">
+                <a href="/software/sam/index.html" class="tool-card clickable" data-tool-id="software-sam">
                     <div class="card-top">
                         <div class="card-icon">🗂️</div>
                         <span class="card-status status-live">Live</span>
@@ -115,7 +115,7 @@
                     <div class="card-title">Contract Renewal Tracker</div>
                     <div class="card-desc">Upcoming renewals and proactive negotiation windows across all software agreements.</div>
                 </div>
-                <a href="/software/esign-comparison/index.html" class="tool-card clickable">
+                <a href="/software/esign-comparison/index.html" class="tool-card clickable" data-tool-id="software-esign">
                     <div class="card-top">
                         <div class="card-icon">✍️</div>
                         <span class="card-status status-live">Live</span>
@@ -139,6 +139,7 @@ npInit('software').then(async session => {
   if (!session) return;
   npPopulateTopbar();
   renderNav('software');
+  npApplyToolCards();
 
   // Category breakdown for Software Portfolio accordion
   const { data } = await _npSupabase

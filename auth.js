@@ -153,6 +153,39 @@ function npGetModuleNotes(module)  { return _npModuleControl[module]?.notes || '
 
 function npGetRoleModules() { return _npRoleModules; }
 
+// Apply module_control state to hub cards tagged with data-tool-id.
+// Maintenance → frosted overlay + uc-badge with notes (or "In Development")
+// Hidden      → card removed from view
+// Call this after npInit resolves on any hub page.
+function npApplyToolCards() {
+  document.querySelectorAll('[data-tool-id]').forEach(el => {
+    if (_npRole === 'admin') return;
+    const toolId      = el.dataset.toolId;
+    const toolState   = npGetModuleState(toolId);
+    const parentId    = _npToolParent[toolId];
+    const parentState = parentId ? npGetModuleState(parentId) : 'live';
+    const effective   = (toolState === 'hidden'      || parentState === 'hidden')      ? 'hidden'
+                      : (toolState === 'maintenance' || parentState === 'maintenance') ? 'maintenance'
+                      : 'live';
+    if (effective === 'hidden') {
+      el.style.display = 'none';
+    } else if (effective === 'maintenance') {
+      const notes = npGetModuleNotes(toolId) || (parentId ? npGetModuleNotes(parentId) : '') || 'In Development';
+      el.classList.remove('clickable');
+      el.classList.add('under-construction');
+      if (el.tagName === 'A') el.removeAttribute('href');
+      if (!el.querySelector('.uc-badge')) {
+        const badge = document.createElement('div');
+        badge.className = 'uc-badge';
+        badge.textContent = notes;
+        el.insertBefore(badge, el.firstChild);
+      }
+      const statusEl = el.querySelector('.card-status');
+      if (statusEl) { statusEl.textContent = 'Maintenance'; statusEl.className = 'card-status status-coming'; }
+    }
+  });
+}
+
 // Allow pages with custom init flows to populate auth context for npHasModule / nav rendering
 function npSetAuthContext(role, modules) {
   _npRole    = role || 'staff';

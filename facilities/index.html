@@ -84,7 +84,7 @@
             </div>
 
             <div class="tools-grid animate-3">
-                <a href="/facilities/map/index.html" class="tool-card clickable">
+                <a href="/facilities/map/index.html" class="tool-card clickable" data-tool-id="facilities-map">
                     <div class="card-top">
                         <div class="card-icon">🗺️</div>
                         <span class="card-status status-live">Live</span>
@@ -96,7 +96,7 @@
                         <span class="card-arrow">→</span>
                     </div>
                 </a>
-                <a href="/facilities/onboarding/index.html" class="tool-card clickable js-exec-only">
+                <a href="/facilities/onboarding/index.html" class="tool-card clickable js-exec-only" data-tool-id="facilities-onboarding">
                     <div class="card-top">
                         <div class="card-icon">🧮</div>
                         <span class="card-status status-live">Live</span>
@@ -108,7 +108,7 @@
                         <span class="card-arrow">→</span>
                     </div>
                 </a>
-                <a href="/facilities/integration-checklist/index.html" class="tool-card clickable js-exec-only">
+                <a href="/facilities/integration-checklist/index.html" class="tool-card clickable js-exec-only" data-tool-id="facilities-integration">
                     <div class="card-top">
                         <div class="card-icon">✅</div>
                         <span class="card-status status-live">Live</span>
@@ -120,7 +120,7 @@
                         <span class="card-arrow">→</span>
                     </div>
                 </a>
-                <a href="/facilities/staff-intel/index.html" class="tool-card clickable js-exec-only">
+                <a href="/facilities/staff-intel/index.html" class="tool-card clickable js-exec-only" data-tool-id="facilities-staff-intel">
                     <div class="card-top">
                         <div class="card-icon">👥</div>
                         <span class="card-status status-live">Live</span>
@@ -132,7 +132,7 @@
                         <span class="card-arrow">→</span>
                     </div>
                 </a>
-                <a href="/facilities/editor/index.html" class="tool-card clickable js-exec-only">
+                <a href="/facilities/editor/index.html" class="tool-card clickable js-exec-only" data-tool-id="facilities-editor">
                     <div class="card-top">
                         <div class="card-icon">🏗️</div>
                         <span class="card-status status-live">Live</span>
@@ -165,6 +165,7 @@ npInit('facilities').then(async session => {
   if (!session) return;
   npPopulateTopbar();
   renderNav('facilities');
+  npApplyToolCards();
 
   // Hide exec-only cards from staff/limited users
   const role = npGetRole();

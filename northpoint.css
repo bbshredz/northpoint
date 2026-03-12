@@ -750,13 +750,15 @@ html { background: var(--navy); }
 
 /* ── UNDER CONSTRUCTION ── */
 .module-card.under-construction,
-.tool-card.under-construction {
+.tool-card.under-construction,
+.article-card.under-construction {
     pointer-events: none;
     opacity: 0.55;
 }
 
 .module-card.under-construction::after,
-.tool-card.under-construction::after {
+.tool-card.under-construction::after,
+.article-card.under-construction::after {
     content: '';
     position: absolute;
     inset: 0;
@@ -1313,7 +1315,8 @@ html[data-theme="dark"] .carousel-track .team-card {
 
 /* Dark mode under-construction overlay */
 html[data-theme="dark"] .module-card.under-construction::after,
-html[data-theme="dark"] .tool-card.under-construction::after {
+html[data-theme="dark"] .tool-card.under-construction::after,
+html[data-theme="dark"] .article-card.under-construction::after {
     background: rgba(8,15,26,0.72);
 }
 

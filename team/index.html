@@ -76,7 +76,7 @@
             </div>
 
             <div class="tools-grid animate-3">
-                <a href="/team/dashboard/index.html" class="tool-card clickable">
+                <a href="/team/dashboard/index.html" class="tool-card clickable" data-tool-id="team-dashboard">
                     <div class="card-top">
                         <div class="card-icon">🖥️</div>
                         <span class="card-status status-live">Live</span>
@@ -113,7 +113,7 @@
                         <span class="card-arrow">→</span>
                     </div>
                 </a>
-                <a href="/team/service-ownership/index.html" class="tool-card clickable">
+                <a href="/team/service-ownership/index.html" class="tool-card clickable" data-tool-id="team-service-ownership">
                     <div class="card-top">
                         <div class="card-icon">📋</div>
                         <span class="card-status status-live">Live</span>
@@ -146,7 +146,7 @@
                         <span class="card-arrow">→</span>
                     </div>
                 </a>
-                <a href="/team/succession/index.html" class="tool-card clickable" data-require-module="succession" data-module-hide>
+                <a href="/team/succession/index.html" class="tool-card clickable" data-require-module="succession" data-module-hide data-tool-id="team-succession">
                     <div class="card-top">
                         <div class="card-icon">🔄</div>
                         <span class="card-status status-live">Live</span>
@@ -158,7 +158,7 @@
                         <span class="card-arrow">→</span>
                     </div>
                 </a>
-                <a href="/team/pain-points/index.html" class="tool-card clickable" data-require-module="pain-points" data-module-hide>
+                <a href="/team/pain-points/index.html" class="tool-card clickable" data-require-module="pain-points" data-module-hide data-tool-id="team-pain-points">
                     <div class="card-top">
                         <div class="card-icon">📣</div>
                         <span class="card-status status-live">Live</span>
@@ -194,6 +194,7 @@ npInit('team').then(session => {
   if (!session) return;
   npPopulateTopbar();
   renderNav('team');
+  npApplyToolCards();
   document.querySelectorAll('[data-require-module]').forEach(el => {
     if (!npHasModule(el.dataset.requireModule)) {
       el.hasAttribute('data-module-hide')

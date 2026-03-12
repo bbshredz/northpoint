@@ -36,7 +36,7 @@
             </div>
 
             <div class="tools-grid animate-2">
-                <a href="/projects/netsuite/" class="tool-card clickable">
+                <a href="/projects/netsuite/" class="tool-card clickable" data-tool-id="projects-netsuite">
                     <div class="card-top">
                         <div class="card-icon">☁️</div>
                         <span class="card-status status-live">Active</span>
@@ -86,6 +86,7 @@ npInit('projects').then(session => {
   if (!session) return;
   npPopulateTopbar();
   renderNav('projects');
+  npApplyToolCards();
 });
 </script>
 </body>
