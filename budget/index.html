@@ -78,7 +78,7 @@
             </div>
 
             <div class="tools-grid animate-3">
-                <a href="/budget/planner/index.html" class="tool-card clickable">
+                <a href="/budget/planner/index.html" class="tool-card clickable" data-tool-id="budget-planner">
                     <div class="card-top">
                         <div class="card-icon">📁</div>
                         <span class="card-status status-live">Live</span>
@@ -90,7 +90,7 @@
                         <span class="card-arrow">→</span>
                     </div>
                 </a>
-                <a href="/budget/planner/index.html" class="tool-card clickable">
+                <a href="/budget/planner/index.html" class="tool-card clickable" data-tool-id="budget-planner">
                     <div class="card-top">
                         <div class="card-icon">🎛️</div>
                         <span class="card-status status-live">Live</span>
@@ -102,7 +102,7 @@
                         <span class="card-arrow">→</span>
                     </div>
                 </a>
-                <a href="/budget/restructure/index.html" class="tool-card clickable" data-require-module="restructure" data-module-hide>
+                <a href="/budget/restructure/index.html" class="tool-card clickable" data-require-module="restructure" data-module-hide data-tool-id="restructure">
                     <div class="card-top">
                         <div class="card-icon">🔐</div>
                         <span class="card-status status-live">Live</span>
@@ -135,6 +135,7 @@ npInit('budget').then(session => {
   if (!session) return;
   npPopulateTopbar();
   renderNav('budget');
+  npApplyToolCards();
   document.querySelectorAll('[data-require-module]').forEach(el => {
     if (!npHasModule(el.dataset.requireModule)) {
       el.hasAttribute('data-module-hide')
