@@ -1116,7 +1116,6 @@ function openFormFromContact(contactId) {
         [c.title, c.facility, c.region].filter(Boolean).join(' · ');
     const phoneEl = document.getElementById('ctx-phone');
     const phone = c.phone || c._phone;
-    console.log('[np] contact phone lookup:', c.name, '| c.phone:', c.phone, '| c._phone:', c._phone);
     if (phone) {
         phoneEl.innerHTML = `<a href="tel:${phone}" class="ctx-phone-link">${phone}</a>`;
         phoneEl.style.display = 'block';
