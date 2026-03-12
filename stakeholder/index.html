@@ -117,6 +117,8 @@
         .np-table tbody tr:hover td { background: var(--card-hover); cursor: pointer; }
         .cell-name { font-weight: 500; color: var(--text-primary); }
         .cell-sub { font-size: 11px; color: var(--text-tertiary); margin-top: 2px; }
+        .cell-phone-link { color: var(--accent); text-decoration: none; }
+        .cell-phone-link:hover { text-decoration: underline; }
         .pain-cell { max-width: 280px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 
         /* ── Badges ── */
@@ -868,9 +870,40 @@ async function loadContacts() {
     }
 
     _contacts = data || [];
+    await enrichContactPhones(_contacts);
     const remaining = _contacts.filter(c => c.status === 'pending' || c.status === 'no_answer').length;
     document.getElementById('col-count-calllist').textContent = remaining;
     renderContacts(_contacts);
+}
+
+async function enrichContactPhones(contacts) {
+    if (!contacts.length) return;
+    const norm = s => (s || '').toLowerCase().replace(/[^a-z ]/g, '').trim();
+
+    const [{ data: att }, { data: vz }, { data: ucx }] = await Promise.all([
+        _npSupabase.from('phone_att').select('wireless_number, user_name').eq('currently_assigned', true),
+        _npSupabase.from('phone_verizon').select('wireless_number, user_name').eq('currently_assigned', true),
+        _npSupabase.from('phone_extensions').select('first_name, last_name, phone_did, extension').not('first_name', 'is', null),
+    ]);
+
+    // Build name → phone map. Cell phones take priority over desk.
+    const map = {};
+    (ucx || []).forEach(r => {
+        const key = norm(`${r.first_name} ${r.last_name}`);
+        if (key && !map[key]) map[key] = r.phone_did || (r.extension ? `x${r.extension}` : null);
+    });
+    (att || []).forEach(r => {
+        const key = norm(r.user_name);
+        if (key) map[key] = r.wireless_number; // cell overrides desk
+    });
+    (vz || []).forEach(r => {
+        const key = norm(r.user_name);
+        if (key) map[key] = r.wireless_number;
+    });
+
+    contacts.forEach(c => {
+        if (!c.phone) c._phone = map[norm(c.name)] || null;
+    });
 }
 
 function renderContacts(data) {
@@ -897,10 +930,16 @@ function renderContacts(data) {
                     : '')
                 : `<button class="btn btn-secondary btn-sm" onclick="openFormFromContact('${c.id}')">Log Call</button>`;
 
+        const phone = c.phone || c._phone;
+        const phoneHtml = phone
+            ? `<div class="cell-sub"><a href="tel:${phone}" class="cell-phone-link" onclick="event.stopPropagation()">${phone}</a></div>`
+            : '';
+
         return `<tr>
             <td>
                 <div class="cell-name">${c.name}</div>
                 <div class="cell-sub">${c.title || ''}${c.facility ? ' · ' + c.facility : ''}</div>
+                ${phoneHtml}
             </td>
             <td>${badge}</td>
             <td style="white-space:nowrap">${actions}</td>
@@ -918,8 +957,9 @@ function openFormFromContact(contactId) {
     document.getElementById('ctx-meta').textContent =
         [c.title, c.facility, c.region].filter(Boolean).join(' · ');
     const phoneEl = document.getElementById('ctx-phone');
-    if (c.phone) {
-        phoneEl.innerHTML = `<a href="tel:${c.phone}" class="ctx-phone-link">${c.phone}</a>`;
+    const phone = c.phone || c._phone;
+    if (phone) {
+        phoneEl.innerHTML = `<a href="tel:${phone}" class="ctx-phone-link">${phone}</a>`;
         phoneEl.style.display = '';
     } else {
         phoneEl.innerHTML = '';
