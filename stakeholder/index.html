@@ -1089,17 +1089,19 @@ function renderContacts(data) {
 
         const phone = c.phone || c._phone;
         const phoneHtml = phone
-            ? `<div class="cell-sub"><a href="tel:${phone}" class="cell-phone-link" onclick="event.stopPropagation()">${phone}</a></div>`
+            ? `<div style="margin-bottom:4px"><a href="tel:${phone}" class="cell-phone-link" onclick="event.stopPropagation()">${phone}</a></div>`
             : '';
 
         return `<tr>
             <td>
                 <div class="cell-name">${c.name}</div>
                 <div class="cell-sub">${c.title || ''}${c.facility ? ' · ' + c.facility : ''}</div>
-                ${phoneHtml}
             </td>
             <td>${badge}</td>
-            <td style="white-space:nowrap">${actions}</td>
+            <td style="white-space:nowrap;text-align:right">
+                ${phoneHtml}
+                ${actions}
+            </td>
         </tr>`;
     }).join('');
 }
