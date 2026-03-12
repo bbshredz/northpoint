@@ -1061,7 +1061,12 @@ async function enrichContactPhones(contacts) {
     });
 
     contacts.forEach(c => {
-        if (!c.phone) c._phone = map[norm(c.name)] || null;
+        if (!c.phone) {
+            const key = norm(c.name);
+            const words = key.split(' ');
+            const reversed = words.length >= 2 ? words.slice(1).join(' ') + ' ' + words[0] : key;
+            c._phone = map[key] || map[reversed] || null;
+        }
     });
 }
 
