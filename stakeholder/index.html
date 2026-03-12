@@ -1040,8 +1040,8 @@ async function enrichContactPhones(contacts) {
     const norm = s => (s || '').toLowerCase().replace(/[^a-z ]/g, '').trim();
 
     const [{ data: att }, { data: vz }, { data: ucx }] = await Promise.all([
-        _npSupabase.from('phone_att').select('wireless_number, user_name').eq('currently_assigned', true),
-        _npSupabase.from('phone_verizon').select('wireless_number, user_name').eq('currently_assigned', true),
+        _npSupabase.from('phone_att').select('wireless_number, user_name'),
+        _npSupabase.from('phone_verizon').select('wireless_number, user_name'),
         _npSupabase.from('phone_extensions').select('first_name, last_name, phone_did, extension').not('first_name', 'is', null),
     ]);
 
