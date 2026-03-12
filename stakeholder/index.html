@@ -1116,14 +1116,15 @@ function openFormFromContact(contactId) {
         [c.title, c.facility, c.region].filter(Boolean).join(' · ');
     const phoneEl = document.getElementById('ctx-phone');
     const phone = c.phone || c._phone;
+    console.log('[np] contact phone lookup:', c.name, '| c.phone:', c.phone, '| c._phone:', c._phone);
     if (phone) {
         phoneEl.innerHTML = `<a href="tel:${phone}" class="ctx-phone-link">${phone}</a>`;
-        phoneEl.style.display = '';
+        phoneEl.style.display = 'block';
     } else {
         phoneEl.innerHTML = '';
         phoneEl.style.display = 'none';
     }
-    document.getElementById('contact-context').style.display = '';
+    document.getElementById('contact-context').style.display = 'block';
     document.getElementById('modal-no-answer-btn').style.display = '';
 
     // Open blank form then pre-fill from contact
