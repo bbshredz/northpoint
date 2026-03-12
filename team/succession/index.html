@@ -275,7 +275,7 @@ function exportToExcel() {
   XLSX.writeFile(wb, 'NACS-IT-Succession-Plan.xlsx');
 }
 
-npInit('succession').then(session => {
+npInit('team-succession').then(session => {
   if (!session) return;
   npPopulateTopbar();
   renderNav('team');

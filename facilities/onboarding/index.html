@@ -612,7 +612,7 @@ let _autoStaff = true;
 let _deviceRatio = 0.35;  // SNF default: ~1 device per 3 staff (shared workstations)
 
 // ── Init ───────────────────────────────────────────────────────────────────
-npInit('facilities').then(session => {
+npInit('facilities-onboarding').then(session => {
     if (!session) return;
     npPopulateTopbar();
     renderNav('facilities');

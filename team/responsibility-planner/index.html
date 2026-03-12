@@ -744,11 +744,11 @@ document.addEventListener('click', e => {
 
 // ── INIT ──
 async function init() {
-  const { data: { session } } = await db.auth.getSession();
-  document.documentElement.style.opacity = '';
+  const session = await npInit('responsibility-planner');
   document.getElementById('loadingOverlay').style.display = 'none';
-  if (session?.user) { currentUser = session.user; showApp(); }
-  else document.getElementById('authScreen').style.display = 'flex';
+  if (!session) return;
+  currentUser = session.user;
+  showApp();
 }
 
 async function showApp() {

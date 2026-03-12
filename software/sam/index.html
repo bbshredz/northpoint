@@ -363,7 +363,7 @@ let _canEdit       = false;
 let _canSeePricing = false;
 let _isNew         = false;
 
-npInit('software').then(session => {
+npInit('software-sam').then(session => {
     if (!session) return;
     npPopulateTopbar();
     renderNav('software');

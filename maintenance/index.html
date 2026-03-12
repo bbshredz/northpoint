@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Under Maintenance — NorthPoint</title>
+    <link rel="stylesheet" href="/northpoint.css">
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="/auth.js"></script>
+    <style>
+        .maint-wrap {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 60vh;
+            text-align: center;
+            padding: 48px 24px;
+        }
+        .maint-icon {
+            width: 64px; height: 64px;
+            border-radius: 18px;
+            background: var(--amber-dim, rgba(245,158,11,0.12));
+            display: flex; align-items: center; justify-content: center;
+            margin: 0 auto 28px;
+            font-size: 28px;
+        }
+        .maint-title {
+            font-size: 22px;
+            font-weight: 700;
+            color: var(--text-primary);
+            margin: 0 0 8px;
+        }
+        .maint-module {
+            font-size: 13px;
+            font-weight: 600;
+            color: var(--amber, #f59e0b);
+            margin: 0 0 20px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        .maint-message {
+            font-size: 14px;
+            color: var(--text-secondary);
+            max-width: 440px;
+            line-height: 1.6;
+            margin: 0 auto 36px;
+        }
+        .maint-back {
+            display: inline-flex; align-items: center; gap: 6px;
+            padding: 10px 20px; border-radius: 8px;
+            border: 1px solid var(--border);
+            background: var(--card);
+            color: var(--text-primary);
+            font-size: 13px; font-weight: 600;
+            font-family: inherit; cursor: pointer;
+            text-decoration: none;
+            transition: border-color 0.18s, background 0.18s;
+        }
+        .maint-back:hover { border-color: var(--accent); background: var(--accent-dim); color: var(--accent); }
+        .maint-badge {
+            display: inline-flex; align-items: center; gap: 6px;
+            padding: 4px 12px; border-radius: 20px;
+            background: var(--amber-dim, rgba(245,158,11,0.12));
+            color: var(--amber, #f59e0b);
+            border: 1px solid rgba(245,158,11,0.25);
+            font-size: 11px; font-weight: 700;
+            text-transform: uppercase; letter-spacing: 0.8px;
+            margin-bottom: 20px;
+        }
+        .maint-badge::before {
+            content: '';
+            width: 6px; height: 6px;
+            border-radius: 50%;
+            background: var(--amber, #f59e0b);
+            animation: pulse-amber 1.5s ease-in-out infinite;
+        }
+        @keyframes pulse-amber {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.3; }
+        }
+    </style>
+</head>
+<body>
+<div class="layout">
+    <div id="rail-mount"></div>
+    <div class="main">
+        <header class="topbar">
+            <div class="topbar-left">
+                <a href="/index.html" class="topbar-name">NorthPoint</a>
+                <div class="topbar-sep"></div>
+                <span class="topbar-section">Maintenance</span>
+            </div>
+            <div class="topbar-right">
+                <span class="topbar-date" id="currentDate"></span>
+                <span class="topbar-role" id="topbarRole"></span>
+            </div>
+        </header>
+        <div class="content">
+            <div class="maint-wrap animate-1">
+                <div class="maint-icon">🔧</div>
+                <div class="maint-badge">Under Maintenance</div>
+                <h1 class="maint-title" id="maintTitle">This tool is temporarily unavailable</h1>
+                <div class="maint-module" id="maintModule"></div>
+                <p class="maint-message" id="maintMessage">Check back soon. If you need access, contact your IT administrator.</p>
+                <a href="/index.html" class="maint-back">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:14px;height:14px"><path d="M19 12H5M12 5l-7 7 7 7"/></svg>
+                    Back to Home
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+<script src="/nav.js"></script>
+<script>
+const MODULE_LABELS = {
+  'executive':              'Executive Overview',
+  'budget':                 'Budget',
+  'budget-planner':         'Budget Planner',
+  'restructure':            'Case for Restructure',
+  'responsibility-planner': 'Responsibility Planner',
+  'swot':                   'SWOT Analysis',
+  'stakeholder':            'Stakeholder',
+  'risk-register':          'Risk Register',
+  'team':                   'Team',
+  'facilities':             'Facilities',
+  'software':               'Software & Vendors',
+  'projects':               'Projects',
+  'field-guide':            'Field Guide',
+  'iam':                    'Identity & Access',
+  'facilities-map':             'Facility Map',
+  'facilities-editor':          'Facility Editor',
+  'facilities-integration':     'Integration Checklist',
+  'facilities-onboarding':      'Facility Onboarding',
+  'facilities-staff-intel':     'Staff Intel',
+  'team-dashboard':             'Team Dashboard',
+  'team-raci':                  'RACI Matrix',
+  'team-service-ownership':     'Service Ownership',
+  'team-succession':            'Succession Planning',
+  'team-pain-points':           'Pain Points',
+  'team-game-rain-buckets':     'DRIFT: Rain Buckets',
+  'team-game-network-king':     'DRIFT: Network King',
+  'software-vendors':           'Software & Vendors',
+  'software-freescout':         'FreeScout Comparison',
+  'software-sam':               'Software Asset Management',
+  'software-esign':             'eSign Comparison',
+  'projects-netsuite':          'NetSuite Dashboard',
+  'field-guide-network-outage': 'Network Outage Guide',
+};
+
+npInit(null).then(session => {
+  if (!session) return;
+  npPopulateTopbar();
+  renderNav(null);
+
+  const params   = new URLSearchParams(window.location.search);
+  const moduleId = params.get('module') || '';
+  const msg      = params.get('msg') || '';
+
+  const label = MODULE_LABELS[moduleId] || moduleId || 'This tool';
+
+  if (moduleId) {
+    document.getElementById('maintModule').textContent = moduleId;
+    document.getElementById('maintTitle').textContent  = `${label} is temporarily unavailable`;
+  }
+
+  if (msg) {
+    document.getElementById('maintMessage').textContent = msg;
+  }
+});
+</script>
+</body>
+</html>

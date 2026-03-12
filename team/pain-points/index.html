@@ -389,7 +389,7 @@ function exportToExcel() {
   XLSX.writeFile(wb, 'NACS-IT-Leadership-Pain-Points.xlsx');
 }
 
-npInit('pain-points').then(session => {
+npInit('team-pain-points').then(session => {
   if (!session) return;
   npPopulateTopbar();
   renderNav('team');

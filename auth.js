@@ -14,6 +14,14 @@
   document.head.appendChild(style);
 }());
 
+// ── Nomenclature ─────────────────────────────────────────────────────────────
+// Module    — top-level nav item, gated by npHasModule(), defined in role_definitions
+// Tool      — sub-page within a module, inherits parent module access,
+//             independently controllable via module_control
+// Dashboard — a module's index/landing page
+// Card      — UI widget on a dashboard
+// ─────────────────────────────────────────────────────────────────────────────
+
 const SUPABASE_URL = 'https://vpxlgtgavjmftbdsajtk.supabase.co';
 const SUPABASE_KEY = 'sb_publishable_xrH6NCenOJGh84f9NTf3WQ_xL8cmp3a';
 const LOGIN_URL = '/login/index.html';
@@ -24,7 +32,7 @@ let _npUser          = null;
 let _npRole          = null;
 let _npModules       = [];
 let _npDisplayName   = null;
-let _npModuleControl = {}; // moduleId → 'live' | 'hidden' | 'maintenance'
+let _npModuleControl = {}; // moduleId → { state, notes }
 
 async function npInit(requireModule = null) {
   const { data: { session } } = await _npSupabase.auth.getSession();
@@ -39,7 +47,7 @@ async function npInit(requireModule = null) {
   const [{ data: roleData }, { data: roleDefs }, { data: mcData }] = await Promise.all([
     _npSupabase.from('user_roles').select('role, modules').eq('user_id', _npUser.id).single(),
     _npSupabase.from('role_definitions').select('role, modules'),
-    _npSupabase.from('module_control').select('module_id, state'),
+    _npSupabase.from('module_control').select('module_id, state, notes'),
   ]);
 
   if (roleDefs?.length) {
@@ -54,7 +62,9 @@ async function npInit(requireModule = null) {
     _npModules = [];
   }
 
-  if (mcData) mcData.forEach(r => { _npModuleControl[r.module_id] = r.state; });
+  if (mcData) mcData.forEach(r => {
+    _npModuleControl[r.module_id] = { state: r.state || 'live', notes: r.notes || '' };
+  });
 
   // Look up display name from employees table by email
   const { data: empData } = await _npSupabase
@@ -71,7 +81,20 @@ async function npInit(requireModule = null) {
   if (requireModule) {
     const mods = Array.isArray(requireModule) ? requireModule : [requireModule];
     if (!mods.some(m => npHasModule(m))) {
-      window.location.href = '/index.html';
+      const maintenanceMod = mods.find(m =>
+        npGetModuleState(m) === 'maintenance' ||
+        (_npToolParent[m] && npGetModuleState(_npToolParent[m]) === 'maintenance')
+      );
+      if (maintenanceMod) {
+        const refId = npGetModuleState(maintenanceMod) === 'maintenance'
+                    ? maintenanceMod : _npToolParent[maintenanceMod];
+        const qs = new URLSearchParams({ module: refId });
+        const msg = npGetModuleNotes(refId);
+        if (msg) qs.set('msg', msg);
+        window.location.href = '/maintenance/index.html?' + qs.toString();
+      } else {
+        window.location.href = '/index.html';
+      }
       return null;
     }
   }
@@ -88,17 +111,45 @@ let _npRoleModules = {
   staff:    ['team','facilities','software','projects','field-guide'],
 };
 
+// Tool → parent module map. Tools inherit parent module access + can be independently controlled.
+const _npToolParent = {
+  'facilities-map':             'facilities',
+  'facilities-editor':          'facilities',
+  'facilities-integration':     'facilities',
+  'facilities-onboarding':      'facilities',
+  'facilities-staff-intel':     'facilities',
+  'team-dashboard':             'team',
+  'team-raci':                  'team',
+  'team-service-ownership':     'team',
+  'team-succession':            'team',
+  'team-pain-points':           'team',
+  'team-game-rain-buckets':     'team',
+  'team-game-network-king':     'team',
+  'software-vendors':           'software',
+  'software-freescout':         'software',
+  'software-sam':               'software',
+  'software-esign':             'software',
+  'projects-netsuite':          'projects',
+  'field-guide-network-outage': 'field-guide',
+};
+
 function npHasModule(module) {
   if (_npRole === 'admin') return true;
-  const ctrl = _npModuleControl[module] || 'live';
+  const ctrl = (_npModuleControl[module]?.state) || 'live';
   if (ctrl !== 'live') return false;
+  const parent = _npToolParent[module];
+  if (parent) {
+    const parentCtrl = (_npModuleControl[parent]?.state) || 'live';
+    if (parentCtrl !== 'live') return false;
+    if (_npRoleModules[_npRole]?.includes(parent)) return true;
+    return _npModules.includes(parent);
+  }
   if (_npRoleModules[_npRole]?.includes(module)) return true;
   return _npModules.includes(module);
 }
 
-function npGetModuleState(module) {
-  return _npModuleControl[module] || 'live';
-}
+function npGetModuleState(module) { return (_npModuleControl[module]?.state) || 'live'; }
+function npGetModuleNotes(module)  { return _npModuleControl[module]?.notes || ''; }
 
 function npGetRoleModules() { return _npRoleModules; }
 

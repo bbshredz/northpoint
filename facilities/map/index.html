@@ -518,7 +518,7 @@
 <script src="/nav.js"></script>
 <script>
 // ── Auth + init ──────────────────────────────────────────────────────────────
-npInit('facilities').then(session => {
+npInit('facilities-map').then(session => {
     if (!session) return;
     npPopulateTopbar();
     renderNav('facilities');

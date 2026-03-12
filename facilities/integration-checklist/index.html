@@ -460,7 +460,7 @@ document.addEventListener('DOMContentLoaded', () => {
 });
 
 // ── Init ─────────────────────────────────────────────────────────────────────
-npInit('facilities').then(session => {
+npInit('facilities-integration').then(session => {
     if (!session) return;
     npPopulateTopbar();
     renderNav('facilities');

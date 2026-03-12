@@ -258,7 +258,7 @@ function recDTS(total, nursing, rehab, admin, dietary, maintenance) {
 }
 
 // ── Init ───────────────────────────────────────────────────────────────────
-npInit('facilities').then(session => {
+npInit('facilities-staff-intel').then(session => {
   if (!session) return;
   npPopulateTopbar();
   renderNav('facilities');

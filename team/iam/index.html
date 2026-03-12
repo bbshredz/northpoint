@@ -145,6 +145,24 @@
         .module-notes-input::placeholder { color: var(--text-tertiary); }
         .module-notes-input:focus { outline: none; border-color: var(--accent); }
 
+        .mod-group-header td {
+            background: var(--silver-light);
+            padding: 7px 18px;
+            font-size: 10px; font-weight: 700;
+            text-transform: uppercase; letter-spacing: 1px;
+            color: var(--text-tertiary);
+            border-bottom: 1px solid var(--border);
+        }
+        .mod-group-header.is-tool td { padding-left: 28px; }
+        .tool-parent-badge {
+            display: inline-block;
+            font-size: 9px; font-weight: 600;
+            padding: 1px 6px; border-radius: 10px;
+            background: var(--accent-dim); color: var(--accent);
+            margin-left: 6px; vertical-align: middle;
+            text-transform: none; letter-spacing: 0;
+        }
+
         .invite-row { display: flex; gap: 10px; align-items: center; margin-bottom: 36px; }
         .invite-input {
             flex: 1;
@@ -289,7 +307,7 @@
                             <tr>
                                 <th style="width:180px">Module</th>
                                 <th style="width:170px">State</th>
-                                <th>Notes</th>
+                                <th>Notes <span style="font-weight:400;text-transform:none;letter-spacing:0;opacity:0.6">— shown to users in Maintenance state</span></th>
                                 <th></th>
                             </tr>
                         </thead>
@@ -305,10 +323,34 @@
 </div>
 <script src="/nav.js"></script>
 <script>
+// Flat list for Users/Roles tabs (top-level modules only)
 const ALL_MODULES = [
   'executive','budget','budget-planner','restructure',
   'responsibility-planner','swot','stakeholder','risk-register',
   'team','facilities','software','projects','field-guide','iam'
+];
+
+// Grouped layout for Modules tab
+const MODULE_GROUPS = [
+  { label: 'Modules', items: [
+    'executive','budget','budget-planner','restructure',
+    'responsibility-planner','swot','stakeholder','risk-register',
+    'team','facilities','software','projects','field-guide','iam'
+  ]},
+  { label: 'Facilities Tools', parent: 'facilities', items: [
+    'facilities-map','facilities-editor','facilities-integration',
+    'facilities-onboarding','facilities-staff-intel'
+  ]},
+  { label: 'Team Tools', parent: 'team', items: [
+    'team-dashboard','team-raci','team-service-ownership',
+    'team-succession','team-pain-points',
+    'team-game-rain-buckets','team-game-network-king'
+  ]},
+  { label: 'Software Tools', parent: 'software', items: [
+    'software-vendors','software-freescout','software-sam','software-esign'
+  ]},
+  { label: 'Projects Tools', parent: 'projects', items: ['projects-netsuite'] },
+  { label: 'Field Guide Tools', parent: 'field-guide', items: ['field-guide-network-outage'] },
 ];
 
 const MODULE_LABELS = {
@@ -326,6 +368,24 @@ const MODULE_LABELS = {
   'projects':               'Projects',
   'field-guide':            'Field Guide',
   'iam':                    'Identity & Access',
+  'facilities-map':             'Facility Map',
+  'facilities-editor':          'Facility Editor',
+  'facilities-integration':     'Integration Checklist',
+  'facilities-onboarding':      'Facility Onboarding',
+  'facilities-staff-intel':     'Staff Intel',
+  'team-dashboard':             'Team Dashboard',
+  'team-raci':                  'RACI Matrix',
+  'team-service-ownership':     'Service Ownership',
+  'team-succession':            'Succession Planning',
+  'team-pain-points':           'Pain Points',
+  'team-game-rain-buckets':     'DRIFT: Rain Buckets',
+  'team-game-network-king':     'DRIFT: Network King',
+  'software-vendors':           'Software & Vendors',
+  'software-freescout':         'FreeScout Comparison',
+  'software-sam':               'Software Asset Management',
+  'software-esign':             'eSign Comparison',
+  'projects-netsuite':          'NetSuite Dashboard',
+  'field-guide-network-outage': 'Network Outage Guide',
 };
 
 const ROLE_LABELS = { admin: 'Admin', exec: 'Executive', director: 'Director', staff: 'Staff', limited: 'Limited' };
@@ -573,14 +633,17 @@ function attachRoleHandlers() {
 
 let _mcData = {}; // moduleId → { state, notes }
 
-function renderModuleRow(moduleId) {
+function renderModuleRow(moduleId, parent) {
   const d     = _mcData[moduleId] || { state: 'live', notes: '' };
   const label = MODULE_LABELS[moduleId] || moduleId;
   const notesEscaped = (d.notes || '').replace(/"/g, '&quot;');
+  const parentBadge = parent
+    ? `<span class="tool-parent-badge">↳ ${parent}</span>`
+    : '';
   return `
   <tr data-module="${moduleId}">
     <td>
-      <div style="font-weight:600">${label}</div>
+      <div style="font-weight:600">${label}${parentBadge}</div>
       <div class="module-id">${moduleId}</div>
     </td>
     <td>
@@ -600,6 +663,18 @@ function renderModuleRow(moduleId) {
   </tr>`;
 }
 
+function renderModulesTable() {
+  let html = '';
+  MODULE_GROUPS.forEach(group => {
+    const isToolGroup = !!group.parent;
+    html += `<tr class="mod-group-header${isToolGroup ? ' is-tool' : ''}">
+      <td colspan="4">${group.label}</td>
+    </tr>`;
+    html += group.items.map(id => renderModuleRow(id, group.parent)).join('');
+  });
+  return html;
+}
+
 async function loadModules() {
   const { data, error } = await _npSupabase.from('module_control').select('*');
   if (error) {
@@ -609,7 +684,7 @@ async function loadModules() {
   }
   _mcData = {};
   (data || []).forEach(r => { _mcData[r.module_id] = { state: r.state, notes: r.notes || '' }; });
-  document.getElementById('modulesBody').innerHTML = ALL_MODULES.map(renderModuleRow).join('');
+  document.getElementById('modulesBody').innerHTML = renderModulesTable();
   attachModuleHandlers();
 }
 

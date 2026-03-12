@@ -252,7 +252,7 @@ let _incomingOnly = false;
 let _pending      = 0;
 
 // ── Boot ──────────────────────────────────────────────────────────────────────
-npInit('facilities').then(session => {
+npInit('facilities-editor').then(session => {
     if (!session) return;
     npPopulateTopbar();
     renderNav('facilities');

@@ -656,19 +656,13 @@ function App({ canEdit }) {
 
 /* ── Mount ────────────────────────────────────────────────── */
 
-(async () => {
-    const { data: { session } } = await _npSupabase.auth.getSession();
-    document.documentElement.style.opacity = '';
-    if (!session) { window.location.href = '/login.html'; return; }
-    _npUser = session.user;
-    const { data: roleData } = await _npSupabase
-        .from('user_roles').select('role').eq('user_id', session.user.id).single();
-    _npRole = roleData?.role || 'staff';
+npInit('swot').then(session => {
+    if (!session) return;
     npPopulateTopbar();
     renderNav('swot');
-    const canEdit = ['exec', 'admin'].includes(_npRole);
+    const canEdit = ['exec', 'admin'].includes(npGetRole());
     ReactDOM.createRoot(document.getElementById('app-root')).render(<App canEdit={canEdit} />);
-})();
+});
 </script>
 </body>
 </html>
