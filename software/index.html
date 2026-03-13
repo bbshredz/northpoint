@@ -47,17 +47,35 @@
                         <div style="font-size:10px;color:var(--text-tertiary)">Loading&hellip;</div>
                     </div>
                 </div>
-                <div class="metric-card">
-                    <div class="metric-label">Unowned Tools</div>
-                    <div class="metric-value">11</div>
-                    <div class="metric-sub">No assigned system owner</div>
-                    <span class="metric-badge badge-alert">Governance gap</span>
+                <div class="metric-card expandable" onclick="toggleMC(this)">
+                    <div class="mc-header">
+                        <div>
+                            <div class="metric-label">Unowned Tools</div>
+                            <div class="metric-value" id="unowned-count">—</div>
+                            <div class="metric-sub">No assigned system owner</div>
+                            <span class="metric-badge badge-alert">Governance gap</span>
+                        </div>
+                        <span class="mc-chevron">▼</span>
+                    </div>
+                    <div class="mc-detail" id="unowned-detail">
+                        <hr class="mc-divider">
+                        <div style="font-size:10px;color:var(--text-tertiary)">Loading&hellip;</div>
+                    </div>
                 </div>
-                <div class="metric-card">
-                    <div class="metric-label">Active Vendors</div>
-                    <div class="metric-value">60+</div>
-                    <div class="metric-sub">Unique vendor relationships</div>
-                    <span class="metric-badge badge-neutral">Consolidation opportunity</span>
+                <div class="metric-card expandable" onclick="toggleMC(this)">
+                    <div class="mc-header">
+                        <div>
+                            <div class="metric-label">Upcoming Renewals</div>
+                            <div class="metric-value" id="renewals-count">—</div>
+                            <div class="metric-sub">Vendor contracts due &le;90 days</div>
+                            <span class="metric-badge badge-warn" id="renewals-badge">&nbsp;</span>
+                        </div>
+                        <span class="mc-chevron">▼</span>
+                    </div>
+                    <div class="mc-detail" id="renewals-detail">
+                        <hr class="mc-divider">
+                        <div style="font-size:10px;color:var(--text-tertiary)">Loading&hellip;</div>
+                    </div>
                 </div>
                 <div class="metric-card">
                     <div class="metric-label">Pending Decision</div>
@@ -135,35 +153,97 @@
 <script src="/nav.js"></script>
 <script>
 function toggleMC(card) { card.classList.toggle('expanded'); }
+
+function esc(s) { return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+
 npInit('software').then(async session => {
   if (!session) return;
   npPopulateTopbar();
   renderNav('software');
   npApplyToolCards();
 
-  // Category breakdown for Software Portfolio accordion
-  const { data } = await _npSupabase
-    .from('software_assets')
-    .select('category')
-    .is('deleted_at', null);
+  const [catRes, unownedRes, renewalRes] = await Promise.all([
+    // Category breakdown
+    _npSupabase.from('software_assets').select('category').is('deleted_at', null),
+    // Unowned tools
+    _npSupabase.from('software_assets').select('software_name, vendor').is('system_owner', null),
+    // Vendors with renewal dates
+    _npSupabase.from('vendors').select('name, renewal_date, annual_spend').is('deleted_at', null).not('renewal_date', 'is', null),
+  ]);
+
+  // ── Software Portfolio category bars ─────────────────────────────────────
   const el = document.getElementById('sw-cat-detail');
-  if (data && data.length) {
+  const catData = catRes.data;
+  if (catData && catData.length) {
     const counts = {};
-    data.forEach(r => { const c = r.category || 'Uncategorized'; counts[c] = (counts[c] || 0) + 1; });
+    catData.forEach(r => { const c = r.category || 'Uncategorized'; counts[c] = (counts[c] || 0) + 1; });
     const sorted = Object.entries(counts).sort((a,b) => b[1] - a[1]).slice(0, 8);
     const max = sorted[0][1];
     const COLORS = ['#8b5cf6','#3b82f6','#10b981','#f59e0b','#a78bfa','#06b6d4','#ec4899','#6b7280'];
-    el.innerHTML =
-      '<hr class="mc-divider">' +
+    el.innerHTML = '<hr class="mc-divider">' +
       sorted.map(([cat, count], i) =>
         `<div class="mc-bar-row">
-          <div class="mc-bar-label">${cat}</div>
+          <div class="mc-bar-label">${esc(cat)}</div>
           <div class="mc-bar-track"><div class="mc-bar-fill" style="width:${Math.round(count/max*100)}%;background:${COLORS[i]}"></div></div>
           <div class="mc-bar-count">${count}</div>
         </div>`
       ).join('');
   } else {
     el.innerHTML = '<hr class="mc-divider"><div style="font-size:10px;color:var(--text-tertiary)">No category data available</div>';
+  }
+
+  // ── Unowned Tools dropdown ────────────────────────────────────────────────
+  const unowned = (unownedRes.data || []).sort((a,b) => (a.software_name||'').localeCompare(b.software_name||''));
+  document.getElementById('unowned-count').textContent = unowned.length || '0';
+  const uEl = document.getElementById('unowned-detail');
+  if (unowned.length) {
+    uEl.innerHTML = '<hr class="mc-divider">' +
+      unowned.map(a =>
+        `<div style="display:flex;align-items:center;justify-content:space-between;padding:4px 0;border-bottom:1px solid var(--border)">
+          <span style="font-size:11px;color:var(--text-primary);font-weight:500">${esc(a.software_name || '—')}</span>
+          <span style="font-size:10px;color:var(--text-tertiary)">${esc(a.vendor || '')}</span>
+        </div>`
+      ).join('');
+  } else {
+    uEl.innerHTML = '<hr class="mc-divider"><div style="font-size:10px;color:var(--text-tertiary)">All tools have owners</div>';
+  }
+
+  // ── Upcoming Renewals dropdown ────────────────────────────────────────────
+  const today = new Date(); today.setHours(0,0,0,0);
+  const in90  = new Date(today); in90.setDate(in90.getDate() + 90);
+  const upcoming = (renewalRes.data || [])
+    .map(v => {
+      const d = new Date(v.renewal_date);
+      const days = Math.round((d - today) / 86400000);
+      return { ...v, days, d };
+    })
+    .filter(v => v.days >= 0 && v.days <= 90)
+    .sort((a,b) => a.days - b.days);
+
+  document.getElementById('renewals-count').textContent = upcoming.length || '0';
+  const badge = document.getElementById('renewals-badge');
+  if (upcoming.length === 0) {
+    badge.textContent = 'None due soon';
+    badge.className = 'metric-badge badge-neutral';
+  } else {
+    const totalSpend = upcoming.reduce((s,v) => s + (parseFloat(v.annual_spend)||0), 0);
+    badge.textContent = totalSpend ? `$${Math.round(totalSpend/1000)}k at risk` : `${upcoming.length} vendor${upcoming.length>1?'s':''}`;
+    badge.className = 'metric-badge badge-warn';
+  }
+
+  const rEl = document.getElementById('renewals-detail');
+  if (upcoming.length) {
+    rEl.innerHTML = '<hr class="mc-divider">' +
+      upcoming.map(v => {
+        const urgency = v.days <= 30 ? '#ef4444' : v.days <= 60 ? '#f97316' : '#f59e0b';
+        const spend = v.annual_spend ? ` · $${Number(v.annual_spend).toLocaleString('en-US',{maximumFractionDigits:0})}` : '';
+        return `<div style="display:flex;align-items:center;justify-content:space-between;padding:4px 0;border-bottom:1px solid var(--border)">
+          <span style="font-size:11px;color:var(--text-primary);font-weight:500">${esc(v.name)}<span style="font-size:10px;font-weight:400;color:var(--text-tertiary)">${esc(spend)}</span></span>
+          <span style="font-size:10px;font-weight:600;color:${urgency};white-space:nowrap">${v.days}d</span>
+        </div>`;
+      }).join('');
+  } else {
+    rEl.innerHTML = '<hr class="mc-divider"><div style="font-size:10px;color:var(--text-tertiary)">No renewals due within 90 days</div>';
   }
 });
 </script>
