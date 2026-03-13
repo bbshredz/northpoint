@@ -97,6 +97,99 @@
         body.hub-limited .modules-grid          { grid-template-columns: 1fr; }
         body.hub-limited .hub-signout           { display: block; text-align: center; margin-top: 24px; font-size: 12px; color: var(--text-tertiary); cursor: pointer; }
         body.hub-limited .hub-signout:hover     { color: var(--text-primary); }
+
+        /* ── Admin Dashboard ─────────────────────────────────────────────── */
+        .adm-greeting {
+            display: flex; align-items: flex-start; justify-content: space-between;
+            margin-bottom: 20px; gap: 16px;
+        }
+        .adm-hi {
+            font-family: 'DM Serif Display', serif;
+            font-size: 26px; font-weight: 400; color: var(--text-primary);
+            line-height: 1.2; letter-spacing: -0.4px;
+        }
+        .adm-date-str { font-size: 12px; color: var(--text-tertiary); margin-top: 3px; }
+        .adm-status-pill {
+            display: inline-flex; align-items: center; gap: 6px;
+            font-size: 11px; color: var(--green); font-weight: 500;
+            background: var(--green-dim); border: 1px solid rgba(16,185,129,0.2);
+            padding: 5px 12px; border-radius: 20px; white-space: nowrap; flex-shrink: 0;
+        }
+        .adm-chips { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 20px; }
+        .adm-chip {
+            display: inline-flex; align-items: center; gap: 8px;
+            padding: 8px 14px; border-radius: 10px; font-size: 12px;
+            font-weight: 500; text-decoration: none;
+            transition: opacity 0.15s; cursor: pointer;
+        }
+        .adm-chip:hover { opacity: 0.75; }
+        .adm-chip-red    { background: var(--red-dim);    color: var(--red);    border: 1px solid rgba(239,68,68,0.2); }
+        .adm-chip-amber  { background: var(--amber-dim);  color: var(--amber);  border: 1px solid rgba(245,158,11,0.2); }
+        .adm-chip-teal   { background: var(--teal-dim);   color: var(--teal);   border: 1px solid rgba(20,184,166,0.2); }
+        .adm-chip-green  { background: var(--green-dim);  color: var(--green);  border: 1px solid rgba(16,185,129,0.2); }
+        .adm-chip-num { font-size: 15px; font-weight: 700; letter-spacing: -0.5px; line-height: 1; }
+        .adm-bento {
+            display: grid; grid-template-columns: 3fr 2fr;
+            gap: 16px; margin-bottom: 24px;
+        }
+        .adm-card {
+            background: var(--card); border: 1px solid var(--border);
+            border-radius: 14px; padding: 20px 22px;
+        }
+        .adm-card-hd {
+            font-size: 10px; font-weight: 700; text-transform: uppercase;
+            letter-spacing: 1px; color: var(--text-tertiary);
+            margin-bottom: 18px; display: flex; align-items: center; gap: 8px;
+        }
+        .adm-live {
+            width: 6px; height: 6px; border-radius: 50%;
+            background: var(--green); display: inline-block;
+            animation: adm-pulse 2s infinite;
+        }
+        @keyframes adm-pulse { 0%,100% { opacity:1; } 50% { opacity:0.25; } }
+        .adm-project { margin-bottom: 18px; }
+        .adm-project:last-child { margin-bottom: 0; }
+        .adm-project-hd {
+            display: flex; align-items: center;
+            justify-content: space-between; margin-bottom: 7px;
+        }
+        .adm-project-name { font-size: 13px; font-weight: 500; color: var(--text-primary); }
+        .adm-project-meta { font-size: 11px; color: var(--text-tertiary); }
+        .adm-project-link { font-size: 11px; color: var(--accent); text-decoration: none; margin-left: 6px; }
+        .adm-project-bar {
+            height: 6px; background: var(--silver);
+            border-radius: 3px; overflow: hidden; margin-bottom: 4px;
+        }
+        .adm-project-fill {
+            height: 100%; border-radius: 3px;
+            transition: width 0.7s cubic-bezier(0.4,0,0.2,1);
+        }
+        .adm-project-sub { font-size: 10px; color: var(--text-tertiary); }
+        .adm-act-entry {
+            display: flex; gap: 10px; padding: 8px 0;
+            border-bottom: 1px solid var(--border); align-items: flex-start;
+        }
+        .adm-act-entry:last-child { border-bottom: none; }
+        .adm-act-avatar {
+            width: 26px; height: 26px; border-radius: 50%;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 10px; font-weight: 700; color: #fff; flex-shrink: 0; margin-top: 1px;
+        }
+        .adm-act-body { flex: 1; min-width: 0; }
+        .adm-act-text { font-size: 12px; color: var(--text-primary); line-height: 1.4; }
+        .adm-act-who  { font-weight: 600; }
+        .adm-act-time { font-size: 10px; color: var(--text-tertiary); margin-top: 1px; }
+        .adm-act-empty { font-size: 12px; color: var(--text-tertiary); text-align: center; padding: 24px 0; }
+        .adm-quick { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 8px; }
+        .adm-pill {
+            display: inline-flex; align-items: center; gap: 5px;
+            padding: 7px 14px; border-radius: 8px; font-size: 12px; font-weight: 500;
+            color: var(--text-secondary); background: var(--card);
+            border: 1px solid var(--border); text-decoration: none;
+            transition: border-color 0.12s, color 0.12s, background 0.12s;
+        }
+        .adm-pill:hover { border-color: var(--accent); color: var(--accent); background: var(--accent-dim); }
+        @media (max-width: 768px) { .adm-bento { grid-template-columns: 1fr; } }
     </style>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script src="/auth.js"></script>
@@ -153,8 +246,57 @@
                 </div>
             </div>
 
+            <!-- ── Admin Dashboard (role=admin only) ── -->
+            <div id="admin-dashboard" style="display:none">
+                <div class="adm-greeting">
+                    <div>
+                        <div class="adm-hi" id="adm-hi">Good morning, Anthony</div>
+                        <div class="adm-date-str" id="adm-date-str"></div>
+                    </div>
+                    <div class="adm-status-pill">
+                        <span class="status-dot"></span> All systems operational
+                    </div>
+                </div>
+
+                <div class="adm-chips" id="adm-chips">
+                    <span class="adm-chip adm-chip-teal" style="opacity:0.5;pointer-events:none">
+                        <span class="adm-chip-num">…</span> loading alerts
+                    </span>
+                </div>
+
+                <div class="adm-bento">
+                    <div class="adm-card">
+                        <div class="adm-card-hd">Active Initiatives</div>
+                        <div id="adm-projects">
+                            <div style="font-size:12px;color:var(--text-tertiary)">Loading…</div>
+                        </div>
+                    </div>
+                    <div class="adm-card">
+                        <div class="adm-card-hd">Live Activity <span class="adm-live"></span></div>
+                        <div id="adm-feed">
+                            <div class="adm-act-empty">No recent activity</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="section-header" style="margin-bottom:12px">
+                    <span class="section-title">Quick Access</span>
+                    <div class="section-line"></div>
+                </div>
+                <div class="adm-quick" style="margin-bottom:32px">
+                    <a href="/facilities/map/" class="adm-pill">Facility Map</a>
+                    <a href="/software/sam/" class="adm-pill">Software Assets</a>
+                    <a href="/software/vendors/" class="adm-pill">Vendors</a>
+                    <a href="/stakeholder/" class="adm-pill">Stakeholder Outreach</a>
+                    <a href="/risk-register/" class="adm-pill">Risk Register</a>
+                    <a href="/team/iam/" class="adm-pill">IAM</a>
+                    <a href="/projects/data-migration-mapper/" class="adm-pill">Migration Mapper</a>
+                    <a href="/team/pain-points/" class="adm-pill">Pain Points</a>
+                </div>
+            </div>
+
             <div class="section-header animate-2">
-                <span class="section-title">Modules</span>
+                <span class="section-title" id="modules-section-title">Modules</span>
                 <div class="section-line"></div>
             </div>
 
@@ -383,19 +525,178 @@
 <script src="/nav.js"></script>
 <script>
 const GATED_MODULES = ['stakeholder','executive','budget','team','facilities','software','projects','field-guide','it-overview'];
-
 const MODULE_URLS = {
-  'stakeholder':            '/stakeholder/index.html',
-  'executive':              '/executive-overview/index.html',
-  'budget':                 '/budget/index.html',
-  'team':                   '/team/index.html',
-  'facilities':             '/facilities/index.html',
-  'software':               '/software/index.html',
-  'projects':               '/projects/index.html',
-  'field-guide':            '/field-guide/index.html',
-  'it-overview':            '/it-overview/index.html',
+  'stakeholder':  '/stakeholder/index.html',
+  'executive':    '/executive-overview/index.html',
+  'budget':       '/budget/index.html',
+  'team':         '/team/index.html',
+  'facilities':   '/facilities/index.html',
+  'software':     '/software/index.html',
+  'projects':     '/projects/index.html',
+  'field-guide':  '/field-guide/index.html',
+  'it-overview':  '/it-overview/index.html',
 };
 
+// ── Admin dashboard helpers ───────────────────────────────────────────────────
+function admEsc(s) {
+  return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+}
+function admColor(name) {
+  const p = ['#6366f1','#10b981','#f59e0b','#ef4444','#8b5cf6','#06b6d4','#f97316'];
+  let h = 0;
+  for (let i = 0; i < name.length; i++) h = (h * 31 + name.charCodeAt(i)) % p.length;
+  return p[h];
+}
+function admInitials(name) {
+  const w = (name||'?').trim().split(' ');
+  return w.length >= 2 ? (w[0][0]+w[w.length-1][0]).toUpperCase() : (name||'?')[0].toUpperCase();
+}
+function admTimeAgo(ts) {
+  const s = Math.floor((Date.now() - new Date(ts)) / 1000);
+  if (s < 60) return 'just now';
+  if (s < 3600) return `${Math.floor(s/60)}m ago`;
+  if (s < 86400) return `${Math.floor(s/3600)}h ago`;
+  return `${Math.floor(s/86400)}d ago`;
+}
+const ADM_VERBS = {
+  logged_call:      e => `logged a stakeholder call${e.entity_label ? ` — ${e.entity_label}` : ''}`,
+  no_answer:        e => `marked no answer${e.entity_label ? ` — ${e.entity_label}` : ''}`,
+  deleted_response: e => `deleted a response`,
+  added_risk:       e => `added a risk${e.entity_label ? ` — ${e.entity_label}` : ''}`,
+  updated_risk:     e => `updated a risk item`,
+  deleted_risk:     e => `removed a risk item`,
+  added_vendor:     e => `added vendor${e.entity_label ? ` — ${e.entity_label}` : ''}`,
+  updated_vendor:   e => `updated vendor${e.entity_label ? ` — ${e.entity_label}` : ''}`,
+  deleted_vendor:   e => `removed a vendor`,
+  added_asset:      e => `added software asset${e.entity_label ? ` — ${e.entity_label}` : ''}`,
+  updated_asset:    e => `updated asset${e.entity_label ? ` — ${e.entity_label}` : ''}`,
+  deleted_asset:    e => `removed a software asset`,
+  added_facility:   e => `added a facility`,
+  updated_facility: e => `updated facility${e.entity_label ? ` — ${e.entity_label}` : ''}${e.metadata?.field ? ` (${e.metadata.field})` : ''}`,
+  deleted_facility: e => `removed a facility`,
+  pain_point_added: e => `submitted a pain point`,
+  role_changed:     e => `changed role for ${e.entity_label || 'a user'}`,
+  module_changed:   e => `updated module access`,
+};
+function admBuildEntry(e) {
+  const name = e.display_name || 'Unknown';
+  const color = admColor(name);
+  const verb = ADM_VERBS[e.action] ? ADM_VERBS[e.action](e) : e.action;
+  const mod = e.module ? `<span style="font-size:10px;color:var(--text-tertiary);margin-left:4px">${admEsc(e.module)}</span>` : '';
+  return `<div class="adm-act-entry">
+    <div class="adm-act-avatar" style="background:${color}">${admInitials(name)}</div>
+    <div class="adm-act-body">
+      <div class="adm-act-text"><span class="adm-act-who">${admEsc(name)}</span> ${admEsc(verb)}${mod}</div>
+      <div class="adm-act-time">${admTimeAgo(e.created_at)}</div>
+    </div>
+  </div>`;
+}
+
+async function initAdminDashboard() {
+  document.getElementById('admin-dashboard').style.display = '';
+  document.querySelector('.hub-hero').style.display = 'none';
+  document.getElementById('modules-section-title').textContent = 'All Modules';
+
+  // Greeting
+  const now   = new Date();
+  const hour  = now.getHours();
+  const greet = hour < 12 ? 'Good morning' : hour < 17 ? 'Good afternoon' : 'Good evening';
+  const name  = npGetDisplayName() || 'Anthony';
+  document.getElementById('adm-hi').textContent = `${greet}, ${name}`;
+  document.getElementById('adm-date-str').textContent =
+    now.toLocaleDateString('en-US', { weekday:'long', year:'numeric', month:'long', day:'numeric' });
+
+  // Parallel data fetch
+  const [renewalRes, riskRes, unownedRes, contactsRes, responsesRes, feedRes] = await Promise.all([
+    _npSupabase.from('vendors').select('name, renewal_date').is('deleted_at', null).not('renewal_date','is',null),
+    _npSupabase.from('risk_register').select('id, likelihood, impact').is('deleted_at', null),
+    _npSupabase.from('software_assets').select('id').is('system_owner', null),
+    _npSupabase.from('stakeholder_contacts').select('id', { count:'exact', head:true }),
+    _npSupabase.from('stakeholder_responses').select('id', { count:'exact', head:true }),
+    _npSupabase.from('activity_log').select('*').order('created_at', { ascending:false }).limit(8),
+  ]);
+
+  // ── Attention chips ─────────────────────────────────────────────────────────
+  const today = new Date(); today.setHours(0,0,0,0);
+  const renewals30 = (renewalRes.data||[]).filter(v => {
+    const days = Math.round((new Date(v.renewal_date) - today) / 86400000);
+    return days >= 0 && days <= 30;
+  });
+  const risks     = riskRes.data || [];
+  const highRisks = risks.filter(r => ((parseInt(r.likelihood)||0) * (parseInt(r.impact)||0)) >= 9);
+  const unowned   = unownedRes.data ? unownedRes.data.length : 0;
+  const totalC    = contactsRes.count  || 0;
+  const totalR    = responsesRes.count || 0;
+
+  const chips = [];
+  if (renewals30.length)  chips.push({ num: renewals30.length, label: `renewal${renewals30.length>1?'s':''} due ≤30d`, cls:'adm-chip-red',   href:'/software/index.html' });
+  if (highRisks.length)   chips.push({ num: highRisks.length,  label: `high-risk item${highRisks.length>1?'s':''}`,   cls:'adm-chip-amber', href:'/risk-register/' });
+  if (unowned > 0)        chips.push({ num: unowned,           label: 'unowned software tools',                        cls:'adm-chip-teal',  href:'/software/sam/' });
+  if (!chips.length)      chips.push({ num: '✓',               label: 'No critical items',                             cls:'adm-chip-green', href:null });
+
+  document.getElementById('adm-chips').innerHTML = chips.map(c =>
+    c.href
+      ? `<a href="${c.href}" class="adm-chip ${c.cls}"><span class="adm-chip-num">${c.num}</span> ${admEsc(c.label)}</a>`
+      : `<span class="adm-chip ${c.cls}"><span class="adm-chip-num">${c.num}</span> ${admEsc(c.label)}</span>`
+  ).join('');
+
+  // ── Active initiatives ──────────────────────────────────────────────────────
+  const stakeholderPct = totalC > 0 ? Math.round((totalR / totalC) * 100) : 0;
+  const ownedPct = (104 - unowned) > 0 ? Math.round(((104 - unowned) / 104) * 100) : 0;
+  const projects = [
+    {
+      name: 'Stakeholder Outreach',
+      pct: stakeholderPct, color: '#f59e0b',
+      meta: `${totalR} of ${totalC} contacts`,
+      sub: `${stakeholderPct}% of contacts have a logged response`,
+      href: '/stakeholder/',
+    },
+    {
+      name: 'NetSuite Migration',
+      pct: 42, color: '#f97316',
+      meta: 'Phase 2 of 4',
+      sub: 'Data mapping and chart of accounts in progress',
+      href: '/projects/netsuite/',
+    },
+    {
+      name: 'Software Governance',
+      pct: ownedPct, color: '#14b8a6',
+      meta: `${104 - unowned} of 104 tools owned`,
+      sub: `${unowned} tool${unowned !== 1 ? 's' : ''} still need an owner assigned`,
+      href: '/software/sam/',
+    },
+  ];
+
+  document.getElementById('adm-projects').innerHTML = projects.map(p =>
+    `<div class="adm-project">
+      <div class="adm-project-hd">
+        <span class="adm-project-name">${admEsc(p.name)}</span>
+        <span class="adm-project-meta">${admEsc(p.meta)}<a href="${p.href}" class="adm-project-link">→</a></span>
+      </div>
+      <div class="adm-project-bar">
+        <div class="adm-project-fill" style="width:${p.pct}%;background:${p.color}"></div>
+      </div>
+      <div class="adm-project-sub">${admEsc(p.sub)}</div>
+    </div>`
+  ).join('');
+
+  // ── Activity feed ───────────────────────────────────────────────────────────
+  const activities = feedRes.data || [];
+  const feedEl = document.getElementById('adm-feed');
+  feedEl.innerHTML = activities.length
+    ? activities.map(admBuildEntry).join('')
+    : '<div class="adm-act-empty">No recent activity</div>';
+
+  _npSupabase.channel('adm-activity')
+    .on('postgres_changes', { event:'INSERT', schema:'public', table:'activity_log' }, ({ new: row }) => {
+      if (feedEl.querySelector('.adm-act-empty')) feedEl.innerHTML = '';
+      feedEl.insertAdjacentHTML('afterbegin', admBuildEntry(row));
+      feedEl.querySelectorAll('.adm-act-entry').forEach((e,i) => { if (i >= 8) e.remove(); });
+    })
+    .subscribe();
+}
+
+// ── Hub init ──────────────────────────────────────────────────────────────────
 npInit(null).then(session => {
   if (!session) return;
   npPopulateTopbar();
@@ -403,54 +704,40 @@ npInit(null).then(session => {
   const accessible = GATED_MODULES.filter(m => npHasModule(m));
   const role = npGetRole();
 
-  // Single accessible module → go straight there, no hub needed
   if (accessible.length === 1 && MODULE_URLS[accessible[0]]) {
     window.location.replace(MODULE_URLS[accessible[0]]);
     return;
   }
 
-  // Limited role (or ≤3 accessible modules) → stripped hub, no rail
   const stripped = role === 'limited' || accessible.length <= 3;
   if (stripped) {
     document.body.classList.add('hub-limited');
     const name = npGetDisplayName();
-    document.getElementById('limited-welcome').textContent =
-      name ? `Welcome, ${name}` : 'Welcome back';
+    document.getElementById('limited-welcome').textContent = name ? `Welcome, ${name}` : 'Welcome back';
     document.getElementById('limited-greeting').style.display = '';
     document.getElementById('hub-signout').style.display = '';
   } else {
     renderNav('hub');
+    if (role === 'admin') initAdminDashboard();
   }
 
-  // Hide exec-only metrics from non-exec/director/admin
   const isExecOrAbove = role === 'admin' || role === 'exec' || role === 'director';
-  if (!isExecOrAbove) {
-    document.querySelectorAll('.js-exec-only').forEach(el => el.style.display = 'none');
-  }
+  if (!isExecOrAbove) document.querySelectorAll('.js-exec-only').forEach(el => el.style.display = 'none');
+  if (npHasModule('executive') || npHasModule('budget')) document.getElementById('stat-spend').style.display = '';
 
-  // Show spend stat for exec/admin
-  if (npHasModule('executive') || npHasModule('budget')) {
-    document.getElementById('stat-spend').style.display = '';
-  }
-
-  // Gate cards
   document.querySelectorAll('[data-mod]').forEach(card => {
     const mod = card.dataset.mod;
-    if (GATED_MODULES.includes(mod) && !npHasModule(mod)) {
-      card.classList.add('tile-locked');
-    }
+    if (GATED_MODULES.includes(mod) && !npHasModule(mod)) card.classList.add('tile-locked');
   });
 
-  // Sort/hide cards
   const grid = document.querySelector('.modules-grid');
   if (grid) {
     const cards    = [...grid.querySelectorAll('.module-card')];
     const available = cards.filter(c => !c.classList.contains('tile-locked'));
     const locked    = cards.filter(c =>  c.classList.contains('tile-locked'));
     if (stripped) {
-      // Show accessible cards first, then frosted locked cards (so user knows more exists)
       available.forEach(c => grid.appendChild(c));
-      locked.slice(0, 3).forEach(c => grid.appendChild(c));
+      locked.slice(0,3).forEach(c => grid.appendChild(c));
       locked.slice(3).forEach(c => c.remove());
     } else {
       [...available, ...locked].forEach(c => grid.appendChild(c));
