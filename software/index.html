@@ -146,13 +146,14 @@ npInit('software').then(async session => {
     .from('software_assets')
     .select('category')
     .is('deleted_at', null);
+  const el = document.getElementById('sw-cat-detail');
   if (data && data.length) {
     const counts = {};
     data.forEach(r => { const c = r.category || 'Uncategorized'; counts[c] = (counts[c] || 0) + 1; });
     const sorted = Object.entries(counts).sort((a,b) => b[1] - a[1]).slice(0, 8);
     const max = sorted[0][1];
     const COLORS = ['#8b5cf6','#3b82f6','#10b981','#f59e0b','#a78bfa','#06b6d4','#ec4899','#6b7280'];
-    document.getElementById('sw-cat-detail').innerHTML =
+    el.innerHTML =
       '<hr class="mc-divider">' +
       sorted.map(([cat, count], i) =>
         `<div class="mc-bar-row">
@@ -161,6 +162,8 @@ npInit('software').then(async session => {
           <div class="mc-bar-count">${count}</div>
         </div>`
       ).join('');
+  } else {
+    el.innerHTML = '<hr class="mc-divider"><div style="font-size:10px;color:var(--text-tertiary)">No category data available</div>';
   }
 });
 </script>

@@ -1151,6 +1151,8 @@ function viewContactResponse(responseId) {
 document.getElementById('new-btn').addEventListener('click', () => openForm(null));
 document.getElementById('modal-close-btn').addEventListener('click', closeForm);
 document.getElementById('modal-cancel-btn').addEventListener('click', closeForm);
+document.getElementById('response-modal').addEventListener('click', e => { if (e.target === e.currentTarget) closeForm(); });
+document.addEventListener('keydown', e => { if (e.key === 'Escape') closeForm(); });
 document.getElementById('modal-save-btn').addEventListener('click', saveResponse);
 
 document.getElementById('modal-no-answer-btn').addEventListener('click', async () => {
