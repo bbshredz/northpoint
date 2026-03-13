@@ -181,6 +181,32 @@
         }
         .invite-btn:hover { opacity: 0.85; }
         .invite-btn:disabled { opacity: 0.5; cursor: default; }
+
+        /* ── Activity feed ── */
+        .act-feed { display: flex; flex-direction: column; }
+        .act-entry {
+            display: flex; gap: 12px; align-items: flex-start;
+            padding: 14px 0; border-bottom: 1px solid var(--border);
+        }
+        .act-entry:last-child { border-bottom: none; }
+        .act-avatar {
+            width: 34px; height: 34px; border-radius: 50%;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 11px; font-weight: 700; color: #fff; flex-shrink: 0;
+            letter-spacing: 0.02em;
+        }
+        .act-body { flex: 1; min-width: 0; }
+        .act-who { font-size: 13px; font-weight: 600; color: var(--text-primary); }
+        .act-desc { font-size: 12px; color: var(--text-secondary); margin-top: 2px; line-height: 1.4; }
+        .act-desc .act-subject { font-weight: 600; color: var(--text-primary); }
+        .act-meta { display: flex; gap: 8px; align-items: center; margin-top: 5px; flex-wrap: wrap; }
+        .act-time { font-size: 11px; color: var(--text-tertiary); }
+        .act-mod {
+            font-size: 10px; font-weight: 700; letter-spacing: 0.06em; text-transform: uppercase;
+            padding: 2px 7px; border-radius: 99px;
+            background: var(--accent-dim); color: var(--accent);
+        }
+        .act-empty { font-size: 13px; color: var(--text-tertiary); padding: 40px 0; text-align: center; }
     </style>
 </head>
 <body class="mod-team">
@@ -228,6 +254,7 @@
                 <button class="iam-tab active" data-tab="roles">Roles</button>
                 <button class="iam-tab" data-tab="users">Users</button>
                 <button class="iam-tab" data-tab="modules">Modules</button>
+                <button class="iam-tab" data-tab="activity">Activity</button>
             </div>
 
             <!-- ── Users panel ── -->
@@ -316,6 +343,18 @@
                         </tbody>
                     </table>
                 </div>
+            </div>
+
+            <!-- ── Activity panel ── -->
+            <div class="iam-panel animate-3" id="panel-activity">
+                <div class="section-header">
+                    <span class="section-title">Recent Activity</span>
+                    <div class="section-line"></div>
+                </div>
+                <p style="margin:-12px 0 20px;font-size:13px;color:var(--text-tertiary)">
+                    Live feed — updates in real time as users make changes across NorthPoint.
+                </p>
+                <div id="activity-feed"><div class="act-empty">Loading…</div></div>
             </div>
 
         </div>
@@ -541,7 +580,9 @@ function attachUserHandlers() {
       } else {
         // Update local cache so refreshExtrasCell uses fresh saved modules
         const u = _users.find(x => x.user_id === uid);
+        const emailLabel = u?.email || uid;
         if (u) { u.role = newRole; u.modules = extras; }
+        npLogActivity('role_changed', 'iam', emailLabel, { role: newRole });
         btn.classList.add('saved'); btn.textContent = 'Saved';
         setTimeout(() => { btn.disabled = false; btn.classList.remove('saved'); btn.textContent = 'Save'; }, 2000);
       }
@@ -712,6 +753,7 @@ function attachModuleHandlers() {
         setTimeout(() => { btn.disabled = false; btn.textContent = 'Save'; btn.classList.remove('errored'); }, 2500);
       } else {
         _mcData[moduleId] = { state, notes: notes || '' };
+        npLogActivity('module_changed', 'iam', MODULE_LABELS[moduleId] || moduleId, { state });
         btn.classList.add('saved'); btn.textContent = 'Saved';
         setTimeout(() => { btn.disabled = false; btn.classList.remove('saved'); btn.textContent = 'Save'; }, 2000);
       }
@@ -753,6 +795,87 @@ function attachInviteHandler() {
   });
 }
 
+// ── Activity feed ─────────────────────────────────────────────────────────────
+
+const ACT_COLORS = ['#8b5cf6','#3b82f6','#10b981','#f59e0b','#ec4899','#06b6d4','#6366f1'];
+function actColor(name) {
+  let h = 0;
+  for (let i = 0; i < (name || '').length; i++) h = (h * 31 + name.charCodeAt(i)) & 0xffff;
+  return ACT_COLORS[h % ACT_COLORS.length];
+}
+function actInitials(name) {
+  if (!name) return '?';
+  const p = name.trim().split(/\s+/);
+  return (p[0][0] + (p[1]?.[0] || '')).toUpperCase();
+}
+function timeAgo(ts) {
+  const s = (Date.now() - new Date(ts)) / 1000;
+  if (s < 60)    return 'just now';
+  if (s < 3600)  return `${Math.floor(s/60)}m ago`;
+  if (s < 86400) return `${Math.floor(s/3600)}h ago`;
+  return `${Math.floor(s/86400)}d ago`;
+}
+const ACT_VERB = {
+  logged_call:      e     => `logged a call with <span class="act-subject">${e}</span>`,
+  no_answer:        e     => `marked no answer for <span class="act-subject">${e}</span>`,
+  deleted_response: e     => `deleted response for <span class="act-subject">${e}</span>`,
+  added_risk:       e     => `added risk: <span class="act-subject">${e}</span>`,
+  updated_risk:     e     => `updated risk: <span class="act-subject">${e}</span>`,
+  deleted_risk:     e     => `deleted risk: <span class="act-subject">${e}</span>`,
+  added_vendor:     e     => `added vendor: <span class="act-subject">${e}</span>`,
+  updated_vendor:   e     => `updated <span class="act-subject">${e}</span>`,
+  deleted_vendor:   e     => `moved to trash: <span class="act-subject">${e}</span>`,
+  added_asset:      e     => `added software: <span class="act-subject">${e}</span>`,
+  updated_asset:    e     => `updated asset: <span class="act-subject">${e}</span>`,
+  deleted_asset:    e     => `deleted asset: <span class="act-subject">${e}</span>`,
+  updated_facility: e     => `updated facility: <span class="act-subject">${e}</span>`,
+  added_facility:   e     => `added facility: <span class="act-subject">${e}</span>`,
+  deleted_facility: e     => `deleted facility: <span class="act-subject">${e}</span>`,
+  module_changed:   (e,m) => `set <span class="act-subject">${e}</span> to <strong>${m?.state || ''}</strong>`,
+  role_changed:     (e,m) => `set <span class="act-subject">${e}</span>'s role to <strong>${m?.role || ''}</strong>`,
+  pain_point_added: e     => `logged pain point from <span class="act-subject">${e}</span>`,
+};
+function renderActEntry(r) {
+  const fn = ACT_VERB[r.action];
+  const desc = fn
+    ? fn(r.entity_label || '', r.metadata || {})
+    : `${r.action}: <span class="act-subject">${r.entity_label || ''}</span>`;
+  const color = actColor(r.display_name);
+  return `<div class="act-entry">
+    <div class="act-avatar" style="background:${color}">${actInitials(r.display_name)}</div>
+    <div class="act-body">
+      <div class="act-who">${r.display_name || 'Unknown'}</div>
+      <div class="act-desc">${desc}</div>
+      <div class="act-meta">
+        <span class="act-time">${timeAgo(r.created_at)}</span>
+        <span class="act-mod">${r.module}</span>
+      </div>
+    </div>
+  </div>`;
+}
+
+let _actChannel = null;
+async function loadActivity() {
+  const feed = document.getElementById('activity-feed');
+  const { data, error } = await _npSupabase
+    .from('activity_log')
+    .select('*')
+    .order('created_at', { ascending: false })
+    .limit(150);
+  if (error) { feed.innerHTML = `<div class="act-empty">Error: ${error.message}</div>`; return; }
+  if (!data?.length) { feed.innerHTML = '<div class="act-empty">No activity recorded yet.</div>'; return; }
+  feed.innerHTML = '<div class="act-feed">' + data.map(renderActEntry).join('') + '</div>';
+
+  if (!_actChannel) {
+    _actChannel = _npSupabase.channel('np-activity-feed')
+      .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'activity_log' }, ({ new: row }) => {
+        const feedEl = document.querySelector('.act-feed');
+        if (feedEl) feedEl.insertAdjacentHTML('afterbegin', renderActEntry(row));
+      })
+      .subscribe();
+  }
+}
+
 // ── Tab switching ─────────────────────────────────────────────────────────────
 
 function initTabs() {
@@ -761,7 +884,9 @@ function initTabs() {
       document.querySelectorAll('.iam-tab').forEach(t => t.classList.remove('active'));
       document.querySelectorAll('.iam-panel').forEach(p => p.classList.remove('active'));
       tab.classList.add('active');
-      document.getElementById(`panel-${tab.dataset.tab}`).classList.add('active');
+      const panel = document.getElementById(`panel-${tab.dataset.tab}`);
+      if (panel) panel.classList.add('active');
+      if (tab.dataset.tab === 'activity') loadActivity();
     });
   });
 }

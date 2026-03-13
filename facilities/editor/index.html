@@ -473,7 +473,11 @@ async function saveField(rowId, field, value) {
         .eq('id', rowId);
     _pending--;
     setTag(error ? 'error' : _pending ? 'saving' : 'saved');
-    if (!_pending && !error) setTimeout(() => setTag(''), 2000);
+    if (!_pending && !error) {
+        setTimeout(() => setTag(''), 2000);
+        const row = _rows.find(r => r.id === rowId);
+        if (row) npLogActivity('updated_facility', 'facilities-editor', row.name, { field });
+    }
 }
 
 function setTag(state) {
@@ -490,6 +494,7 @@ document.getElementById('at-add-row').addEventListener('click', async () => {
         .insert({ name: 'New Facility', status: 'online', is_incoming: true })
         .select().single();
     if (error || !data) { setTag('error'); return; }
+    npLogActivity('added_facility', 'facilities-editor', data.name);
     _rows.push(data);
     filter();
     setTag('saved');
@@ -510,6 +515,7 @@ async function deleteRow(rowId) {
     if (!confirm(`Delete "${row?.name || 'this facility'}"?\nThis cannot be undone.`)) return;
     const { error } = await _npSupabase.from('facilities').delete().eq('id', rowId);
     if (error) { alert('Error: ' + error.message); return; }
+    npLogActivity('deleted_facility', 'facilities-editor', row?.name);
     _rows = _rows.filter(r => r.id !== rowId);
     filter();
 }

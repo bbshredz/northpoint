@@ -330,6 +330,7 @@ async function saveRisk(risk) {
     .from('risk_register')
     .upsert({ ...risk }, { onConflict: 'id' });
   if (error) console.error('Save error:', error);
+  else npLogActivity('updated_risk', 'risk-register', risk.risk, { category: risk.category });
   showSaving(false);
 }
 
@@ -343,6 +344,7 @@ async function addRisk() {
   const { data, error } = await _npSupabase
     .from('risk_register').insert(newRisk).select().single();
   if (error) { console.error('Insert error:', error); showSaving(false); return; }
+  npLogActivity('added_risk', 'risk-register', data.risk, { category: data.category });
   showSaving(false);
   RISKS.push(data);
   render();
@@ -360,6 +362,7 @@ async function deleteRisk(id) {
   const ts = new Date().toISOString();
   const { error } = await _npSupabase.from('risk_register').update({ deleted_at: ts }).eq('id', id);
   if (error) { console.error('Delete error:', error); return; }
+  npLogActivity('deleted_risk', 'risk-register', r.risk, { category: r.category });
   r.deleted_at = ts;
   render();
 }

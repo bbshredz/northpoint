@@ -301,6 +301,7 @@ async function submitEntry() {
   btn.disabled = false;
 
   if (error) { alert('Save failed: ' + error.message); return; }
+  npLogActivity('pain_point_added', 'team-pain-points', entry.contact_name, { priority: entry.priority });
   allEntries.unshift(data);
   ['fName','fTitle','fDept','fPainPoints','fNotes'].forEach(id => document.getElementById(id).value = '');
   document.getElementById('fPriority').value = 'medium';

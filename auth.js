@@ -202,6 +202,25 @@ async function npSignOut() {
   window.location.href = LOGIN_URL;
 }
 
+// Log a user action to the activity_log table.
+// action      — machine key, e.g. 'logged_call', 'updated_risk'
+// module      — module/tool id, e.g. 'stakeholder', 'vendors'
+// entityLabel — human label for the subject, e.g. contact name, risk title
+// metadata    — optional jsonb extras (facility, old value, new state, etc.)
+async function npLogActivity(action, module, entityLabel, metadata) {
+  if (!_npUser) return;
+  try {
+    await _npSupabase.from('activity_log').insert({
+      user_id:      _npUser.id,
+      display_name: _npDisplayName || npGetDisplayName() || _npUser.email.split('@')[0],
+      action,
+      module,
+      entity_label: entityLabel || null,
+      metadata:     metadata    || null,
+    });
+  } catch (_) { /* non-critical — never break the main flow */ }
+}
+
 function npPopulateTopbar() {
   const roleEl = document.getElementById('topbarRole');
   const date   = document.getElementById('currentDate');

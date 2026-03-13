@@ -851,14 +851,17 @@ async function saveAsset() {
 
     btn.disabled = false; btn.textContent = 'Save';
     if (error) { alert('Error: ' + error.message); return; }
+    npLogActivity(_editId && !_isNew ? 'updated_asset' : 'added_asset', 'software-sam', payload.software_name, { vendor: payload.vendor });
     closePanel();
     await loadAssets();
 }
 
 async function deleteAsset() {
     if (!confirm('Delete this asset? This cannot be undone.')) return;
+    const assetName = document.getElementById('ep-name')?.value.trim();
     const { error } = await _npSupabase.from('software_assets').delete().eq('id', _editId);
     if (error) { alert('Error: ' + error.message); return; }
+    npLogActivity('deleted_asset', 'software-sam', assetName);
     closePanel();
     await loadAssets();
 }

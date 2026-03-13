@@ -1160,6 +1160,7 @@ document.getElementById('modal-no-answer-btn').addEventListener('click', async (
     await _npSupabase.from('stakeholder_contacts')
         .update({ status: 'no_answer', attempt_count: attempts })
         .eq('id', _fromContactId);
+    npLogActivity('no_answer', 'stakeholder', c?.name, { facility: c?.facility });
     closeForm();
     await loadContacts();
 });
@@ -1244,10 +1245,12 @@ async function saveResponse() {
 
     // Auto-mark contact as logged and link the response
     if (_fromContactId && saved?.id) {
+        const c = _contacts.find(x => x.id === _fromContactId);
         await _npSupabase.from('stakeholder_contacts')
             .update({ status: 'logged', response_id: saved.id })
             .eq('id', _fromContactId);
         await loadContacts();
+        npLogActivity('logged_call', 'stakeholder', c?.name || payload.name, { facility: c?.facility });
     }
 
     closeForm();
@@ -1299,8 +1302,10 @@ function closeDetail() {
 
 async function deleteResponse(id) {
     if (!confirm('Delete this response? This cannot be undone.')) return;
+    const r = _responses.find(x => x.id === id);
     const { error } = await _npSupabase.from('stakeholder_responses').delete().eq('id', id);
     if (error) { alert('Error: ' + error.message); return; }
+    npLogActivity('deleted_response', 'stakeholder', r?.name);
 
     // Reset any linked contact back to pending
     await _npSupabase.from('stakeholder_contacts')
