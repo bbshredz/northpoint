@@ -6,7 +6,7 @@ html, body, #root {
   height: 100%;
   overflow: hidden;
   font-family: system-ui, 'Segoe UI', Roboto, sans-serif;
-  background: #080f1a;
-  color: #e2e8f0;
+  background: var(--m-bg, #080f1a);
+  color: var(--m-text, #e2e8f0);
   -webkit-font-smoothing: antialiased;
 }

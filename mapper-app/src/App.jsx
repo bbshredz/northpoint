@@ -110,6 +110,9 @@ function presenceColor(name = '') {
   return palette[h];
 }
 
+// ── Theme helper (reads localStorage set by northpoint) ───────────────────────
+const isDark = localStorage.getItem('np-theme') !== 'light';
+
 // ── App ───────────────────────────────────────────────────────────────────────
 export default function App() {
   const [user, setUser]         = useState(null);
@@ -338,16 +341,16 @@ export default function App() {
           deleteKeyCode={null}
           proOptions={{ hideAttribution: true }}
         >
-          <Background color="#1e293b" gap={20} size={1} />
+          <Background color={isDark ? '#1e293b' : '#cbd5e1'} gap={20} size={1} />
           <Controls showInteractive={false} />
           <MiniMap
             nodeColor={n => {
               if (n.type === 'sourceField') return SOURCE_FIELD_MAP[n.id]?.color || '#6366f1';
               if (n.type === 'targetField') return TARGET_FIELD_MAP[n.id]?.color || '#f59e0b';
-              return '#0f172a';
+              return isDark ? '#0f172a' : '#ffffff';
             }}
-            maskColor="rgba(8,15,26,0.75)"
-            style={{ background: '#0f172a', border: '1px solid #1e293b' }}
+            maskColor={isDark ? 'rgba(8,15,26,0.75)' : 'rgba(240,242,245,0.75)'}
+            style={{ background: isDark ? '#0f172a' : '#ffffff', border: '1px solid ' + (isDark ? '#1e293b' : '#e2e8f0') }}
           />
         </ReactFlow>
       </div>
