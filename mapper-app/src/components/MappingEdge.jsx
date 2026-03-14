@@ -17,6 +17,11 @@ export function MappingEdge({
   const edgeColor = selected ? '#f59e0b' : typeInfo.color;
   const edgeOpacity = selected ? 1 : isTyped ? 0.85 : 0.5;
 
+  // Move label 60% of the way from bezier midpoint toward target —
+  // spreads labels vertically since targets are stacked, avoids midpoint pile-up
+  const lx = labelX + (targetX - labelX) * 0.6;
+  const ly = labelY + (targetY - labelY) * 0.6;
+
   return (
     <>
       <BaseEdge
@@ -32,7 +37,7 @@ export function MappingEdge({
         <div
           style={{
             position: 'absolute',
-            transform: `translate(-50%, -50%) translate(${labelX}px,${labelY}px)`,
+            transform: `translate(-50%, -50%) translate(${lx}px,${ly}px)`,
             pointerEvents: 'all',
             display: 'flex',
             alignItems: 'center',
@@ -44,17 +49,10 @@ export function MappingEdge({
             className={`edge-type-pill${selected ? ' edge-type-selected' : ''}`}
             style={{ '--type-color': typeInfo.color }}
             onClick={() => data?.onNoteClick?.(id)}
-            title={`Transform type: ${typeInfo.label}`}
+            title={`${typeInfo.label}${hasNotes ? ' · has notes' : ''} — click to edit`}
           >
-            {typeInfo.short}
+            {typeInfo.short}{hasNotes && <span className="edge-pill-dot" />}
           </span>
-          <button
-            className={`edge-note-btn${hasNotes ? ' has-notes' : ''}${selected ? ' selected' : ''}`}
-            onClick={() => data?.onNoteClick?.(id)}
-            title={hasNotes ? 'View / edit notes' : 'Add transformation notes'}
-          >
-            {hasNotes ? 'N' : '+'}
-          </button>
         </div>
       </EdgeLabelRenderer>
     </>

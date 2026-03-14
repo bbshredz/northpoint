@@ -365,6 +365,20 @@
   background: color-mix(in srgb, var(--type-color) 25%, var(--m-bg));
 }
 
+/* Small dot indicates notes exist */
+.edge-pill-dot {
+  display: inline-block;
+  width: 4px;
+  height: 4px;
+  border-radius: 50%;
+  background: currentColor;
+  margin-left: 3px;
+  vertical-align: middle;
+  position: relative;
+  top: -1px;
+  opacity: 0.8;
+}
+
 /* ── Edge note button ────────────────────────────────────────────────────── */
 .edge-note-btn {
   width: 18px;
