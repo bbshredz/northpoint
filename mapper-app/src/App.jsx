@@ -14,6 +14,7 @@ import './App.css';
 
 import { supabase } from './supabase.js';
 import { SOURCE_SYSTEMS, NETSUITE_RECORDS, SOURCE_FIELD_MAP, TARGET_FIELD_MAP } from './data/fields.js';
+
 import { SourceFieldNode, TargetFieldNode, GroupHeaderNode } from './components/FieldNode.jsx';
 import { MappingEdge } from './components/MappingEdge.jsx';
 import { NotesPanel } from './components/NotesPanel.jsx';
@@ -79,7 +80,7 @@ function buildStaticNodes() {
         id:        field.id,
         type:      'targetField',
         position:  { x: COL_TARGET, y: yRight },
-        data:      { label: field.label, record: rec.label, color: rec.color },
+        data:      { label: field.label, record: rec.label, color: rec.color, required: !!field.required, isMapped: false },
         draggable: false,
         selectable: false,
         style:     { width: NODE_W },
@@ -122,7 +123,7 @@ export default function App() {
   const [presence, setPresence] = useState([]);
   const [activeEdge, setActiveEdge] = useState(null);
 
-  const [nodes, , onNodesChange] = useNodesState(STATIC_NODES);
+  const [nodes, setNodes, onNodesChange] = useNodesState(STATIC_NODES);
   const [edges, setEdges, onEdgesChange] = useEdgesState([]);
 
   const channelRef  = useRef(null);
@@ -156,6 +157,16 @@ export default function App() {
     };
   }, []);
 
+  // ── Track which target nodes are mapped ─────────────────────────────────────
+  useEffect(() => {
+    const mapped = new Set(edges.map(e => e.target));
+    setNodes(prev => prev.map(n =>
+      n.type === 'targetField'
+        ? { ...n, data: { ...n.data, isMapped: mapped.has(n.id) } }
+        : n
+    ));
+  }, [edges]);
+
   // ── Load ────────────────────────────────────────────────────────────────────
   async function loadMappings() {
     const { data, error } = await supabase
@@ -174,9 +185,10 @@ export default function App() {
       type:      'mappingEdge',
       markerEnd: { type: MarkerType.ArrowClosed, color: '#6366f1', width: 14, height: 14 },
       data: {
-        notes:       row.notes || '',
-        createdBy:   row.created_by_name || '',
-        onNoteClick: openNotes,
+        notes:         row.notes || '',
+        transformType: row.transform_type || 'tbd',
+        createdBy:     row.created_by_name || '',
+        onNoteClick:   openNotes,
       },
     };
   }
@@ -192,7 +204,7 @@ export default function App() {
       .on('postgres_changes', { event: 'UPDATE', schema: 'public', table: 'migration_mappings' }, ({ new: row }) => {
         if (row.updated_by === userId) return;
         setEdges(prev => prev.map(e =>
-          e.id === row.id ? { ...e, data: { ...e.data, notes: row.notes || '' } } : e
+          e.id === row.id ? { ...e, data: { ...e.data, notes: row.notes || '', transformType: row.transform_type || 'tbd' } } : e
         ));
       })
       .on('postgres_changes', { event: 'DELETE', schema: 'public', table: 'migration_mappings' }, ({ old: row }) => {
@@ -223,6 +235,7 @@ export default function App() {
       source_field:    connection.source,
       target_field:    connection.target,
       notes:           '',
+      transform_type:  'tbd',
       created_by:      user.id,
       created_by_name: displayName,
       updated_by:      user.id,
@@ -240,17 +253,17 @@ export default function App() {
     setActiveEdge(edges.find(e => e.id === edgeId) || null);
   }
 
-  async function saveNotes(edgeId, notes) {
+  async function saveNotes(edgeId, notes, transformType) {
     const { error } = await supabase
       .from('migration_mappings')
-      .update({ notes, updated_by: user.id, updated_by_name: displayName, updated_at: new Date().toISOString() })
+      .update({ notes, transform_type: transformType, updated_by: user.id, updated_by_name: displayName, updated_at: new Date().toISOString() })
       .eq('id', edgeId);
     if (error) { console.error('save notes:', error); return; }
 
     setEdges(prev => prev.map(e =>
-      e.id === edgeId ? { ...e, data: { ...e.data, notes } } : e
+      e.id === edgeId ? { ...e, data: { ...e.data, notes, transformType } } : e
     ));
-    setActiveEdge(prev => prev ? { ...prev, data: { ...prev.data, notes } } : null);
+    setActiveEdge(prev => prev ? { ...prev, data: { ...prev.data, notes, transformType } } : null);
     flashSaved();
   }
 

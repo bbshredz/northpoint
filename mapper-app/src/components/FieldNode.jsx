@@ -10,10 +10,19 @@ export function SourceFieldNode({ data }) {
 }
 
 export function TargetFieldNode({ data }) {
+  const reqUnmapped = data.required && !data.isMapped;
+  const reqMapped   = data.required && data.isMapped;
+
   return (
-    <div className="field-node target-node" style={{ '--node-color': data.color }}>
+    <div
+      className={`field-node target-node${reqUnmapped ? ' req-unmapped' : ''}`}
+      style={{ '--node-color': reqUnmapped ? '#ef4444' : data.color }}
+    >
       <Handle type="target" position={Position.Left} />
       <div className="field-label">{data.label}</div>
+      {data.required && (
+        <span className={`req-badge${reqMapped ? ' req-badge-ok' : ''}`}>REQ</span>
+      )}
     </div>
   );
 }

@@ -1,21 +1,26 @@
 import { useState, useEffect } from 'react';
+import { TRANSFORM_TYPES } from '../data/fields.js';
 
 export function NotesPanel({ edge, sourceLabel, targetLabel, onSave, onDelete, onClose }) {
-  const [notes, setNotes] = useState('');
+  const [notes, setNotes]             = useState('');
+  const [transformType, setTransform] = useState('tbd');
 
   useEffect(() => {
     setNotes(edge?.data?.notes || '');
+    setTransform(edge?.data?.transformType || 'tbd');
   }, [edge?.id]);
 
   if (!edge) return null;
 
   function handleSave() {
-    onSave(edge.id, notes.trim());
+    onSave(edge.id, notes.trim(), transformType);
   }
 
   function handleDelete() {
     if (confirm('Remove this mapping?')) onDelete(edge.id);
   }
+
+  const selectedType = TRANSFORM_TYPES.find(t => t.value === transformType) || TRANSFORM_TYPES[0];
 
   return (
     <div className="notes-panel open">
@@ -29,13 +34,28 @@ export function NotesPanel({ edge, sourceLabel, targetLabel, onSave, onDelete, o
       </div>
 
       <div className="notes-panel-body">
-        <label className="notes-label">Transformation Notes</label>
+        <label className="notes-label">Transformation Type</label>
+        <div className="notes-type-row">
+          {TRANSFORM_TYPES.map(t => (
+            <button
+              key={t.value}
+              className={`notes-type-btn${transformType === t.value ? ' active' : ''}`}
+              style={{ '--type-color': t.color }}
+              onClick={() => setTransform(t.value)}
+              title={t.label}
+            >
+              {t.label}
+            </button>
+          ))}
+        </div>
+
+        <label className="notes-label" style={{ marginTop: 10 }}>Transformation Notes</label>
         <textarea
           className="notes-textarea"
           value={notes}
           onChange={e => setNotes(e.target.value)}
-          placeholder="Describe the transformation logic, scripts, lookup tables, or dependencies on other integrations..."
-          rows={6}
+          placeholder="Describe the transformation logic, lookup tables, scripts, or dependencies..."
+          rows={5}
           autoFocus
         />
       </div>
@@ -44,7 +64,7 @@ export function NotesPanel({ edge, sourceLabel, targetLabel, onSave, onDelete, o
         <button className="notes-delete-btn" onClick={handleDelete}>Remove Mapping</button>
         <div className="notes-panel-actions">
           <button className="notes-cancel-btn" onClick={onClose}>Cancel</button>
-          <button className="notes-save-btn" onClick={handleSave}>Save Notes</button>
+          <button className="notes-save-btn" onClick={handleSave}>Save</button>
         </div>
       </div>
     </div>
