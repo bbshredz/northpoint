@@ -1,0 +1,694 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Marble Match — NorthPoint</title>
+    <link rel="stylesheet" href="/northpoint.css">
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="/auth.js"></script>
+    <style>
+    /* ── Layout ─────────────────────────────────────────────────────────────── */
+    .mm-wrap {
+      max-width: 860px;
+      position: relative;
+    }
+
+    /* ── Header row ─────────────────────────────────────────────────────────── */
+    .mm-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 12px;
+      margin-bottom: 16px;
+    }
+    .mm-header-left {
+      display: flex;
+      align-items: baseline;
+      gap: 14px;
+    }
+    .mm-back {
+      font-size: 12px;
+      color: var(--text-tertiary);
+      text-decoration: none;
+      transition: color 0.15s;
+    }
+    .mm-back:hover { color: var(--text-secondary); }
+    .mm-title {
+      font-size: 20px;
+      font-weight: 700;
+      color: var(--text-primary);
+    }
+    .mm-desc {
+      font-size: 12px;
+      color: var(--text-tertiary);
+    }
+    .mm-header-right {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+    }
+    .mm-stats {
+      font-size: 13px;
+      color: var(--text-tertiary);
+      display: flex;
+      align-items: center;
+      gap: 5px;
+    }
+    .mm-stats strong { color: var(--text-primary); }
+    .mm-stat-sep, .mm-dot { color: var(--text-tertiary); }
+    .mm-dot { margin: 0 2px; }
+    .mm-new-btn {
+      font-size: 12px;
+      padding: 6px 14px;
+      border-radius: 6px;
+      border: 1px solid var(--border);
+      background: var(--card);
+      color: var(--text-secondary);
+      cursor: pointer;
+      transition: all 0.15s;
+    }
+    .mm-new-btn:hover {
+      background: var(--card-hover, rgba(255,255,255,0.07));
+      color: var(--text-primary);
+      border-color: var(--accent, #6366f1);
+    }
+
+    /* ── Deck selector ──────────────────────────────────────────────────────── */
+    .mm-decks {
+      display: flex;
+      gap: 6px;
+      flex-wrap: wrap;
+      margin-bottom: 20px;
+    }
+    .mm-deck {
+      font-size: 11px;
+      font-weight: 500;
+      padding: 4px 12px;
+      border-radius: 20px;
+      border: 1px solid var(--border);
+      background: transparent;
+      color: var(--text-tertiary);
+      cursor: pointer;
+      transition: all 0.15s;
+    }
+    .mm-deck:hover { color: var(--text-secondary); }
+    .mm-deck.active {
+      background: #6366f1;
+      border-color: #6366f1;
+      color: #fff;
+    }
+
+    /* ── Game area ──────────────────────────────────────────────────────────── */
+    .mm-game {
+      position: relative;
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: 24px 24px 68px;
+      min-height: 260px;
+    }
+
+    /* ── Marble grid ─────────────────────────────────────────────────────────── */
+    .mm-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 10px;
+    }
+    @media (max-width: 560px) {
+      .mm-grid { grid-template-columns: repeat(3, 1fr); }
+    }
+
+    /* ── Marble tile ─────────────────────────────────────────────────────────── */
+    .mm-tile {
+      border-radius: 14px;
+      padding: 14px 10px;
+      min-height: 76px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      font-size: 12px;
+      font-weight: 700;
+      color: #fff;
+      cursor: pointer;
+      user-select: none;
+      line-height: 1.35;
+      transition: transform 0.15s ease, box-shadow 0.15s ease;
+      position: relative;
+      letter-spacing: 0.01em;
+    }
+    .mm-tile:hover:not(.mm-locked) {
+      transform: translateY(-4px) scale(1.03);
+    }
+    .mm-tile.mm-selected {
+      transform: translateY(-5px) scale(1.07);
+      outline: 3px solid rgba(255,255,255,0.85);
+      outline-offset: 2px;
+      z-index: 2;
+    }
+    .mm-tile.mm-wrong {
+      animation: mm-shake 0.42s cubic-bezier(0.36, 0.07, 0.19, 0.97) both;
+    }
+    .mm-tile.mm-pop {
+      animation: mm-pop 0.32s ease-out forwards;
+    }
+    .mm-tile.mm-gone {
+      opacity: 0;
+      pointer-events: none;
+    }
+    .mm-tile.mm-locked {
+      cursor: default;
+    }
+
+    @keyframes mm-shake {
+      10%, 90%  { transform: translateX(-5px) rotate(-1deg); }
+      20%, 80%  { transform: translateX(7px)  rotate(1deg); }
+      30%, 50%, 70% { transform: translateX(-6px) rotate(-1deg); }
+      40%, 60%  { transform: translateX(6px)  rotate(1deg); }
+      100% { transform: translateX(0) rotate(0); }
+    }
+
+    @keyframes mm-pop {
+      0%   { transform: scale(1); filter: brightness(1); }
+      45%  { transform: scale(1.18); filter: brightness(1.4); }
+      100% { transform: scale(0.88); opacity: 0.5; }
+    }
+
+    @keyframes mm-drop-in {
+      0%   { transform: translateY(-90px) scale(0.85); opacity: 0; }
+      55%  { transform: translateY(7px) scale(1.03); opacity: 1; }
+      75%  { transform: translateY(-4px) scale(0.98); }
+      100% { transform: translateY(0) scale(1); opacity: 1; }
+    }
+    .mm-drop-in {
+      animation: mm-drop-in 0.48s cubic-bezier(0.34, 1.4, 0.64, 1) both;
+    }
+
+    /* ── Platform ────────────────────────────────────────────────────────────── */
+    .mm-platform {
+      position: absolute;
+      bottom: 28px;
+      left: 20px;
+      right: 20px;
+      height: 10px;
+      border-radius: 5px;
+      background: var(--border);
+      overflow: hidden;
+    }
+    .mm-platform::after {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(90deg, transparent 0%, rgba(255,255,255,0.06) 50%, transparent 100%);
+    }
+    .mm-platform-label {
+      position: absolute;
+      bottom: 6px;
+      left: 20px;
+      font-size: 9px;
+      font-weight: 600;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: var(--text-tertiary);
+      opacity: 0.5;
+    }
+
+    /* ── Win overlay ─────────────────────────────────────────────────────────── */
+    .mm-win {
+      position: absolute;
+      inset: 0;
+      backdrop-filter: blur(8px);
+      background: rgba(8, 15, 26, 0.88);
+      border-radius: 14px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 20;
+    }
+    html[data-theme="light"] .mm-win {
+      background: rgba(240, 242, 245, 0.9);
+    }
+    .mm-win[hidden] { display: none; }
+    .mm-win-inner {
+      text-align: center;
+      padding: 32px 40px;
+    }
+    .mm-win-emoji {
+      font-size: 52px;
+      margin-bottom: 10px;
+      display: block;
+    }
+    .mm-win-title {
+      font-size: 24px;
+      font-weight: 800;
+      color: var(--text-primary);
+      margin-bottom: 6px;
+    }
+    .mm-win-sub {
+      font-size: 14px;
+      color: var(--text-secondary);
+      margin-bottom: 24px;
+    }
+    .mm-win-sub strong { color: var(--text-primary); }
+    .mm-win-btn {
+      padding: 10px 28px;
+      border-radius: 8px;
+      border: none;
+      background: #6366f1;
+      color: #fff;
+      font-size: 14px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: background 0.15s;
+    }
+    .mm-win-btn:hover { background: #4f46e5; }
+
+    /* ── Feedback toast ──────────────────────────────────────────────────────── */
+    .mm-toast {
+      position: fixed;
+      bottom: 32px;
+      left: 50%;
+      transform: translateX(-50%) translateY(20px);
+      background: #1e293b;
+      color: #f1f5f9;
+      font-size: 13px;
+      font-weight: 500;
+      padding: 8px 18px;
+      border-radius: 20px;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.2s, transform 0.2s;
+      z-index: 9999;
+      white-space: nowrap;
+    }
+    .mm-toast.show {
+      opacity: 1;
+      transform: translateX(-50%) translateY(0);
+    }
+    </style>
+</head>
+<body class="mod-team">
+<div class="layout">
+    <div id="rail-mount"></div>
+    <div class="main">
+        <header class="topbar">
+            <div class="topbar-left">
+                <a href="/index.html" class="topbar-name">NorthPoint</a>
+                <div class="topbar-sep"></div>
+                <span class="topbar-section">Marble Match</span>
+            </div>
+            <div class="topbar-right">
+                <span class="topbar-date" id="currentDate"></span>
+                <div class="topbar-avatar">AT</div>
+            </div>
+        </header>
+        <div class="content">
+            <div class="mm-wrap">
+
+                <!-- Header -->
+                <div class="mm-header animate-1">
+                    <div class="mm-header-left">
+                        <a href="/team/dashboard/" class="mm-back">← Dashboard</a>
+                        <span class="mm-title">Marble Match</span>
+                        <span class="mm-desc">Match IT terms to their definitions</span>
+                    </div>
+                    <div class="mm-header-right">
+                        <div class="mm-stats">
+                            <strong id="mm-matched">0</strong>
+                            <span class="mm-stat-sep">/</span>
+                            <strong id="mm-total">6</strong>
+                            matched
+                            <span class="mm-dot">·</span>
+                            <strong id="mm-moves">0</strong>
+                            moves
+                        </div>
+                        <button class="mm-new-btn" id="mm-new-btn">New Game</button>
+                    </div>
+                </div>
+
+                <!-- Deck tabs -->
+                <div class="mm-decks animate-1">
+                    <button class="mm-deck active" data-deck="mixed">Mixed</button>
+                    <button class="mm-deck" data-deck="ports">Ports & Protocols</button>
+                    <button class="mm-deck" data-deck="acronyms">Acronyms</button>
+                    <button class="mm-deck" data-deck="osi">OSI Model</button>
+                    <button class="mm-deck" data-deck="security">Security</button>
+                    <button class="mm-deck" data-deck="healthcare">Healthcare IT</button>
+                </div>
+
+                <!-- Game area -->
+                <div class="mm-game animate-2" id="mm-game">
+                    <div class="mm-grid" id="mm-grid"></div>
+                    <div class="mm-platform" id="mm-platform"></div>
+                    <div class="mm-platform-label">Platform</div>
+
+                    <!-- Win overlay -->
+                    <div class="mm-win" id="mm-win" hidden>
+                        <div class="mm-win-inner">
+                            <span class="mm-win-emoji" id="mm-win-emoji">🎯</span>
+                            <div class="mm-win-title">All matched!</div>
+                            <div class="mm-win-sub">Completed in <strong id="mm-final-moves">0</strong> moves</div>
+                            <button class="mm-win-btn" id="mm-win-btn">Play Again</button>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="mm-toast" id="mm-toast"></div>
+
+<script src="/nav.js"></script>
+<script>
+// ── Content decks ─────────────────────────────────────────────────────────────
+const DECKS = {
+  ports: [
+    { term: 'Port 443',  match: 'HTTPS'       },
+    { term: 'Port 80',   match: 'HTTP'         },
+    { term: 'Port 22',   match: 'SSH'          },
+    { term: 'Port 3389', match: 'RDP'          },
+    { term: 'Port 25',   match: 'SMTP'         },
+    { term: 'Port 53',   match: 'DNS'          },
+    { term: 'Port 21',   match: 'FTP'          },
+    { term: 'Port 110',  match: 'POP3'         },
+    { term: 'Port 143',  match: 'IMAP'         },
+    { term: 'Port 3306', match: 'MySQL'        },
+    { term: 'Port 5432', match: 'PostgreSQL'   },
+    { term: 'Port 6379', match: 'Redis'        },
+    { term: 'Port 8080', match: 'HTTP Alt'     },
+    { term: 'Port 161',  match: 'SNMP'         },
+  ],
+  acronyms: [
+    { term: 'DNS',   match: 'Domain Name System'           },
+    { term: 'DHCP',  match: 'Dynamic Host Config'          },
+    { term: 'VPN',   match: 'Virtual Private Network'      },
+    { term: 'SLA',   match: 'Service Level Agreement'      },
+    { term: 'MFA',   match: 'Multi-Factor Auth'            },
+    { term: 'VLAN',  match: 'Virtual LAN'                  },
+    { term: 'NAS',   match: 'Network Attached Storage'     },
+    { term: 'UPS',   match: 'Uninterruptible Power Supply' },
+    { term: 'SNMP',  match: 'Network Mgmt Protocol'        },
+    { term: 'LDAP',  match: 'Directory Access Protocol'    },
+    { term: 'BGP',   match: 'Border Gateway Protocol'      },
+    { term: 'OSPF',  match: 'Open Shortest Path First'     },
+    { term: 'QoS',   match: 'Quality of Service'           },
+    { term: 'MTU',   match: 'Max Transmission Unit'        },
+    { term: 'NAT',   match: 'Network Address Translation'  },
+    { term: 'TCP',   match: 'Connection-Oriented Protocol' },
+    { term: 'UDP',   match: 'Connectionless Protocol'      },
+  ],
+  osi: [
+    { term: 'Layer 1', match: 'Physical'      },
+    { term: 'Layer 2', match: 'Data Link'     },
+    { term: 'Layer 3', match: 'Network'       },
+    { term: 'Layer 4', match: 'Transport'     },
+    { term: 'Layer 5', match: 'Session'       },
+    { term: 'Layer 6', match: 'Presentation'  },
+    { term: 'Layer 7', match: 'Application'   },
+  ],
+  security: [
+    { term: 'WAF',        match: 'Web App Firewall'           },
+    { term: 'IDS',        match: 'Intrusion Detection'        },
+    { term: 'IPS',        match: 'Intrusion Prevention'       },
+    { term: 'SOC',        match: 'Security Operations Ctr'    },
+    { term: 'SIEM',       match: 'Log & Event Monitoring'     },
+    { term: 'CVE',        match: 'Vulnerability ID'           },
+    { term: 'Zero Trust', match: 'Never Trust, Always Verify' },
+    { term: 'RBAC',       match: 'Role-Based Access Control'  },
+    { term: 'PKI',        match: 'Public Key Infrastructure'  },
+    { term: 'MFA',        match: 'Multi-Factor Auth'          },
+    { term: 'DLP',        match: 'Data Loss Prevention'       },
+    { term: 'EDR',        match: 'Endpoint Detection'         },
+    { term: 'Phishing',   match: 'Credential Email Attack'    },
+    { term: 'Ransomware', match: 'Encrypt & Extort Attack'    },
+  ],
+  healthcare: [
+    { term: 'EHR',      match: 'Electronic Health Record'      },
+    { term: 'EMR',      match: 'Electronic Medical Record'     },
+    { term: 'HIPAA',    match: 'Health Info Privacy Law'       },
+    { term: 'HL7',      match: 'Health Data Exchange Standard' },
+    { term: 'ADT',      match: 'Admit-Discharge-Transfer'      },
+    { term: 'ICD-10',   match: 'Diagnosis Coding System'       },
+    { term: 'UKG',      match: 'Workforce Management'          },
+    { term: 'NetSuite', match: 'ERP Platform'                  },
+    { term: 'DocLink',  match: 'AP Document Management'        },
+    { term: 'CPOE',     match: 'Computerized Provider Orders'  },
+    { term: 'FHIR',     match: 'Fast Health Interoperability'  },
+    { term: 'SNF',      match: 'Skilled Nursing Facility'      },
+  ],
+};
+
+const PALETTE = [
+  '#6366f1', '#3b82f6', '#10b981', '#f59e0b',
+  '#ef4444', '#8b5cf6', '#06b6d4', '#f97316',
+  '#ec4899', '#84cc16',
+];
+
+// Win emojis by move efficiency
+function winEmoji(moves, total) {
+  const ratio = moves / total;
+  if (ratio <= 1.2) return '🏆';
+  if (ratio <= 1.8) return '🎯';
+  if (ratio <= 2.5) return '👍';
+  return '✅';
+}
+
+// ── Helpers ───────────────────────────────────────────────────────────────────
+function shuffle(arr) {
+  const a = [...arr];
+  for (let i = a.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [a[i], a[j]] = [a[j], a[i]];
+  }
+  return a;
+}
+
+function getPairs(deckName) {
+  if (deckName === 'mixed') {
+    const all = Object.values(DECKS).flat();
+    const seen = new Set();
+    const unique = all.filter(p => { if (seen.has(p.term)) return false; seen.add(p.term); return true; });
+    return shuffle(unique).slice(0, 6);
+  }
+  return shuffle([...(DECKS[deckName] || DECKS.ports)]).slice(0, 6);
+}
+
+function buildTiles(pairs) {
+  const colors = shuffle([...PALETTE]);
+  const tiles = [];
+  let ci = 0;
+  pairs.forEach((pair, pi) => {
+    tiles.push({ id: `${pi}a`, text: pair.term,  pairId: pi, color: colors[ci++ % colors.length] });
+    tiles.push({ id: `${pi}b`, text: pair.match, pairId: pi, color: colors[ci++ % colors.length] });
+  });
+  return shuffle(tiles);
+}
+
+// ── Game state ────────────────────────────────────────────────────────────────
+let G = { tiles: [], selected: null, moves: 0, matched: 0, total: 6, locked: false, deck: 'mixed' };
+
+// ── Start / render ────────────────────────────────────────────────────────────
+function startGame(deckName) {
+  deckName = deckName || G.deck;
+  G.deck    = deckName;
+  G.tiles   = buildTiles(getPairs(deckName));
+  G.selected = null;
+  G.moves    = 0;
+  G.matched  = 0;
+  G.total    = G.tiles.length / 2;
+  G.locked   = false;
+
+  document.getElementById('mm-win').hidden = true;
+  renderGrid();
+  updateStats();
+}
+
+function renderGrid() {
+  const grid = document.getElementById('mm-grid');
+  grid.innerHTML = '';
+
+  G.tiles.forEach((tile, i) => {
+    const el = document.createElement('div');
+    el.className = 'mm-tile mm-drop-in';
+    el.dataset.id = tile.id;
+    el.textContent = tile.text;
+    el.style.background = `linear-gradient(135deg, ${lighten(tile.color, 12)} 0%, ${tile.color} 100%)`;
+    el.style.boxShadow = `0 4px 14px ${tile.color}55, inset 0 1px 0 rgba(255,255,255,0.15)`;
+    el.style.animationDelay = `${i * 40}ms`;
+    el.addEventListener('click', () => onTileClick(el, tile));
+    grid.appendChild(el);
+  });
+}
+
+// Slightly lighten a hex color for the gradient top
+function lighten(hex, amount) {
+  const n = parseInt(hex.slice(1), 16);
+  const r = Math.min(255, (n >> 16) + amount);
+  const g = Math.min(255, ((n >> 8) & 0xff) + amount);
+  const b = Math.min(255, (n & 0xff) + amount);
+  return `#${((1 << 24) | (r << 16) | (g << 8) | b).toString(16).slice(1)}`;
+}
+
+// ── Click handler ─────────────────────────────────────────────────────────────
+function onTileClick(el, tile) {
+  if (G.locked) return;
+  if (el.classList.contains('mm-gone')) return;
+
+  // Deselect if clicking the same tile
+  if (G.selected && G.selected.el === el) {
+    el.classList.remove('mm-selected');
+    G.selected = null;
+    return;
+  }
+
+  // First pick
+  if (!G.selected) {
+    el.classList.add('mm-selected');
+    G.selected = { el, tile };
+    return;
+  }
+
+  // Second pick
+  G.moves++;
+  updateStats();
+  G.locked = true;
+
+  const { el: firstEl, tile: firstTile } = G.selected;
+  G.selected = null;
+  firstEl.classList.remove('mm-selected');
+
+  if (firstTile.pairId === tile.pairId) {
+    // ── Match ──
+    firstEl.classList.add('mm-pop');
+    el.classList.add('mm-pop');
+
+    setTimeout(() => {
+      animateOut(firstEl, el);
+      G.matched++;
+      updateStats();
+      if (G.matched >= G.total) {
+        setTimeout(showWin, 650);
+      } else {
+        setTimeout(() => { G.locked = false; }, 650);
+      }
+    }, 320);
+
+  } else {
+    // ── No match ──
+    firstEl.classList.add('mm-wrong');
+    el.classList.add('mm-wrong');
+    showToast('Not a match — try again');
+
+    setTimeout(() => {
+      firstEl.classList.remove('mm-wrong');
+      el.classList.remove('mm-wrong');
+      G.locked = false;
+    }, 480);
+  }
+}
+
+// ── Fall & roll animation ─────────────────────────────────────────────────────
+function animateOut(el1, el2) {
+  const platform = document.getElementById('mm-platform');
+  const pRect    = platform.getBoundingClientRect();
+  const targetY  = pRect.top + pRect.height / 2;
+
+  [el1, el2].forEach((el, idx) => {
+    const r = el.getBoundingClientRect();
+
+    // Clone at exact screen position
+    const clone = document.createElement('div');
+    clone.className = 'mm-tile mm-clone';
+    clone.textContent = el.textContent;
+    clone.style.cssText = `
+      position: fixed !important;
+      left: ${r.left}px;
+      top: ${r.top}px;
+      width: ${r.width}px;
+      height: ${r.height}px;
+      margin: 0;
+      animation: none;
+      background: ${el.style.background};
+      box-shadow: ${el.style.boxShadow};
+      z-index: 9999;
+      pointer-events: none;
+      transition: none;
+    `;
+    document.body.appendChild(clone);
+    el.classList.add('mm-gone');
+
+    // Phase 1: fall to platform
+    requestAnimationFrame(() => requestAnimationFrame(() => {
+      clone.style.transition = 'top 0.28s cubic-bezier(0.55, 0, 1, 0.45), transform 0.28s ease-in';
+      clone.style.top = `${targetY - r.height / 2}px`;
+      clone.style.transform = 'scale(0.82)';
+    }));
+
+    // Phase 2: roll off sideways with spin
+    const dir = idx === 0 ? -1 : 1;
+    setTimeout(() => {
+      clone.style.transition = 'left 0.38s ease-in, top 0.15s ease-in, opacity 0.32s ease-in, transform 0.38s ease-in';
+      clone.style.left   = `${r.left + dir * (window.innerWidth * 0.6)}px`;
+      clone.style.top    = `${targetY - r.height / 2 + 18}px`;
+      clone.style.opacity = '0';
+      clone.style.transform = `scale(0.5) rotate(${dir * 210}deg)`;
+    }, 300);
+
+    // Remove clone + tile slot
+    setTimeout(() => {
+      clone.remove();
+      el.parentElement?.remove();
+    }, 680);
+  });
+}
+
+// ── Win screen ────────────────────────────────────────────────────────────────
+function showWin() {
+  document.getElementById('mm-final-moves').textContent = G.moves;
+  document.getElementById('mm-win-emoji').textContent   = winEmoji(G.moves, G.total);
+  document.getElementById('mm-win').hidden = false;
+}
+
+// ── Stats ─────────────────────────────────────────────────────────────────────
+function updateStats() {
+  document.getElementById('mm-matched').textContent = G.matched;
+  document.getElementById('mm-total').textContent   = G.total;
+  document.getElementById('mm-moves').textContent   = G.moves;
+}
+
+// ── Toast ─────────────────────────────────────────────────────────────────────
+let _toastTimer;
+function showToast(msg) {
+  const t = document.getElementById('mm-toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  clearTimeout(_toastTimer);
+  _toastTimer = setTimeout(() => t.classList.remove('show'), 1800);
+}
+
+// ── Deck tabs ─────────────────────────────────────────────────────────────────
+document.querySelectorAll('.mm-deck').forEach(btn => {
+  btn.addEventListener('click', () => {
+    document.querySelectorAll('.mm-deck').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    startGame(btn.dataset.deck);
+  });
+});
+
+document.getElementById('mm-new-btn').addEventListener('click', () => startGame());
+document.getElementById('mm-win-btn').addEventListener('click', () => startGame());
+
+// ── Auth + init ───────────────────────────────────────────────────────────────
+npInit('team').then(session => {
+  if (!session) return;
+  npPopulateTopbar();
+  renderNav('team');
+  startGame('mixed');
+});
+</script>
+</body>
+</html>
